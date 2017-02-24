@@ -38,6 +38,17 @@ int main(int argc, char* argv[]){
 	
 	int n, e = 0;
 	char command[256], line[256], message[140];
+	//Create UDP setup 
+	int fd;
+	struct hostent *hostptr;
+	struct sockaddr_in server_address, client_address;
+	int address_length;
+	char msg[140], buffer[2048];
+
+	fd = socket(AF_INET,SOCK_DGRAM,0);
+	memset((void*)&server_address, (int)'\0',sizeof(server_address));
+	server_address.sin_family = AF_INET;
+	server_address.sin_port = htons((u_short)sipt);
 
 	/*Interfaces*/
 	while(!e){
@@ -67,9 +78,18 @@ int main(int argc, char* argv[]){
 			}else if(sscanf(line, "%s",command) == 1){
 				if(!strcmp(command,"show_servers")){
 					//printf("Showing servers...");
+					fd = socket(AF_INET,SOCK_DGRAM,0);
+					hostptr = gethostbyname(siip);
+					
+					server_address.sin_addr.s_addr = ((struct in_addr *)(hostptr->h_addr_list[0]))->s_addr;
+					
+					address_length = sizeof(server_address);
+					sendto(fd, "GET_SERVERS", strlen("GET_SERVERS")+1,0,(struct sockaddr*)&server_address,address_length);
 
-
-
+					address_length = sizeof(server_address);
+					recvfrom(fd,buffer,sizeof(buffer),0,(struct sockaddr*)&server_address,&address_length);
+					close(fd);
+					printf("%s\n",buffer);
 
 					
 				}else if(!strcmp(command,"exit")){
