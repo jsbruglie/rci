@@ -62,10 +62,12 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	if(name == NULL || ip == NULL || upt == -1 || tpt == -1){
+	if(name == NULL || ip == NULL || upt == -1 || tpt == -1){ //Check if the arguments were provided
 		fprintf(stderr, "Usage: %s –n name –j ip -u upt –t tpt [-i siip] [-p sipt] [–m m] [–r r] \n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
+	if(upt == tpt)
+		printf("UDP and TCP port are the same"); 
 
 	int e = 0;
 	char command[256], line[256];
