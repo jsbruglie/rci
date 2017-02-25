@@ -12,6 +12,7 @@
 #include <netdb.h>
 
 /* Functions */
-void parse_args(int argc, char** argv, char** _name, char** _ip, int* _upt, int* _tpt);
+void parse_args(int argc, char** argv, char** _name, char** _ip, int* _upt, int* _tpt,
+				char** _siip, int* _sipt, int* _m, int* _r);
 
 #endif

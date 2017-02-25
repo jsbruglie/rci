@@ -2,13 +2,19 @@
 
 int main(int argc, char* argv[]){
 
-	/* Main Parameters */
-	char* name = NULL;	// Client name
-	char* ip = NULL;	// Client IP	
-	int upt = -1;		// UDP Port
-	int tpt = -1;		// TCP Port
+	/* Mandatory Parameters */
+	char* name = NULL;						// Message Server Name
+	char* ip = NULL;						// Message Server IP	
+	int upt = -1;							// UDP Port for Terminal Requests
+	int tpt = -1;							// TCP Port for Session Requests
+	/* Optional Parameters */
+	char* siip = "tejo.tecnico.ulisboa.pt";	// Identity Server IP
+	int sipt = 5900;						// Identity Server UDP Port
+	int m = 200;							// Maximum number of stored messages
+	int r = 10;								// Time interval between registry entries
 
-	parse_args(argc, argv, &name, &ip, &upt, &tpt);
+	parse_args(argc, argv, &name, &ip, &upt, &tpt, &siip, &sipt, &m, &r);
+	printf("ARGS: name %s ip %s upt %d tpt %d siip %s sipt %d m %d r %d\n", name, ip, upt, tpt, siip, sipt, m, r);
 
 	int e = 0;
 	char command[256], line[256];
