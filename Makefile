@@ -1,5 +1,5 @@
 RMB_OBJECT_FILES = rmb.o 
-MSG_OBJECT_FILES = msgserv.o msgserv_utils.o
+MSG_OBJECT_FILES = msgserv_utils.o msgserv.o
 
 CFLAGS = -ggdb -Wall
 LIBS =
@@ -7,12 +7,12 @@ CC = gcc
 
 all: rmb msgserv cleanup
 rmb: $(RMB_OBJECT_FILES)  
-msg: $(MSG_OBJECT_FILES) 
+msgserv: $(MSG_OBJECT_FILES) 
 
-rmb msg:
-	$(CC) $(CFLAGS) $^ $(LIBS) -o $@  
+rmb msgserv:
+	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
 
-rmb.o msg.o: 
+rmb.o msgserv.o: 
 
 %.o: %.c
 	$(CC) -c $<  
