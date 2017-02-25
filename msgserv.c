@@ -104,14 +104,7 @@ int main(int argc, char* argv[]){
 					
 					close(fd);
 					printf("%s\n",buffer);
-
-
-
-
-				}else if(!strcmp(command,"show_servers")){
-					
-					server_address.sin_port = htons((u_short)sipt);
-
+					/*Do a get servers after join*/
 					fd = socket(AF_INET,SOCK_DGRAM,0);
 					hostptr = gethostbyname(siip);
 					
@@ -125,8 +118,14 @@ int main(int argc, char* argv[]){
 					close(fd);
 					printf("%s\n",buffer);
 
-				}else if(!strcmp(command,"show_messages")){
 
+				}else if(!strcmp(command,"show_servers")){
+					/*List all the servers with which this server has a TCP session*/
+					
+
+
+				}else if(!strcmp(command,"show_messages")){
+					/*List all the messages on this server, ordered by logic times*/
 					
 				}else if(!strcmp(command,"exit")){
 					e=1;
