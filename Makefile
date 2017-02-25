@@ -5,7 +5,7 @@ CFLAGS = -ggdb -Wall
 LIBS =
 CC = gcc  
 
-all: rmb msg cleanup
+all: rmb msgserv cleanup
 rmb: $(RMB_OBJECT_FILES)  
 msg: $(MSG_OBJECT_FILES) 
 

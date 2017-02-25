@@ -9,65 +9,17 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
+#include "msgserv_utils.h"
+
 int main(int argc, char* argv[]){
 
-	/*Non-optional*/
-	char* name = NULL;
-	char* ip = NULL;
-	int upt = -1;
-	int tpt = -1;
-	/*Optional*/
-	char* siip = "tejo.tecnico.ulisboa.pt";
-	int sipt = 59000;
-	int m = 200;
-	int r = 10;
+	/* Main Parameters */
+	char* name = NULL;	// Client name
+	char* ip = NULL;	// Client IP	
+	int upt = -1;		// UDP Port
+	int tpt = -1;		// TCP Port
 
-	int opt;
-	while( (opt = getopt(argc, argv, "n:j:u:t:i:p:m:r:")) != -1 ){
-		switch(opt){
-			/*Non-Optional arg processing*/
-			case 'n':
-				name = (char*)malloc(sizeof(char) * (sizeof(optarg)/sizeof(optarg[0])));
-				strcpy(name, optarg);
-				break;
-			case 'j':
-				ip = (char*)malloc(sizeof(char) * (sizeof(optarg)/sizeof(optarg[0])));
-				strcpy(ip, optarg);
-				break;
-			case 'u':
-				upt = atoi(optarg);
-				break;
-			case 't':
-				tpt = atoi(optarg);
-				break;
-
-			/*Options processing*/
-			case 'i':
-				siip = NULL;
-				siip = (char*)malloc(sizeof(char) * (sizeof(optarg)/sizeof(optarg[0])));
-				strcpy(siip, optarg);
-				break;
-			case 'p':
-				sipt = atoi(optarg);
-				break;
-			case 'm':
-				m = atoi(optarg);
-				break;
-			case 'r':
-				r = atoi(optarg);
-				break;
-			default:
-				fprintf(stderr, "Usage: %s –n name –j ip -u upt –t tpt [-i siip] [-p sipt] [–m m] [–r r] \n", argv[0]);
-            	exit(EXIT_FAILURE);
-		}
-	}
-
-	if(name == NULL || ip == NULL || upt == -1 || tpt == -1){ //Check if the arguments were provided
-		fprintf(stderr, "Usage: %s –n name –j ip -u upt –t tpt [-i siip] [-p sipt] [–m m] [–r r] \n", argv[0]);
-		exit(EXIT_FAILURE);
-	}
-	if(upt == tpt)
-		printf("UDP and TCP port are the same"); 
+	parse_args(argc, argv, &name, &ip, &upt, &tpt);
 
 	int e = 0;
 	char command[256], line[256];
