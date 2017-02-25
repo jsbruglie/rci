@@ -35,12 +35,11 @@ int main(int argc, char* argv[]){
 		if(fgets(line, sizeof(line), stdin)){
 			if(sscanf(line, "%s",command) == 1){
 				if(!strcmp(command,"join")){
-					//printf("Register in message server");
+					printf("Register in message server");
+					
 					server_address.sin_port = htons((u_short)sipt);
-
 					fd = socket(AF_INET,SOCK_DGRAM,0);
 					hostptr = gethostbyname(siip);
-					
 					server_address.sin_addr.s_addr = ((struct in_addr *)(hostptr->h_addr_list[0]))->s_addr;
 					
 					//Create registration string
@@ -49,6 +48,7 @@ int main(int argc, char* argv[]){
 					address_length = sizeof(server_address);
 					sendto(fd, registration, strlen(registration)+1,0,(struct sockaddr*)&server_address,address_length);
 					
+
 					close(fd);
 					printf("%s\n",buffer);
 					/*Do a get servers after join*/

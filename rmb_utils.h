@@ -10,3 +10,5 @@
 
 /* Functions */
 void parse_args(int argc, char** argv, char** _siip, int* _sipt);
+
+void show_latest_messages(int n, char* msgserv_ip, int msgserv_upt);

@@ -2,19 +2,21 @@
 
 int main(int argc, char* argv[]){
 
-	char* siip = "tejo.tecnico.ulisboa.pt";
-	int sipt = 59000;
+	/* Optional Parameters */
+	char* siip = "tejo.tecnico.ulisboa.pt";	// Identity Server IP
+	int sipt = 59000;						// Identity Server UDP Port
 	
 	parse_args(argc, argv, &siip, &sipt);
 
-	int n, e = 0;
+	int n;
+	int e = 0;
 	char command[256], line[256], message[140];
 
-
-	char msgserv_name[256], msgserv_ip[256];
+	char msgserv_name[256] = "";
+	char msgserv_ip[256] = "";
 	int msgserv_upt, msgserv_tpt;
 
-	//Create UDP setup 
+	/* UDP Setup */
 	int fd;
 	struct hostent *hostptr;
 	struct sockaddr_in server_address, client_address;
@@ -26,36 +28,12 @@ int main(int argc, char* argv[]){
 	server_address.sin_family = AF_INET;
 	
 
-	/*Interfaces*/
+	/* Command Line Interface */
 	while(!e){
 		if(fgets(line, sizeof(line), stdin)){
 			if(sscanf(line, "%s %d",command,&n) == 2){
 				if(!strcmp(command,"show_latest_messages")){
-					//printf("%d\n", n);
-					char protocol_msg[200] = "GET_MESSAGES ";
-					char b[10];
-					snprintf(b,10,"%d",n);
-					strcat(protocol_msg,b);
-
-					server_address.sin_port = htons((u_short)msgserv_upt);
-					fd = socket(AF_INET,SOCK_DGRAM,0);
-					hostptr = gethostbyname(msgserv_ip);
-					
-					server_address.sin_addr.s_addr = ((struct in_addr *)(hostptr->h_addr_list[0]))->s_addr;
-					
-					address_length = sizeof(server_address);
-					sendto(fd, protocol_msg, protocol_msg+1,0,(struct sockaddr*)&server_address,address_length);
-
-					address_length = sizeof(server_address);
-					recvfrom(fd,buffer,sizeof(buffer),0,(struct sockaddr*)&server_address,&address_length);
-					
-
-					printf("%s\n",buffer); //This should print the latest n messages
-
-					close(fd);
-
-
-
+					show_latest_messages(n, msgserv_ip, msgserv_upt);
 				}else
 					printf("Please input a valid command\n");
 				
