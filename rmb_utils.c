@@ -51,13 +51,13 @@ void show_latest_messages(int n, char* msgserv_ip, int msgserv_upt){
 	server_address.sin_port = htons((u_short)msgserv_upt);
 
 	address_length = sizeof(server_address);
-	sendto(fd, protocol_msg, protocol_msg+1,0,(struct sockaddr*)&server_address,address_length);
+	sendto(fd, protocol_msg, strlen(protocol_msg)+1, 0,(struct sockaddr*)&server_address, address_length);
 
 	address_length = sizeof(server_address);
-	recvfrom(fd,buffer,sizeof(buffer),0,(struct sockaddr*)&server_address,&address_length);
+	recvfrom(fd,buffer,sizeof(buffer), 0,(struct sockaddr*)&server_address, &address_length);
 
 	// Print server reply
-	printf("%s\n",buffer);
+	printf("%s",buffer);
 
 	close(fd);
 }

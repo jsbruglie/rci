@@ -1,8 +1,8 @@
 RMB_OBJECT_FILES = rmb_utils.o rmb.o 
 MSG_OBJECT_FILES = msgserv_utils.o msgserv.o
 
-CFLAGS = -ggdb -Wall
-LIBS =
+CFLAGS = -ggdb -Wall -pthread
+LIBS = -lpthread
 CC = gcc  
 
 all: rmb msgserv cleanup
