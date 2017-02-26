@@ -12,9 +12,9 @@ int m = 200;							// Maximum number of stored messages
 int r = 10;								// Time interval between registry entries
 
 /* Global variables - so they can be accessed by concurrent threads */
-Message** message_table;	// Table with message structs
-int LogicClock = 0;			// Logic Clock mechanism to ensure causality			
-int end = 0;				// Global exit variable
+MessageTable* message_table;	// Table with message structs
+int LogicClock = 0;				// Logic Clock mechanism to ensure causality			
+int end = 0;					// Global exit variable
 
 /* Main application */
 int main(int argc, char* argv[]){
@@ -23,9 +23,9 @@ int main(int argc, char* argv[]){
 	printf("ARGS: name %s ip %s upt %d tpt %d siip %s sipt %d m %d r %d\n", name, ip, upt, tpt, siip, sipt, m, r);
 
 	message_table = create_msg_table(m);
-	// print_msg_table(message_table,m);
-	// sort_msg_table(message_table,m,m);
-	// print_msg_table(message_table,m);
+	//print_msg_table(message_table);
+	//sort_msg_table(message_table);
+	//print_msg_table(message_table);
 
 	pthread_t interface_thread;
 	if(pthread_create(&interface_thread,NULL,interface,0)){
@@ -74,31 +74,31 @@ void* udp_server(){
 			if(!strcmp(protocol,"GET_MESSAGES")){
 				// get_messages(n)
 				// send_msg_to
-				char protocol[4096] = "MESSAGE\n";
+				//char protocol[4096] = "MESSAGE\n";
 				//Append messages 
-				int i;
-				char message_list[2048];
-				if(n<m){ //Assume the user isn't evil
-					for(i=0;i<n;i++){
-						if(message_table[i]!=NULL){
-							strcat(message_list,message_table[i]->text);
-							strcat(message_list,"\n");
-						}
-					}	
-				}
+				//int i;
+				//char message_list[2048];
+				//if(n<m){ //Assume the user isn't evil
+				//	for(i=0;i<n;i++){
+				//		if(message_table[i]!=NULL){
+				//			strcat(message_list,message_table[i]->text);
+				//			strcat(message_list,"\n");
+				//		}
+				//	}	
+				//}
 
 
-				strcat(protocol,message_list);
+				//strcat(protocol,message_list);
 				//Send them
-				address_length = sizeof(client_address);
-				sendto(fd,protocol,strlen(protocol)+1,0,(struct sockaddr*)&client_address,address_length);
-				memset(message_list,0,strlen(message_list));
+				//address_length = sizeof(client_address);
+				//sendto(fd,protocol,strlen(protocol)+1,0,(struct sockaddr*)&client_address,address_length);
+				//memset(message_list,0,strlen(message_list));
 			}
 
 		}else if(sscanf(buffer, "%s %s",protocol,message) == 2){
 			if(!strcmp(protocol,"PUBLISH")){
 				//Add this message to the message list
-				printf("Received message: %s\n", message);
+				/*printf("Received message: %s\n", message);
 				int i, free_spot = 0;
 				for(i=0;i<m;i++){
 					if(message_table[i] == NULL){ //find the first not null position to insert a message
@@ -125,8 +125,8 @@ void* udp_server(){
 					LogicClock++;
 					//message_table[oldest_idx]->clock = LogicClock;				
 				}
-				
-			}
+				*/
+      }
 		}
 
 	}
