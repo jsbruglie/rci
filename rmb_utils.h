@@ -8,6 +8,8 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
+#include "debug.h"
+
 /* Functions */
 void parse_args(int argc, char** argv, char** _siip, int* _sipt);
 

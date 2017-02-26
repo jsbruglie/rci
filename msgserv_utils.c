@@ -89,4 +89,24 @@ int create_udp_server(u_short port){
 	bind(fd, (struct sockaddr*) &server_address, sizeof(server_address));
 
 	return fd;
+
+/* DEBUG */
+void print_msg_table_clocks(Message** msg_table, int size){
+
+	int i;
+	for (i = 0; i < size; i++){
+		if(msg_table[i] != NULL)
+			printf("CLOCK OF MESSAGE %d: %d\n", i, msg_table[i]->clock);
+	}
 }
+
+/*
+void print_msg_table(Message** msg_table, int size){
+
+	int i;
+	for (i = 0; i < size; i++){
+		if(msg_table[i] != NULL)
+			printf("MESSAGE TABLE: %s\n", msg_table[i]->text);
+	}
+}
+*/
