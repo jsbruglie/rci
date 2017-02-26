@@ -23,6 +23,9 @@ int main(int argc, char* argv[]){
 	printf("ARGS: name %s ip %s upt %d tpt %d siip %s sipt %d m %d r %d\n", name, ip, upt, tpt, siip, sipt, m, r);
 
 	message_table = create_msg_table(m);
+	// print_msg_table(message_table,m);
+	// sort_msg_table(message_table,m,m);
+	// print_msg_table(message_table,m);
 
 	pthread_t interface_thread;
 	if(pthread_create(&interface_thread,NULL,interface,0)){
@@ -62,9 +65,10 @@ void* udp_server(){
 		debugPrint1("UDP: Received '%s'\n", buffer); 
 		
 		if(sscanf(buffer, "%s %d", protocol, &n) == 2){
+			// If a request for messages is received
 			if(!strcmp(protocol,"GET_MESSAGES")){
-				//Send messages back
-				printf("got messages\n");
+				// get_messages(n)
+				// send_msg_to
 				char protocol[4096] = "MESSAGE\n";
 				//Append messages 
 				int i;

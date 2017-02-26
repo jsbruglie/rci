@@ -31,6 +31,15 @@ int create_udp_server(u_short port);
 /* Message Table */
 Message** create_msg_table(int size);
 void delete_msg_table(Message** msg_table, int size);
+
+/* Quick Sort */
+void quick_sort(Message** msg_table, int l, int r);
+int partition(Message** msg_table, int l, int r, int pivot);
+void sort_msg_table(Message** msg_table, int size, int items);
+int get_msg_clock(Message** msg_table, int i);
+void swap_msg(Message** msg_table, int a, int b);
+
+/* DEBUG */
 void print_msg_table(Message** msg_table, int size);
 
 #endif
