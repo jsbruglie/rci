@@ -5,9 +5,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MSG_MAX_SIZE 140
+
 /* Message struct type */
 typedef struct _Message{
-	char text[140];
+	char text[MSG_MAX_SIZE];
 	int clock;
 }Message;
 
@@ -24,6 +26,11 @@ MessageTable* create_msg_table(int size);
 void delete_msg_table(MessageTable* msg_table, int size);
 int get_msg_clock(Message** msg_table, int i);
 void swap_msg(Message** msg_table, int a, int b);
+
+int insert_in_msg_table(MessageTable* msg_table, char* text, int clock);
+int insert_msg(MessageTable* msg_table, char* text, int clock);
+int msg_table_full(MessageTable* msg_table);
+int remove_oldest(MessageTable* msg_table);
 
 /* Quick Sort */
 void sort_msg_table(MessageTable* msg_table);

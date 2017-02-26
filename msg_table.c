@@ -20,7 +20,6 @@ MessageTable* create_msg_table(int size){
 }
 
 void delete_msg_table(MessageTable* msg_table, int size){
-
 	if (msg_table != NULL){
 		int i;
 		for(i = 0; i < size; i++){
@@ -30,6 +29,55 @@ void delete_msg_table(MessageTable* msg_table, int size){
 		free(msg_table);
 	}
 }
+
+/**
+ *  @brief Inserts a message in the table, overwriting the oldest, if necessary
+ *	@return 0 upon success, -1 otherwise
+ */
+int insert_in_msg_table(MessageTable* msg_table, char* text, int clock){
+	if(msg_table != NULL){
+		if (msg_table_full(msg_table)) 
+			remove_oldest(msg_table);
+		if(insert_msg(msg_table, text, clock) == 0){
+			sort_msg_table(msg_table);
+			return 0;
+		}	
+	}
+	return -1;
+}
+
+int insert_msg(MessageTable* msg_table, char* text, int clock){
+	
+	Message* new; 
+	if (text != NULL && clock >= 0 && strlen(text) < MSG_MAX_SIZE){
+		new = (Message*) malloc(sizeof(Message));
+		strcpy(new->text, text);
+		new->clock = clock;
+		msg_table->table[msg_table->items] = new;
+		msg_table->items++;
+		return 0;	
+	}
+	return -1;
+}
+
+int msg_table_full(MessageTable* msg_table){
+	if (msg_table != NULL){
+		if (msg_table->items != msg_table->size)
+			return 0;
+		return 1;
+	}
+	return -1;
+}
+
+int remove_oldest(MessageTable* msg_table){
+	if (msg_table != NULL){
+		free(msg_table->table[msg_table->items - 1]);
+		msg_table->items--;
+	}
+	return -1;
+}
+
+/* Functions for sorting the Message Table */
 
 int get_msg_clock(Message** msg_table, int i){
 	if (msg_table != NULL){
