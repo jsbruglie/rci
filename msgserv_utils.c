@@ -1,5 +1,6 @@
 #include "msgserv_utils.h"
 
+/* Message Server */
 void parse_args(int argc, char** argv, char** _name, char** _ip, int* _upt, int* _tpt,
 				char** _siip, int* _sipt, int* _m, int* _r){
 	
@@ -21,11 +22,11 @@ void parse_args(int argc, char** argv, char** _name, char** _ip, int* _upt, int*
 		switch(opt){
 			/* Mandatory arg processing */
 			case 'n':
-				name = (char*)malloc(sizeof(char) * (sizeof(optarg)/sizeof(optarg[0])));
+				name = (char*)malloc(sizeof(char) * (strlen(optarg) + 1));
 				strcpy(name, optarg);
 				break;
 			case 'j':
-				ip = (char*)malloc(sizeof(char) * (sizeof(optarg)/sizeof(optarg[0])));
+				ip = (char*)malloc(sizeof(char) * (strlen(optarg) + 1));
 				strcpy(ip, optarg);
 				break;
 			case 'u':
@@ -37,7 +38,7 @@ void parse_args(int argc, char** argv, char** _name, char** _ip, int* _upt, int*
 
 			/* Optional arg processing */
 			case 'i':
-				siip = (char*)malloc(sizeof(char) * (sizeof(optarg)/sizeof(optarg[0])));
+				siip = (char*)malloc(sizeof(char) * (strlen(optarg) + 1));
 				strcpy(siip, optarg);
 				break;
 			case 'p':
@@ -71,4 +72,32 @@ void parse_args(int argc, char** argv, char** _name, char** _ip, int* _upt, int*
 	if(sipt != -1) *_sipt = sipt;
 	if(m != -1) *_m = m;
 	if(r != -1) *_r = r; 
+}
+
+/* Socket handling */
+int create_udp_server(u_short port){
+
+	int fd;
+	struct hostent *hostptr;
+	struct sockaddr_in server_address;
+
+	fd = socket(AF_INET,SOCK_DGRAM,0);
+	memset((void*)&server_address, (int)'\0', sizeof(server_address));
+	server_address.sin_family = AF_INET;
+	server_address.sin_addr.s_addr = htonl(INADDR_ANY);
+	server_address.sin_port = htons((u_short)port);
+	bind(fd, (struct sockaddr*)&server_address, sizeof(server_address));
+
+	return fd;
+}
+
+
+/* Message Table */
+Message** create_msg_table(int size){
+
+	Message** message_table = (Message**)malloc(sizeof(Message*) * size);
+	int i;
+	for(i = 0; i < size; i++)
+		message_table[i] = NULL;
+	return message_table;
 }

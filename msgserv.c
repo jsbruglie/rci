@@ -1,8 +1,6 @@
 #include "msgserv_utils.h"
 #include <pthread.h>
 
-//Exit is global
-int e = 0;
 /* Mandatory Parameters */
 char* name = NULL;						// Message Server Name
 char* ip = NULL;						// Message Server IP	
@@ -15,37 +13,30 @@ int sipt = 5900;						// Identity Server UDP Port
 int m = 200;							// Maximum number of stored messages
 int r = 10;								// Time interval between registry entries
 
+/* Global variables - so they can be accessed by concurrent threads */
+Message** message_table;	// Table with message structs
+int LogicClock = 0;			// Logic Clock mechanism to ensure causality			
+int end = 0;				// Global exit variable
 
-Message** message_table;
-int LogicClock = 0;
-
+/* Thread functions - each is executed by a concurrent thread */
 void* udp_server(){
-	printf("Starting to listen....\n");
-	int fd;
-	struct hostent *hostptr;
-	struct sockaddr_in server_address, client_address;
+	
+	debugPrint("Starting to listen....\n");
+	
+	int fd = create_udp_server(upt);
+	
 	int address_length;
+	struct sockaddr_in client_address;
 
 	char buffer[256];
-
 	char protocol[256];
 	char message[140];
 	int n;
 
-	fd = socket(AF_INET,SOCK_DGRAM,0);
-	memset((void*)&server_address, (int)'\0',sizeof(server_address));
-	server_address.sin_family = AF_INET;
-	server_address.sin_addr.s_addr = htonl(INADDR_ANY);
-
-	int test_port = 58000;
-
-	server_address.sin_port = htons((u_short)test_port);
-	bind(fd, (struct sockaddr*)&server_address,sizeof(server_address));
-	
-	while(!e){
+	while(!end){
 		address_length = sizeof(client_address);
+		// Blocking recvfrom call 
 		recvfrom(fd,buffer,sizeof(buffer),0,(struct sockaddr*)&client_address,&address_length);
-		//Blocks here until we get a message
 		printf("%s\n", buffer); 
 		if(sscanf(buffer, "%s %d",protocol,&n) == 2){
 			if(!strcmp(protocol,"GET_MESSAGES")){
@@ -97,9 +88,9 @@ void* udp_server(){
 							min = message_table[i]->clock;
 						}
 					}
-					strcpy(message_table[oldest_idx]->text,message);
+					//strcpy(message_table[oldest_idx]->text,message);
 					LogicClock++;
-					message_table[oldest_idx]->clock = LogicClock;				
+					//message_table[oldest_idx]->clock = LogicClock;				
 				}
 				
 
@@ -126,9 +117,8 @@ void* interface(){
 	server_address.sin_family = AF_INET;
 
 
-
 	printf("Starting loop\n");
-	while(!e){
+	while(!end){
 		if(fgets(line, sizeof(line), stdin)){
 			if(sscanf(line, "%s",command) == 1){
 				if(!strcmp(command,"join")){
@@ -172,7 +162,7 @@ void* interface(){
 					/*List all the messages on this server, ordered by logic times*/
 					
 				}else if(!strcmp(command,"exit")){
-					e=1;
+					end = 1;
 				}else
 					printf("Please input a valid command\n");
 						
@@ -184,35 +174,23 @@ void* interface(){
 	exit(EXIT_SUCCESS);
 }
 
-
-
-
-
 int main(int argc, char* argv[]){
 
 	parse_args(argc, argv, &name, &ip, &upt, &tpt, &siip, &sipt, &m, &r);
 	printf("ARGS: name %s ip %s upt %d tpt %d siip %s sipt %d m %d r %d\n", name, ip, upt, tpt, siip, sipt, m, r);
 
-	message_table = (Message**)malloc(sizeof(Message*)*m);
-	int i;
-	for(i=0;i<m;i++)
-		message_table[i] = NULL;
+	message_table = create_msg_table(m);
 
 	pthread_t interface_thread;
 	if(pthread_create(&interface_thread,NULL,interface,0)){
-		fprintf(stderr, "Error creating thread\n");
+		fprintf(stderr, "ERROR: Failed to launch command-line interface thread.\n");
 		return 1;
-
-		
 	}
 	pthread_t udp_server_thread;
 	if(pthread_create(&udp_server_thread,NULL,udp_server,0)){
-		fprintf(stderr, "Error creating thread\n");
+		fprintf(stderr, "ERROR: Failed to launch UDP server thread.\n");
 		return 1;
-
-		
 	}
-
 
 	pthread_join(interface_thread,NULL);
 	pthread_join(udp_server_thread,NULL);
