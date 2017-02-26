@@ -1,10 +1,8 @@
-#include "msgserv_utils.h"
-#include <pthread.h>
+#include "msgserv.h"
 
 /* Mandatory Parameters */
 char* name = NULL;						// Message Server Name
 char* ip = NULL;						// Message Server IP	
-
 int tpt = -1;							// TCP Port for Session Requests
 int upt = -1;							// UDP Port for Terminal Requests, is global so the udp server thread can get it
 /* Optional Parameters */
@@ -18,27 +16,52 @@ Message** message_table;	// Table with message structs
 int LogicClock = 0;			// Logic Clock mechanism to ensure causality			
 int end = 0;				// Global exit variable
 
+/* Main application */
+int main(int argc, char* argv[]){
+
+	parse_args(argc, argv, &name, &ip, &upt, &tpt, &siip, &sipt, &m, &r);
+	printf("ARGS: name %s ip %s upt %d tpt %d siip %s sipt %d m %d r %d\n", name, ip, upt, tpt, siip, sipt, m, r);
+
+	message_table = create_msg_table(m);
+
+	pthread_t interface_thread;
+	if(pthread_create(&interface_thread,NULL,interface,0)){
+		fprintf(stderr, "ERROR: Failed to launch command-line interface thread.\n");
+		return EXIT_FAILURE;
+	}
+	pthread_t udp_server_thread;
+	if(pthread_create(&udp_server_thread,NULL,udp_server,0)){
+		fprintf(stderr, "ERROR: Failed to launch UDP server thread.\n");
+		return EXIT_FAILURE;
+	}
+
+	pthread_join(interface_thread,NULL);
+	pthread_join(udp_server_thread,NULL);
+
+	delete_msg_table(message_table, m);
+
+    exit(EXIT_SUCCESS);
+}
+
 /* Thread functions - each is executed by a concurrent thread */
 void* udp_server(){
 	
-	debugPrint("Starting to listen....\n");
-	
 	int fd = create_udp_server(upt);
-	
-	int address_length;
-	struct sockaddr_in client_address;
+	debugPrint1("UDP: Listening on port %d.\n",upt);
 
-	char buffer[256];
-	char protocol[256];
-	char message[140];
+	struct sockaddr_in client_address;
+	int address_length = sizeof(client_address);
+
+	char buffer[BUFFER], protocol[256], message[140];	// String buffers
 	int n;
 
 	while(!end){
-		address_length = sizeof(client_address);
-		// Blocking recvfrom call 
-		recvfrom(fd,buffer,sizeof(buffer),0,(struct sockaddr*)&client_address,&address_length);
-		printf("%s\n", buffer); 
-		if(sscanf(buffer, "%s %d",protocol,&n) == 2){
+		
+		// Blocking recvfrom call - Waits for a request
+		recvfrom(fd, buffer, sizeof(buffer), 0, (struct sockaddr*) &client_address, &address_length);
+		debugPrint1("UDP: Received '%s'\n", buffer); 
+		
+		if(sscanf(buffer, "%s %d", protocol, &n) == 2){
 			if(!strcmp(protocol,"GET_MESSAGES")){
 				//Send messages back
 				printf("got messages\n");
@@ -62,6 +85,7 @@ void* udp_server(){
 				sendto(fd,protocol,strlen(protocol)+1,0,(struct sockaddr*)&client_address,address_length);
 				memset(message_list,0,strlen(message_list));
 			}
+
 		}else if(sscanf(buffer, "%s %s",protocol,message) == 2){
 			if(!strcmp(protocol,"PUBLISH")){
 				//Add this message to the message list
@@ -172,28 +196,4 @@ void* interface(){
 		}
 	}
 	exit(EXIT_SUCCESS);
-}
-
-int main(int argc, char* argv[]){
-
-	parse_args(argc, argv, &name, &ip, &upt, &tpt, &siip, &sipt, &m, &r);
-	printf("ARGS: name %s ip %s upt %d tpt %d siip %s sipt %d m %d r %d\n", name, ip, upt, tpt, siip, sipt, m, r);
-
-	message_table = create_msg_table(m);
-
-	pthread_t interface_thread;
-	if(pthread_create(&interface_thread,NULL,interface,0)){
-		fprintf(stderr, "ERROR: Failed to launch command-line interface thread.\n");
-		return 1;
-	}
-	pthread_t udp_server_thread;
-	if(pthread_create(&udp_server_thread,NULL,udp_server,0)){
-		fprintf(stderr, "ERROR: Failed to launch UDP server thread.\n");
-		return 1;
-	}
-
-	pthread_join(interface_thread,NULL);
-	pthread_join(udp_server_thread,NULL);
-
-    exit(EXIT_SUCCESS);
 }

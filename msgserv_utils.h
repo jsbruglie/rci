@@ -30,5 +30,7 @@ int create_udp_server(u_short port);
 
 /* Message Table */
 Message** create_msg_table(int size);
+void delete_msg_table(Message** msg_table, int size);
+void print_msg_table(Message** msg_table, int size);
 
 #endif

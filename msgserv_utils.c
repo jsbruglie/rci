@@ -81,12 +81,12 @@ int create_udp_server(u_short port){
 	struct hostent *hostptr;
 	struct sockaddr_in server_address;
 
-	fd = socket(AF_INET,SOCK_DGRAM,0);
-	memset((void*)&server_address, (int)'\0', sizeof(server_address));
+	fd = socket(AF_INET, SOCK_DGRAM, 0);
+	memset((void*) &server_address, (int) '\0', sizeof(server_address));
 	server_address.sin_family = AF_INET;
 	server_address.sin_addr.s_addr = htonl(INADDR_ANY);
-	server_address.sin_port = htons((u_short)port);
-	bind(fd, (struct sockaddr*)&server_address, sizeof(server_address));
+	server_address.sin_port = htons((u_short) port);
+	bind(fd, (struct sockaddr*) &server_address, sizeof(server_address));
 
 	return fd;
 }
@@ -95,9 +95,32 @@ int create_udp_server(u_short port){
 /* Message Table */
 Message** create_msg_table(int size){
 
-	Message** message_table = (Message**)malloc(sizeof(Message*) * size);
+	Message** message_table = (Message**) malloc(sizeof(Message*) * size);
 	int i;
-	for(i = 0; i < size; i++)
+	for(i = 0; i < size; i++){
 		message_table[i] = NULL;
+		//message_table[i] = (Message*) malloc(sizeof(Message));
+		//strcpy(message_table[i]->text,"EMPTY");
+	}
 	return message_table;
+}
+
+void delete_msg_table(Message** msg_table, int size){
+
+	int i;
+	for(i = 0; i < size; i++){
+		if(msg_table[i] != NULL)
+			free(msg_table[i]);
+	}
+	free(msg_table);
+}
+
+/* DEBUG */
+void print_msg_table(Message** msg_table, int size){
+
+	int i;
+	for (i = 0; i < size; i++){
+		if(msg_table[i] != NULL)
+			printf("MSG: %d %s\n", msg_table[i]->clock, msg_table[i]->text);
+	}
 }
