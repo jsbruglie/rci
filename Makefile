@@ -10,15 +10,15 @@ rmb: $(RMB_OBJECT_FILES)
 msgserv: $(MSG_OBJECT_FILES) 
 
 rmb msgserv:
-	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
+    $(CC) $(CFLAGS) $^ $(LIBS) -o $@
 
 rmb.o msgserv.o: 
 
 %.o: %.c
-	$(CC) -c $<  
+    $(CC) -c $<  
 
 cleanup:
-	rm -f *.o
+    rm -f *.o
 
 clean:
-	rm -f rmb msgserv msgserv_utils msg:table *.o *~ 
+    rm -f rmb msgserv msgserv_utils msg:table *.o *~ 

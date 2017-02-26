@@ -9,21 +9,21 @@
 
 /* Message struct type */
 typedef struct _Message{
-	char text[MSG_MAX_SIZE];
-	int clock;
+    char text[MSG_MAX_SIZE];
+    int clock;
 }Message;
 
 /* Message Table struct type */
 typedef struct _MessageTable{
-	int size;
-	int items;
-	Message** table;
+    int size;
+    int items;
+    Message** table;
 }MessageTable;
 
 /* Functions */
 
 MessageTable* create_msg_table(int size);
-void delete_msg_table(MessageTable* msg_table, int size);
+void delete_msg_table(MessageTable* msg_table);
 int get_msg_clock(Message** msg_table, int i);
 void swap_msg(Message** msg_table, int a, int b);
 
