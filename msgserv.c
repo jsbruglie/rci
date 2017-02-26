@@ -232,7 +232,7 @@ void* refresh_registration(){
 		sendto(fd, registration, strlen(registration)+1,0,(struct sockaddr*)&server_address,address_length);
 		
 		close(fd);
-		printf("*bleep* Registering...");
+		//printf("*bleep* Registering...");
 
 		sleep(r); //Wait r seconds
 	}

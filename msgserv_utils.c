@@ -167,11 +167,20 @@ int partition(Message** msg_table, int l, int r, int pivot){
 }
 
 /* DEBUG */
+void print_msg_table_clocks(Message** msg_table, int size){
+
+	int i;
+	for (i = 0; i < size; i++){
+		if(msg_table[i] != NULL)
+			printf("CLOCK OF MESSAGE %d: %d\n", i, msg_table[i]->clock);
+	}
+}
+
 void print_msg_table(Message** msg_table, int size){
 
 	int i;
 	for (i = 0; i < size; i++){
 		if(msg_table[i] != NULL)
-			printf("MSG: %d\n", msg_table[i]->clock);
+			printf("MESSAGE TABLE: %s\n", msg_table[i]->text);
 	}
 }

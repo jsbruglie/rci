@@ -41,5 +41,6 @@ void swap_msg(Message** msg_table, int a, int b);
 
 /* DEBUG */
 void print_msg_table(Message** msg_table, int size);
+void print_msg_table_clocks(Message** msg_table, int size);
 
 #endif
