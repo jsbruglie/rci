@@ -7,7 +7,7 @@ int tpt = -1;							// TCP Port for Session Requests
 int upt = -1;							// UDP Port for Terminal Requests, is global so the udp server thread can get it
 /* Optional Parameters */
 char* siip = "tejo.tecnico.ulisboa.pt";	// Identity Server IP
-int sipt = 5900;						// Identity Server UDP Port
+int sipt = 59000;						// Identity Server UDP Port
 int m = 200;							// Maximum number of stored messages
 int r = 10;								// Time interval between registry entries
 
@@ -37,11 +37,16 @@ int main(int argc, char* argv[]){
 		fprintf(stderr, "ERROR: Failed to launch UDP server thread.\n");
 		return EXIT_FAILURE;
 	}
+	pthread_t refresh_thread;
+	if(pthread_create(&refresh_thread,NULL,refresh_registration,0)){
+		fprintf(stderr, "ERROR: Failed to launch refresh thread.\n");
+		return EXIT_FAILURE;
+	}
 
 	pthread_join(interface_thread,NULL);
 	pthread_join(udp_server_thread,NULL);
-
-	delete_msg_table(message_table, m);
+	pthread_join(refresh_thread,NULL);
+	
 
     exit(EXIT_SUCCESS);
 }
@@ -121,7 +126,6 @@ void* udp_server(){
 					//message_table[oldest_idx]->clock = LogicClock;				
 				}
 				
-
 			}
 		}
 
@@ -163,9 +167,8 @@ void* interface(){
 					address_length = sizeof(server_address);
 					sendto(fd, registration, strlen(registration)+1,0,(struct sockaddr*)&server_address,address_length);
 					
-
 					close(fd);
-					printf("%s\n",buffer);
+
 					/*Do a get servers after join*/
 					fd = socket(AF_INET,SOCK_DGRAM,0);
 					hostptr = gethostbyname(siip);
@@ -188,6 +191,7 @@ void* interface(){
 
 				}else if(!strcmp(command,"show_messages")){
 					/*List all the messages on this server, ordered by logic times*/
+					print_msg_table(message_table, m);
 					
 				}else if(!strcmp(command,"exit")){
 					end = 1;
@@ -199,5 +203,38 @@ void* interface(){
 
 		}
 	}
+	delete_msg_table(message_table, m);	
 	exit(EXIT_SUCCESS);
+}
+
+void* refresh_registration(){
+	printf("Starting refresh_registration\n");
+	//Create UDP setup 
+	int fd;
+	struct hostent *hostptr;
+	struct sockaddr_in server_address, client_address;
+	int address_length;
+	char registration[1026];
+
+	while(!end){
+		fd = socket(AF_INET,SOCK_DGRAM,0);
+		memset((void*)&server_address, (int)'\0',sizeof(server_address));
+		server_address.sin_family = AF_INET;
+		server_address.sin_port = htons((u_short)sipt);
+
+		hostptr = gethostbyname(siip);
+		server_address.sin_addr.s_addr = ((struct in_addr *)(hostptr->h_addr_list[0]))->s_addr;
+		
+		//Create registration string
+		sprintf(registration, "REG %s;%s;%d;%d",name,ip,upt,tpt);
+		//Register
+		address_length = sizeof(server_address);
+		sendto(fd, registration, strlen(registration)+1,0,(struct sockaddr*)&server_address,address_length);
+		
+		close(fd);
+		printf("*bleep* Registering...");
+
+		sleep(r); //Wait r seconds
+	}
+	return NULL;
 }

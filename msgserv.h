@@ -6,3 +6,4 @@
 /* Thread functions - each is executed by a concurrent thread */
 void* udp_server();
 void* interface();
+void* refresh_registration();

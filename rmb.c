@@ -95,7 +95,7 @@ int main(int argc, char* argv[]){
 					char* p1 = buffer + 8; 
 					char p2[256];
 					sscanf(p1,"%[^\n]",p2);
-					printf("%s\n", p2);
+					debugPrint1("%s\n", p2);
 					sscanf(p2,"%256[^;];%256[^;];%d;%d",msgserv_name,msgserv_ip,&msgserv_upt,&msgserv_tpt);
 					
 					//printf("Name: %s IP: %s UDP: %d TCP: %d",msgserv_name,msgserv_ip,msgserv_upt,msgserv_tpt);
