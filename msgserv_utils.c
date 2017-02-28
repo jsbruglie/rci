@@ -112,9 +112,32 @@ void register_in_server(char* name, char* ip, char* siip, int sipt, int upt, int
 
     int fd;
     struct hostent *hostptr;
-    struct sockaddr_in server_address, client_address;
+    struct sockaddr_in server_address;
     int address_length;
-    char registration[1026];
+    char registration[1024];
+
+    fd = socket(AF_INET,SOCK_DGRAM,0);
+    memset((void*)&server_address, (int)'\0',sizeof(server_address));
+    server_address.sin_family = AF_INET;
+    server_address.sin_port = htons((u_short)sipt);
+    hostptr = gethostbyname(siip);
+    server_address.sin_addr.s_addr = ((struct in_addr *) (hostptr->h_addr_list[0]))->s_addr;
+
+    sprintf(registration, "REG %s;%s;%d;%d",name,ip,upt,tpt);
+    address_length = sizeof(server_address);
+    sendto(fd, registration, strlen(registration) + 1, 0, (struct sockaddr*) &server_address, address_length);
+    close(fd);
+    
+    debug_print("REFRESH: Just registered in the Identity Server.\n");
+}
+
+char* get_servers(char* siip, int sipt){
+
+    int fd;
+    struct hostent *hostptr;
+    struct sockaddr_in server_address;
+    int address_length;
+    char server_list[2048];
 
     fd = socket(AF_INET,SOCK_DGRAM,0);
     memset((void*)&server_address, (int)'\0',sizeof(server_address));
@@ -122,11 +145,12 @@ void register_in_server(char* name, char* ip, char* siip, int sipt, int upt, int
     server_address.sin_port = htons((u_short)sipt);
     hostptr = gethostbyname(siip);
     server_address.sin_addr.s_addr = ((struct in_addr *)(hostptr->h_addr_list[0]))->s_addr;
-
-    sprintf(registration, "REG %s;%s;%d;%d",name,ip,upt,tpt);
-    address_length = sizeof(server_address);
-    sendto(fd, registration, strlen(registration)+1,0,(struct sockaddr*)&server_address,address_length);
-    close(fd);
     
-    debug_print("REFRESH: Just registered in the Identity Server.\n");
+    address_length = sizeof(server_address);
+    sendto(fd, "GET_SERVERS", strlen("GET_SERVERS") + 1, 0, (struct sockaddr*) &server_address, address_length);
+    address_length = sizeof(server_address);
+    recvfrom(fd, server_list, sizeof(server_list), 0, (struct sockaddr*) &server_address, &address_length);
+    close(fd);
+
+    debug_print("%s", server_list);
 }

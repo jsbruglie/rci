@@ -23,7 +23,8 @@ int main(int argc, char* argv[]){
     debug_print("ARGS: name %s ip %s upt %d tpt %d siip %s sipt %d m %d r %d\n", name, ip, upt, tpt, siip, sipt, m, r);
 
     message_table = create_msg_table(m);
-
+    get_servers(siip, sipt);
+    
     pthread_t interface_thread;
     if(pthread_create(&interface_thread,NULL,interface,0)){
         fprintf(stderr, "ERROR: Failed to launch command-line interface thread.\n");
@@ -99,53 +100,18 @@ void* interface(){
         if(fgets(line, sizeof(line), stdin)){
             if(sscanf(line, "%s",command) == 1){
                 if(!strcmp(command,"join")){
-                    printf("Register in message server");
-                    
-                    server_address.sin_port = htons((u_short)sipt);
-                    fd = socket(AF_INET,SOCK_DGRAM,0);
-                    hostptr = gethostbyname(siip);
-                    server_address.sin_addr.s_addr = ((struct in_addr *)(hostptr->h_addr_list[0]))->s_addr;
-                    
-                    //Create registration string
-                    sprintf(registration, "REG %s;%s;%d;%d",name,ip,upt,tpt);
-                    //Register
-                    address_length = sizeof(server_address);
-                    sendto(fd, registration, strlen(registration)+1,0,(struct sockaddr*)&server_address,address_length);
-                    
-                    close(fd);
-
-                    /*Do a get servers after join*/
-                    fd = socket(AF_INET,SOCK_DGRAM,0);
-                    hostptr = gethostbyname(siip);
-                    
-                    server_address.sin_addr.s_addr = ((struct in_addr *)(hostptr->h_addr_list[0]))->s_addr;
-                    
-                    address_length = sizeof(server_address);
-                    sendto(fd, "GET_SERVERS", strlen("GET_SERVERS")+1,0,(struct sockaddr*)&server_address,address_length);
-
-                    address_length = sizeof(server_address);
-                    recvfrom(fd,buffer,sizeof(buffer),0,(struct sockaddr*)&server_address,&address_length);
-                    close(fd);
-                    printf("%s\n",buffer);
-
-
+                    register_in_server(name, ip, siip, sipt, upt, tpt);
                 }else if(!strcmp(command,"show_servers")){
                     /*List all the servers with which this server has a TCP session*/
-                    
-
-
                 }else if(!strcmp(command,"show_messages")){
                     /*List all the messages on this server, ordered by logic times*/
                     print_msg_table(message_table);
-                    
                 }else if(!strcmp(command,"exit")){
                     end = 1;
                 }else
                     printf("Please input a valid command\n");
-                        
             }else
                 printf("Please input a valid command\n");
-
         }
     }
     delete_msg_table(message_table);    
