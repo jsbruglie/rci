@@ -92,12 +92,18 @@ int create_udp_server(u_short port){
 }
 
 /* Server Requests */
-void send_messages(MessageTable* msg_table, struct sockaddr_in* client_addr_ptr, int n){
+int send_messages(int fd, struct sockaddr_in* client_addr_ptr, MessageTable* msg_table, int n){
+
+    int ret, address_length = sizeof(*client_addr_ptr);
 
     sort_msg_table(msg_table);
-    int size = size_latest_messages(msg_table, n, !INCLUDE_CLK);
+    int size = strlen("MESSAGES\n") + size_latest_messages(msg_table, n, !INCLUDE_CLK);
     char* buffer = malloc(sizeof(char) * size);
+    strcpy(buffer,"MESSAGES\n");
     get_latest_messages(msg_table, n, !INCLUDE_CLK, buffer);
-
-    // debug_print("SEND_MSG: %d/%d bytes \n%s\n", size, strlen(buffer) + 1, buffer);
+    //debug_print("SEND_MSG: %d/%d bytes \n%s\n", size, strlen(buffer) + 1, buffer);
+    
+    ret = sendto(fd, buffer, size, 0, (struct sockaddr*) client_addr_ptr, address_length);
+    free(buffer);
+    return ret;
 }

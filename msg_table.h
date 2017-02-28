@@ -10,10 +10,10 @@
 #define CLK_MAX_SIZE 20
 
 #define INCLUDE_CLK 1
-#define MSG_FORMAT_CLK "(%d;%s\n*)" // ([clk];[text]\n*)
-#define MSG_FORMAT_CLK_SIZE 5
-#define MSG_FORMAT "(%s\n*)" // ([text]\n*)
-#define MSG_FORMAT_SIZE 4
+#define MSG_FORMAT_CLK "%d;%s\n" // [clk];[text]\n
+#define MSG_FORMAT_CLK_SIZE 2
+#define MSG_FORMAT "%s\n" // [text]\n
+#define MSG_FORMAT_SIZE 1
 
 
 /* Message struct type */

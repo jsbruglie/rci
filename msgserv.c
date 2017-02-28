@@ -68,32 +68,8 @@ void* udp_server(){
         
         if(sscanf(buffer, "%s %d", protocol, &n) == 2){
             if(!strcmp(protocol,"GET_MESSAGES")){
-                send_messages(message_table, &client_address, n);
-
-
-                /*
-                char protocol[4096] = "MESSAGE\n";
-                Append messages 
-                int i;
-                char message_list[2048];
-                if(n<m){ //Assume the user isn't evil
-                 for(i=0;i<n;i++){
-                     if(message_table[i]!=NULL){
-                         strcat(message_list,message_table[i]->text);
-                         strcat(message_list,"\n");
-                     }
-                 }   
-                }
-
-
-                strcat(protocol,message_list);
-                Send them
-                address_length = sizeof(client_address);
-                sendto(fd,protocol,strlen(protocol)+1,0,(struct sockaddr*)&client_address,address_length);
-                memset(message_list,0,strlen(message_list));
-                */
+                send_messages(fd, &client_address, message_table, n);
             }
-
         }else if(sscanf(buffer, "%s %s",protocol,message) == 2){
             if(!strcmp(protocol,"PUBLISH")){
                 //Add this message to the message list

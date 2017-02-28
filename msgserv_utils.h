@@ -25,6 +25,6 @@ void parse_args(int argc, char** argv, char** _name, char** _ip, int* _upt, int*
 
 int create_udp_server(u_short port);
 
-void send_messages(MessageTable* msg_table, struct sockaddr_in* client_addr_ptr, int n);
+int send_messages(int fd, struct sockaddr_in* client_addr_ptr, MessageTable* msg_table, int n);
 
 #endif
