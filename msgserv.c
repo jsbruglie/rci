@@ -61,7 +61,6 @@ void* udp_server(){
     int n;
 
     while(!end){
-        
         // Blocking recvfrom call - Waits for a request
         recvfrom(fd, buffer, sizeof(buffer), 0, (struct sockaddr*) &client_address, &address_length);
         debug_print("UDP: Received '%s'\n", buffer); 
@@ -70,40 +69,11 @@ void* udp_server(){
             if(!strcmp(protocol,"GET_MESSAGES")){
                 send_messages(fd, &client_address, message_table, n);
             }
-        }else if(sscanf(buffer, "%s %s",protocol,message) == 2){
+        }else if(sscanf(buffer, "%s %s", protocol, message) == 2){
             if(!strcmp(protocol,"PUBLISH")){
-                //Add this message to the message list
-                /*printf("Received message: %s\n", message);
-                int i, free_spot = 0;
-                for(i=0;i<m;i++){
-                    if(message_table[i] == NULL){ //find the first not null position to insert a message
-                        message_table[i] = (Message*)malloc(sizeof(Message));
-                        strcpy(message_table[i]->text,message);
-
-                        LogicClock++;
-                        message_table[i]->clock = LogicClock;
-                        free_spot = 1;
-                        break;
-                    }
-                }
-                if(!free_spot){ //Message list is full, find the oldest message and replace that one with the new message
-                    int i;
-                    for(i=0;i<m;i++){
-                        int min = INT_MAX;
-                        int oldest_idx;
-                        if(message_table[i]->clock < min){
-                            oldest_idx = i;
-                            min = message_table[i]->clock;
-                        }
-                    }
-                    //strcpy(message_table[oldest_idx]->text,message);
-                    LogicClock++;
-                    //message_table[oldest_idx]->clock = LogicClock;                
-                }
-                */
-      }
+                insert_in_msg_table(message_table, message, LogicClock++);
+            }
         }
-
     }
     close(fd);
     return NULL;
