@@ -9,8 +9,12 @@
 #define MSG_MAX_SIZE 140
 #define CLK_MAX_SIZE 20
 
-#define MSG_FORMAT "(%d;%s\n*)" // ([clk];[text]\n*)
-#define MSG_FORMAT_SIZE 5
+#define INCLUDE_CLK 1
+#define MSG_FORMAT_CLK "(%d;%s\n*)" // ([clk];[text]\n*)
+#define MSG_FORMAT_CLK_SIZE 5
+#define MSG_FORMAT "(%s\n*)" // ([text]\n*)
+#define MSG_FORMAT_SIZE 4
+
 
 /* Message struct type */
 typedef struct _Message{
@@ -40,8 +44,8 @@ int msg_table_full(MessageTable* msg_table);
 int remove_oldest(MessageTable* msg_table);
 
 /* Fetch messages from table */
-int size_latest_messages(MessageTable* msg_table, int n);
-int get_latest_messages(MessageTable* msg_table, int n, char* output);
+int size_latest_messages(MessageTable* msg_table, int n, int include_clk);
+int get_latest_messages(MessageTable* msg_table, int n, int include_clk, char* output);
 
 /* Quick Sort */
 void sort_msg_table(MessageTable* msg_table);

@@ -90,3 +90,14 @@ int create_udp_server(u_short port){
 
     return fd;
 }
+
+/* Server Requests */
+void send_messages(MessageTable* msg_table, struct sockaddr_in* client_addr_ptr, int n){
+
+    sort_msg_table(msg_table);
+    int size = size_latest_messages(msg_table, n, !INCLUDE_CLK);
+    char* buffer = malloc(sizeof(char) * size);
+    get_latest_messages(msg_table, n, !INCLUDE_CLK, buffer);
+
+    // debug_print("SEND_MSG: %d/%d bytes \n%s\n", size, strlen(buffer) + 1, buffer);
+}

@@ -68,8 +68,7 @@ void* udp_server(){
         
         if(sscanf(buffer, "%s %d", protocol, &n) == 2){
             if(!strcmp(protocol,"GET_MESSAGES")){
-                // get_messages(n) AND send_msg_to
-
+                send_messages(message_table, &client_address, n);
 
 
                 /*

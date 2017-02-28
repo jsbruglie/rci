@@ -15,11 +15,16 @@
 # include "msg_table.h"
 #include "debug.h"
 
+/* Protocol MACROS */
+#define SEND
+
 /* Functions */
 
 void parse_args(int argc, char** argv, char** _name, char** _ip, int* _upt, int* _tpt,
                 char** _siip, int* _sipt, int* _m, int* _r);
 
 int create_udp_server(u_short port);
+
+void send_messages(MessageTable* msg_table, struct sockaddr_in* client_addr_ptr, int n);
 
 #endif
