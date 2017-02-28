@@ -107,3 +107,26 @@ int send_messages(int fd, struct sockaddr_in* client_addr_ptr, MessageTable* msg
     free(buffer);
     return ret;
 }
+
+void register_in_server(char* name, char* ip, char* siip, int sipt, int upt, int tpt){
+
+    int fd;
+    struct hostent *hostptr;
+    struct sockaddr_in server_address, client_address;
+    int address_length;
+    char registration[1026];
+
+    fd = socket(AF_INET,SOCK_DGRAM,0);
+    memset((void*)&server_address, (int)'\0',sizeof(server_address));
+    server_address.sin_family = AF_INET;
+    server_address.sin_port = htons((u_short)sipt);
+    hostptr = gethostbyname(siip);
+    server_address.sin_addr.s_addr = ((struct in_addr *)(hostptr->h_addr_list[0]))->s_addr;
+
+    sprintf(registration, "REG %s;%s;%d;%d",name,ip,upt,tpt);
+    address_length = sizeof(server_address);
+    sendto(fd, registration, strlen(registration)+1,0,(struct sockaddr*)&server_address,address_length);
+    close(fd);
+    
+    debug_print("REFRESH: Just registered in the Identity Server.\n");
+}

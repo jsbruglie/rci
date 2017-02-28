@@ -153,33 +153,10 @@ void* interface(){
 }
 
 void* refresh_registration(){
-    printf("Starting refresh_registration\n");
-    //Create UDP setup 
-    int fd;
-    struct hostent *hostptr;
-    struct sockaddr_in server_address, client_address;
-    int address_length;
-    char registration[1026];
-
+    debug_print("REFRESH: Starting refresh_registration.\n");
     while(!end){
-        fd = socket(AF_INET,SOCK_DGRAM,0);
-        memset((void*)&server_address, (int)'\0',sizeof(server_address));
-        server_address.sin_family = AF_INET;
-        server_address.sin_port = htons((u_short)sipt);
-
-        hostptr = gethostbyname(siip);
-        server_address.sin_addr.s_addr = ((struct in_addr *)(hostptr->h_addr_list[0]))->s_addr;
-        
-        //Create registration string
-        sprintf(registration, "REG %s;%s;%d;%d",name,ip,upt,tpt);
-        //Register
-        address_length = sizeof(server_address);
-        sendto(fd, registration, strlen(registration)+1,0,(struct sockaddr*)&server_address,address_length);
-        
-        close(fd);
-        //printf("*bleep* Registering...");
-
-        sleep(r); //Wait r seconds
+        register_in_server(name, ip, siip, sipt, upt, tpt);
+        sleep(r);
     }
     return NULL;
 }
