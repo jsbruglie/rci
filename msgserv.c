@@ -20,12 +20,9 @@ int end = 0;                    // Global exit variable
 int main(int argc, char* argv[]){
 
     parse_args(argc, argv, &name, &ip, &upt, &tpt, &siip, &sipt, &m, &r);
-    printf("ARGS: name %s ip %s upt %d tpt %d siip %s sipt %d m %d r %d\n", name, ip, upt, tpt, siip, sipt, m, r);
+    debug_print("ARGS: name %s ip %s upt %d tpt %d siip %s sipt %d m %d r %d\n", name, ip, upt, tpt, siip, sipt, m, r);
 
     message_table = create_msg_table(m);
-    //print_msg_table(message_table);
-    //sort_msg_table(message_table);
-    //print_msg_table(message_table);
 
     pthread_t interface_thread;
     if(pthread_create(&interface_thread,NULL,interface,0)){
@@ -55,7 +52,7 @@ int main(int argc, char* argv[]){
 void* udp_server(){
     
     int fd = create_udp_server(upt);
-    debugPrint1("UDP: Listening on port %d.\n",upt);
+    debug_print("UDP: Listening on port %d.\n",upt);
 
     struct sockaddr_in client_address;
     int address_length = sizeof(client_address);
@@ -67,32 +64,35 @@ void* udp_server(){
         
         // Blocking recvfrom call - Waits for a request
         recvfrom(fd, buffer, sizeof(buffer), 0, (struct sockaddr*) &client_address, &address_length);
-        debugPrint1("UDP: Received '%s'\n", buffer); 
+        debug_print("UDP: Received '%s'\n", buffer); 
         
         if(sscanf(buffer, "%s %d", protocol, &n) == 2){
-            // If a request for messages is received
             if(!strcmp(protocol,"GET_MESSAGES")){
-                // get_messages(n)
-                // send_msg_to
-                //char protocol[4096] = "MESSAGE\n";
-                //Append messages 
-                //int i;
-                //char message_list[2048];
-                //if(n<m){ //Assume the user isn't evil
-                //  for(i=0;i<n;i++){
-                //      if(message_table[i]!=NULL){
-                //          strcat(message_list,message_table[i]->text);
-                //          strcat(message_list,"\n");
-                //      }
-                //  }   
-                //}
+                // get_messages(n) AND send_msg_to
 
 
-                //strcat(protocol,message_list);
-                //Send them
-                //address_length = sizeof(client_address);
-                //sendto(fd,protocol,strlen(protocol)+1,0,(struct sockaddr*)&client_address,address_length);
-                //memset(message_list,0,strlen(message_list));
+
+                /*
+                char protocol[4096] = "MESSAGE\n";
+                Append messages 
+                int i;
+                char message_list[2048];
+                if(n<m){ //Assume the user isn't evil
+                 for(i=0;i<n;i++){
+                     if(message_table[i]!=NULL){
+                         strcat(message_list,message_table[i]->text);
+                         strcat(message_list,"\n");
+                     }
+                 }   
+                }
+
+
+                strcat(protocol,message_list);
+                Send them
+                address_length = sizeof(client_address);
+                sendto(fd,protocol,strlen(protocol)+1,0,(struct sockaddr*)&client_address,address_length);
+                memset(message_list,0,strlen(message_list));
+                */
             }
 
         }else if(sscanf(buffer, "%s %s",protocol,message) == 2){

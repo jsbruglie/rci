@@ -4,8 +4,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #define MSG_MAX_SIZE 140
+#define CLK_MAX_SIZE 20
+
+#define MSG_FORMAT "(%d;%s\n*)" // ([clk];[text]\n*)
+#define MSG_FORMAT_SIZE 5
 
 /* Message struct type */
 typedef struct _Message{
@@ -22,15 +27,21 @@ typedef struct _MessageTable{
 
 /* Functions */
 
+/* Create/Delete message table struct */
 MessageTable* create_msg_table(int size);
 void delete_msg_table(MessageTable* msg_table);
 int get_msg_clock(Message** msg_table, int i);
 void swap_msg(Message** msg_table, int a, int b);
 
+/* Insert message in table */
 int insert_in_msg_table(MessageTable* msg_table, char* text, int clock);
 int insert_msg(MessageTable* msg_table, char* text, int clock);
 int msg_table_full(MessageTable* msg_table);
 int remove_oldest(MessageTable* msg_table);
+
+/* Fetch messages from table */
+int size_latest_messages(MessageTable* msg_table, int n);
+int get_latest_messages(MessageTable* msg_table, int n, char* output);
 
 /* Quick Sort */
 void sort_msg_table(MessageTable* msg_table);
