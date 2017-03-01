@@ -20,13 +20,11 @@ int end = 0;                    // Global exit variable
 int main(int argc, char* argv[]){
 
     parse_args(argc, argv, &name, &ip, &upt, &tpt, &siip, &sipt, &m, &r);
-    printf("ARGS: name %s ip %s upt %d tpt %d siip %s sipt %d m %d r %d\n", name, ip, upt, tpt, siip, sipt, m, r);
+    debug_print("ARGS: name %s ip %s upt %d tpt %d siip %s sipt %d m %d r %d\n", name, ip, upt, tpt, siip, sipt, m, r);
 
     message_table = create_msg_table(m);
-    //print_msg_table(message_table);
-    //sort_msg_table(message_table);
-    //print_msg_table(message_table);
-
+    get_servers(siip, sipt);
+    
     pthread_t interface_thread;
     if(pthread_create(&interface_thread,NULL,interface,0)){
         fprintf(stderr, "ERROR: Failed to launch command-line interface thread.\n");
@@ -55,7 +53,7 @@ int main(int argc, char* argv[]){
 void* udp_server(){
     
     int fd = create_udp_server(upt);
-    debugPrint1("UDP: Listening on port %d.\n",upt);
+    debug_print("UDP: Listening on port %d.\n",upt);
 
     struct sockaddr_in client_address;
     int address_length = sizeof(client_address);
@@ -64,71 +62,19 @@ void* udp_server(){
     int n;
 
     while(!end){
-        
         // Blocking recvfrom call - Waits for a request
         recvfrom(fd, buffer, sizeof(buffer), 0, (struct sockaddr*) &client_address, &address_length);
-        debugPrint1("UDP: Received '%s'\n", buffer); 
+        debug_print("UDP: Received '%s'\n", buffer); 
         
         if(sscanf(buffer, "%s %d", protocol, &n) == 2){
-            // If a request for messages is received
             if(!strcmp(protocol,"GET_MESSAGES")){
-                // get_messages(n)
-                // send_msg_to
-                //char protocol[4096] = "MESSAGE\n";
-                //Append messages 
-                //int i;
-                //char message_list[2048];
-                //if(n<m){ //Assume the user isn't evil
-                //  for(i=0;i<n;i++){
-                //      if(message_table[i]!=NULL){
-                //          strcat(message_list,message_table[i]->text);
-                //          strcat(message_list,"\n");
-                //      }
-                //  }   
-                //}
-
-
-                //strcat(protocol,message_list);
-                //Send them
-                //address_length = sizeof(client_address);
-                //sendto(fd,protocol,strlen(protocol)+1,0,(struct sockaddr*)&client_address,address_length);
-                //memset(message_list,0,strlen(message_list));
+                send_messages(fd, &client_address, message_table, n);
             }
-
-        }else if(sscanf(buffer, "%s %s",protocol,message) == 2){
+        }else if(sscanf(buffer, "%s %s", protocol, message) == 2){
             if(!strcmp(protocol,"PUBLISH")){
-                //Add this message to the message list
-                /*printf("Received message: %s\n", message);
-                int i, free_spot = 0;
-                for(i=0;i<m;i++){
-                    if(message_table[i] == NULL){ //find the first not null position to insert a message
-                        message_table[i] = (Message*)malloc(sizeof(Message));
-                        strcpy(message_table[i]->text,message);
-
-                        LogicClock++;
-                        message_table[i]->clock = LogicClock;
-                        free_spot = 1;
-                        break;
-                    }
-                }
-                if(!free_spot){ //Message list is full, find the oldest message and replace that one with the new message
-                    int i;
-                    for(i=0;i<m;i++){
-                        int min = INT_MAX;
-                        int oldest_idx;
-                        if(message_table[i]->clock < min){
-                            oldest_idx = i;
-                            min = message_table[i]->clock;
-                        }
-                    }
-                    //strcpy(message_table[oldest_idx]->text,message);
-                    LogicClock++;
-                    //message_table[oldest_idx]->clock = LogicClock;                
-                }
-                */
-      }
+                insert_in_msg_table(message_table, message, LogicClock++);
+            }
         }
-
     }
     close(fd);
     return NULL;
@@ -154,53 +100,18 @@ void* interface(){
         if(fgets(line, sizeof(line), stdin)){
             if(sscanf(line, "%s",command) == 1){
                 if(!strcmp(command,"join")){
-                    printf("Register in message server");
-                    
-                    server_address.sin_port = htons((u_short)sipt);
-                    fd = socket(AF_INET,SOCK_DGRAM,0);
-                    hostptr = gethostbyname(siip);
-                    server_address.sin_addr.s_addr = ((struct in_addr *)(hostptr->h_addr_list[0]))->s_addr;
-                    
-                    //Create registration string
-                    sprintf(registration, "REG %s;%s;%d;%d",name,ip,upt,tpt);
-                    //Register
-                    address_length = sizeof(server_address);
-                    sendto(fd, registration, strlen(registration)+1,0,(struct sockaddr*)&server_address,address_length);
-                    
-                    close(fd);
-
-                    /*Do a get servers after join*/
-                    fd = socket(AF_INET,SOCK_DGRAM,0);
-                    hostptr = gethostbyname(siip);
-                    
-                    server_address.sin_addr.s_addr = ((struct in_addr *)(hostptr->h_addr_list[0]))->s_addr;
-                    
-                    address_length = sizeof(server_address);
-                    sendto(fd, "GET_SERVERS", strlen("GET_SERVERS")+1,0,(struct sockaddr*)&server_address,address_length);
-
-                    address_length = sizeof(server_address);
-                    recvfrom(fd,buffer,sizeof(buffer),0,(struct sockaddr*)&server_address,&address_length);
-                    close(fd);
-                    printf("%s\n",buffer);
-
-
+                    register_in_server(name, ip, siip, sipt, upt, tpt);
                 }else if(!strcmp(command,"show_servers")){
                     /*List all the servers with which this server has a TCP session*/
-                    
-
-
                 }else if(!strcmp(command,"show_messages")){
                     /*List all the messages on this server, ordered by logic times*/
                     print_msg_table(message_table);
-                    
                 }else if(!strcmp(command,"exit")){
                     end = 1;
                 }else
                     printf("Please input a valid command\n");
-                        
             }else
                 printf("Please input a valid command\n");
-
         }
     }
     delete_msg_table(message_table);    
@@ -208,33 +119,10 @@ void* interface(){
 }
 
 void* refresh_registration(){
-    printf("Starting refresh_registration\n");
-    //Create UDP setup 
-    int fd;
-    struct hostent *hostptr;
-    struct sockaddr_in server_address, client_address;
-    int address_length;
-    char registration[1026];
-
+    debug_print("REFRESH: Starting refresh_registration.\n");
     while(!end){
-        fd = socket(AF_INET,SOCK_DGRAM,0);
-        memset((void*)&server_address, (int)'\0',sizeof(server_address));
-        server_address.sin_family = AF_INET;
-        server_address.sin_port = htons((u_short)sipt);
-
-        hostptr = gethostbyname(siip);
-        server_address.sin_addr.s_addr = ((struct in_addr *)(hostptr->h_addr_list[0]))->s_addr;
-        
-        //Create registration string
-        sprintf(registration, "REG %s;%s;%d;%d",name,ip,upt,tpt);
-        //Register
-        address_length = sizeof(server_address);
-        sendto(fd, registration, strlen(registration)+1,0,(struct sockaddr*)&server_address,address_length);
-        
-        close(fd);
-        //printf("*bleep* Registering...");
-
-        sleep(r); //Wait r seconds
+        register_in_server(name, ip, siip, sipt, upt, tpt);
+        sleep(r);
     }
     return NULL;
 }

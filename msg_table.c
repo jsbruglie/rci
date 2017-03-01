@@ -1,5 +1,7 @@
 #include "msg_table.h"
 
+/* Create and delete message table struct */
+
 MessageTable* create_msg_table(int size){
 
     MessageTable* message_table = (MessageTable*) malloc(sizeof(MessageTable));
@@ -13,6 +15,7 @@ MessageTable* create_msg_table(int size){
         table[i] = NULL;
         //table[i] = (Message*) malloc(sizeof(Message)); // DEBUG INIT
         //table[i]->clock = i;
+        //sprintf(table[i]->text, "%d", size-i);
     }
     message_table->table = table;
 
@@ -29,6 +32,8 @@ void delete_msg_table(MessageTable* msg_table){
         free(msg_table);
     }
 }
+
+/* Insertion in table */
 
 /**
  *  @brief Inserts a message in the table, overwriting the oldest, if necessary
@@ -74,6 +79,49 @@ int remove_oldest(MessageTable* msg_table){
         free(msg_table->table[msg_table->items - 1]);
         msg_table->items--;
     }
+    return -1;
+}
+
+/* Fetching messages from struct */
+
+int size_latest_messages(MessageTable* msg_table, int n, int include_clk){
+    int i, items, length = 0;
+    char clock[CLK_MAX_SIZE];
+    if (msg_table != NULL ){
+        items = (msg_table->items < n)? msg_table->items : n; // minimum
+        if (include_clk){
+            for (i = 0; i < items; i++){
+                sprintf(clock, "%d", msg_table->table[i]->clock);
+                length += (strlen(clock) + strlen(msg_table->table[i]->text) + MSG_FORMAT_CLK_SIZE);
+            }
+        }else{
+            for (i = 0; i < items; i++){
+                length += (strlen(msg_table->table[i]->text) + MSG_FORMAT_SIZE);
+            }
+        }    
+        return length + 1;
+    }    
+    return -1;
+}
+
+int get_latest_messages(MessageTable* msg_table, int n, int include_clk, char* output){
+    int i, items, length = 0;
+    char buffer[MSG_MAX_SIZE + CLK_MAX_SIZE + 10];
+    if (msg_table != NULL ){
+        items = (msg_table->items < n)? msg_table->items : n; // minimum
+        if (include_clk){
+            for (i = 0; i < items; i++){
+                sprintf(buffer, MSG_FORMAT_CLK, msg_table->table[i]->clock, msg_table->table[i]->text);
+                strcat(output, buffer);
+            }
+        }else{
+            for (i = 0; i < items; i++){
+                sprintf(buffer, MSG_FORMAT, msg_table->table[i]->text);
+                strcat(output, buffer);
+            }
+        }
+        return items;    
+    }    
     return -1;
 }
 
