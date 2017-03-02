@@ -25,35 +25,61 @@ int main(int argc, char* argv[]){
     message_table = create_msg_table(m);
     get_servers(siip, sipt);
     
-    pthread_t interface_thread;
-    if(pthread_create(&interface_thread,NULL,interface,0)){
-        fprintf(stderr, "ERROR: Failed to launch command-line interface thread.\n");
-        return EXIT_FAILURE;
-    }
-    pthread_t udp_server_thread;
-    if(pthread_create(&udp_server_thread,NULL,udp_server,0)){
-        fprintf(stderr, "ERROR: Failed to launch UDP server thread.\n");
-        return EXIT_FAILURE;
-    }
-    pthread_t refresh_thread;
-    if(pthread_create(&refresh_thread,NULL,refresh_registration,0)){
-        fprintf(stderr, "ERROR: Failed to launch refresh thread.\n");
-        return EXIT_FAILURE;
-    }
+    int fd_stdin = STDIN;
+    int max_fd = fd_stdin;
+    int fd_si_udp = -1; 
+    int fd_rmb_udp = create_udp_server(upt);
+    max_fd = (fd_rmb_udp > max_fd)? fd_rmb_udp : max_fd;
+    int select_ret = -1;
 
-    pthread_join(interface_thread,NULL);
-    pthread_join(udp_server_thread,NULL);
-    pthread_join(refresh_thread,NULL);
-    
+    int fd_i;
 
+    fd_set read_set; // Set of file descriptors to be monitored
+
+    while(!end){
+        
+        /* Initialize the file descriptor set */
+        FD_ZERO(&read_set);
+        FD_SET(fd_stdin, &read_set);
+        FD_SET(fd_si_udp, &read_set);
+        FD_SET(fd_rmb_udp, &read_set);
+
+        /* Blocking select() call - unblocks when there is input to read */
+        select_ret = select(max_fd + 1, &read_set, NULL, NULL, NULL);
+        if (select_ret != -1){
+            if (FD_ISSET(fd_stdin, &read_set)){
+                handle_terminal();
+            }
+            if (FD_ISSET(fd_rmb_udp, &read_set)){
+                handle_rmb_request(fd_rmb_udp);
+            }
+        }
+    }
     exit(EXIT_SUCCESS);
 }
 
-/* Thread functions - each is executed by a concurrent thread */
-void* udp_server(){
-    
-    int fd = create_udp_server(upt);
-    debug_print("UDP: Listening on port %d.\n",upt);
+void handle_terminal(){
+    char line[2048], command[128];
+    if(fgets(line, sizeof(line), stdin)){
+        if(sscanf(line, "%s",command) == 1){
+            if(!strcmp(command,"join")){
+                register_in_server(name, ip, siip, sipt, upt, tpt);
+            }else if(!strcmp(command,"show_servers")){
+                /*List all the servers with which this server has a TCP session*/
+            }else if(!strcmp(command,"show_messages")){
+                print_msg_table(message_table);
+            }else if(!strcmp(command,"exit")){
+                end = 1;
+            }else{
+                printf("TERMINAL: Please input a valid command.\n");
+            }
+        }else{
+            printf("TERMINAL: Please input a valid command.\n");
+        }
+    }
+}
+
+void handle_rmb_request(int fd_rmb_udp){
 
     struct sockaddr_in client_address;
     int address_length = sizeof(client_address);
@@ -61,61 +87,19 @@ void* udp_server(){
     char buffer[BUFFER], protocol[256], message[140];   // String buffers
     int n;
 
-    while(!end){
-        // Blocking recvfrom call - Waits for a request
-        recvfrom(fd, buffer, sizeof(buffer), 0, (struct sockaddr*) &client_address, &address_length);
-        debug_print("UDP: Received '%s'\n", buffer); 
-        
-        if(sscanf(buffer, "%s %d", protocol, &n) == 2){
-            if(!strcmp(protocol,"GET_MESSAGES")){
-                send_messages(fd, &client_address, message_table, n);
-            }
-        }else if(sscanf(buffer, "%s %s", protocol, message) == 2){
-            if(!strcmp(protocol,"PUBLISH")){
-                insert_in_msg_table(message_table, message, LogicClock++);
-            }
-        }
-    }
-    close(fd);
-    return NULL;
-}
-
-void* interface(){
-    char command[256], line[256];
+    // Blocking recvfrom call - Waits for a request
+    recvfrom(fd_rmb_udp, buffer, sizeof(buffer), 0, (struct sockaddr*) &client_address, &address_length);
+    debug_print("UDP: Received '%s'\n", buffer); 
     
-    //Create UDP setup 
-    int fd;
-    struct hostent *hostptr;
-    struct sockaddr_in server_address, client_address;
-    int address_length;
-    char msg[140], buffer[2048], registration[1026];
-
-    fd = socket(AF_INET,SOCK_DGRAM,0);
-    memset((void*)&server_address, (int)'\0',sizeof(server_address));
-    server_address.sin_family = AF_INET;
-
-
-    printf("Starting loop\n");
-    while(!end){
-        if(fgets(line, sizeof(line), stdin)){
-            if(sscanf(line, "%s",command) == 1){
-                if(!strcmp(command,"join")){
-                    register_in_server(name, ip, siip, sipt, upt, tpt);
-                }else if(!strcmp(command,"show_servers")){
-                    /*List all the servers with which this server has a TCP session*/
-                }else if(!strcmp(command,"show_messages")){
-                    /*List all the messages on this server, ordered by logic times*/
-                    print_msg_table(message_table);
-                }else if(!strcmp(command,"exit")){
-                    end = 1;
-                }else
-                    printf("Please input a valid command\n");
-            }else
-                printf("Please input a valid command\n");
+    if(sscanf(buffer, "%s %d", protocol, &n) == 2){
+        if(!strcmp(protocol,"GET_MESSAGES")){
+            send_messages(fd_rmb_udp, &client_address, message_table, n);
+        }
+    }else if(sscanf(buffer, "%s %s", protocol, message) == 2){
+        if(!strcmp(protocol,"PUBLISH")){
+            insert_in_msg_table(message_table, message, LogicClock++);
         }
     }
-    delete_msg_table(message_table);    
-    exit(EXIT_SUCCESS);
 }
 
 void* refresh_registration(){

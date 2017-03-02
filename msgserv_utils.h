@@ -15,6 +15,8 @@
 # include "msg_table.h"
 #include "debug.h"
 
+/* */
+
 /* Protocol MACROS */
 #define SEND
 

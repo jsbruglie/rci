@@ -2,8 +2,10 @@
 #include "msgserv_utils.h"
 
 #define BUFFER 1024 // Length of buffer for requests
+#define STDIN 0
 
-/* Thread functions - each is executed by a concurrent thread */
-void* udp_server();
-void* interface();
+/* Functions */
+void handle_rmb_request(int fd_rmb_udp);
+void handle_terminal();
+
 void* refresh_registration();
