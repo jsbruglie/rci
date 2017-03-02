@@ -91,7 +91,31 @@ int create_udp_server(u_short port){
     return fd;
 }
 
+int create_udp_client(){
+    int fd = socket(AF_INET,SOCK_DGRAM,0);
+    return fd;
+}
+
 /* Server Requests */
+
+void refresh(int fd, char* name, char* ip, char* siip, int sipt, int upt, int tpt){
+    struct hostent *hostptr;
+    struct sockaddr_in server_address;
+    int address_length;
+    char registration[1024];
+
+    memset((void*)&server_address, (int)'\0',sizeof(server_address));
+    server_address.sin_family = AF_INET;
+    hostptr = gethostbyname(siip);
+    server_address.sin_addr.s_addr = ((struct in_addr *) (hostptr->h_addr_list[0]))->s_addr;
+    server_address.sin_port = htons((u_short)sipt);
+    
+    sprintf(registration, "REG %s;%s;%d;%d",name,ip,upt,tpt);
+    address_length = sizeof(server_address);
+    sendto(fd, registration, strlen(registration) + 1, 0, (struct sockaddr*) &server_address, address_length);
+    debug_print("REFRESH: Just registered in the Identity Server.\n");
+}
+
 int send_messages(int fd, struct sockaddr_in* client_addr_ptr, MessageTable* msg_table, int n){
 
     int ret, address_length = sizeof(*client_addr_ptr);
@@ -106,29 +130,6 @@ int send_messages(int fd, struct sockaddr_in* client_addr_ptr, MessageTable* msg
     ret = sendto(fd, buffer, size, 0, (struct sockaddr*) client_addr_ptr, address_length);
     free(buffer);
     return ret;
-}
-
-void register_in_server(char* name, char* ip, char* siip, int sipt, int upt, int tpt){
-
-    int fd;
-    struct hostent *hostptr;
-    struct sockaddr_in server_address;
-    int address_length;
-    char registration[1024];
-
-    fd = socket(AF_INET,SOCK_DGRAM,0);
-    memset((void*)&server_address, (int)'\0',sizeof(server_address));
-    server_address.sin_family = AF_INET;
-    server_address.sin_port = htons((u_short)sipt);
-    hostptr = gethostbyname(siip);
-    server_address.sin_addr.s_addr = ((struct in_addr *) (hostptr->h_addr_list[0]))->s_addr;
-
-    sprintf(registration, "REG %s;%s;%d;%d",name,ip,upt,tpt);
-    address_length = sizeof(server_address);
-    sendto(fd, registration, strlen(registration) + 1, 0, (struct sockaddr*) &server_address, address_length);
-    close(fd);
-    
-    debug_print("REFRESH: Just registered in the Identity Server.\n");
 }
 
 char* get_servers(char* siip, int sipt){
@@ -164,15 +165,23 @@ FdStruct* create_fd_struct(int upt){
     fd_s->std_in = STDIN;
     fd_s->rmb_udp = create_udp_server(upt);
     max = (fd_s->rmb_udp > max)? fd_s->rmb_udp : max;
+    fd_s->si_udp = create_udp_client();
+    max = (fd_s->si_udp > max)? fd_s->si_udp : max;
     fd_s->max = max;
-    debug_print("CREATE FD STRUCT: rmb %d max %d\n",fd_s->rmb_udp, fd_s->max);
+    debug_print("CREATE FD STRUCT: rmb %d si %d max %d\n",fd_s->rmb_udp, fd_s->si_udp, fd_s->max);
     return fd_s;
 }   
+
+void delete_fd_struct(FdStruct* fd){
+    if (fd != NULL){
+        free(fd);
+    }
+}
 
 void init_fd_set(fd_set* set, FdStruct* fd){
     FD_ZERO(set);
     FD_SET(fd->std_in, set);
-    //FD_SET(fd->si_udp, set);
+    FD_SET(fd->si_udp, set);
     FD_SET(fd->rmb_udp, set);
 }
 
