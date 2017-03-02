@@ -32,17 +32,13 @@ int main(int argc, char* argv[]){
     max_fd = (fd_rmb_udp > max_fd)? fd_rmb_udp : max_fd;
     int select_ret = -1;
 
-    int fd_i;
-
+    FdStruct* fd_struct = create_fd_struct(upt);
     fd_set read_set; // Set of file descriptors to be monitored
 
     while(!end){
         
         /* Initialize the file descriptor set */
-        FD_ZERO(&read_set);
-        FD_SET(fd_stdin, &read_set);
-        FD_SET(fd_si_udp, &read_set);
-        FD_SET(fd_rmb_udp, &read_set);
+        init_fd_set(&read_set, fd_stdin, fd_si_udp, fd_rmb_udp);
 
         /* Blocking select() call - unblocks when there is input to read */
         select_ret = select(max_fd + 1, &read_set, NULL, NULL, NULL);

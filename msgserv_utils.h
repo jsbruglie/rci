@@ -16,9 +16,13 @@
 #include "debug.h"
 
 /* */
+typedef struct _FdStruct{
+	int max;
+	int std_in;
+	int rmb_udp;
+}FdStruct;
 
-/* Protocol MACROS */
-#define SEND
+#define STDIN 0
 
 /* Functions */
 
@@ -30,5 +34,9 @@ int create_udp_server(u_short port);
 int send_messages(int fd, struct sockaddr_in* client_addr_ptr, MessageTable* msg_table, int n);
 void register_in_server(char* name, char* ip, char* siip, int sipt, int upt, int tpt);
 char* get_servers(char* siip, int sipt);
+
+FdStruct* create_fd_struct(int upt);
+void init_fd_set(fd_set* set, int fd_stdin, int fd_si_udp, int fd_rmb_udp);
+int fd_max(FdStruct* fd_struct);
 
 #endif
