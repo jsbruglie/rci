@@ -17,3 +17,5 @@ void show_latest_messages(int n, char* msgserv_ip, int msgserv_upt);
 char* get_servers(char* siip, int sipt);
 void pick_server(char* buffer, char* msgserv_name, char* msgserv_ip, int* msgserv_upt, int* msgserv_tpt);
 void print_servers(char* siip, int sipt);
+
+void publish_msg(char* message, char* msgserv_ip, int msgserv_upt);
