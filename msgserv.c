@@ -25,11 +25,6 @@ int main(int argc, char* argv[]){
     message_table = create_msg_table(m);
     get_servers(siip, sipt);
     
-    int fd_stdin = STDIN;
-    int max_fd = fd_stdin;
-    int fd_si_udp = -1; 
-    int fd_rmb_udp = create_udp_server(upt);
-    max_fd = (fd_rmb_udp > max_fd)? fd_rmb_udp : max_fd;
     int select_ret = -1;
 
     FdStruct* fd_struct = create_fd_struct(upt);
@@ -38,21 +33,30 @@ int main(int argc, char* argv[]){
     while(!end){
         
         /* Initialize the file descriptor set */
-        init_fd_set(&read_set, fd_stdin, fd_si_udp, fd_rmb_udp);
+        init_fd_set(&read_set, fd_struct);
 
         /* Blocking select() call - unblocks when there is input to read */
-        select_ret = select(max_fd + 1, &read_set, NULL, NULL, NULL);
+        select_ret = select(fd_max(fd_struct) + 1, &read_set, NULL, NULL, NULL);
         if (select_ret != -1){
-            if (FD_ISSET(fd_stdin, &read_set)){
-                handle_terminal();
-            }
-            if (FD_ISSET(fd_rmb_udp, &read_set)){
-                handle_rmb_request(fd_rmb_udp);
-            }
+            check_fd(fd_struct, &read_set);
         }
     }
     exit(EXIT_SUCCESS);
 }
+
+void check_fd(FdStruct* fd_struct, fd_set* read_set){
+    if (fd_struct != NULL){
+        /* Check if there's keyboard input to be processed */
+        if (FD_ISSET(fd_struct->std_in, read_set)){
+            handle_terminal();
+        }
+        /* Check if a there is a pending terminal request */
+        if (FD_ISSET(fd_struct->rmb_udp, read_set)){
+            handle_rmb_request(fd_struct->rmb_udp);
+        }
+    }
+}
+
 
 void handle_terminal(){
     char line[2048], command[128];

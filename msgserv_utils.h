@@ -36,7 +36,7 @@ void register_in_server(char* name, char* ip, char* siip, int sipt, int upt, int
 char* get_servers(char* siip, int sipt);
 
 FdStruct* create_fd_struct(int upt);
-void init_fd_set(fd_set* set, int fd_stdin, int fd_si_udp, int fd_rmb_udp);
+void init_fd_set(fd_set* set, FdStruct* fd);
 int fd_max(FdStruct* fd_struct);
 
 #endif

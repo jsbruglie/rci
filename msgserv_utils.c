@@ -156,21 +156,29 @@ char* get_servers(char* siip, int sipt){
 }
 
 FdStruct* create_fd_struct(int upt){
+    int max = 0;
     FdStruct* fd_s = (FdStruct*) malloc(sizeof(FdStruct));
+    if (fd_s == NULL){
+        return NULL;
+    }
     fd_s->std_in = STDIN;
     fd_s->rmb_udp = create_udp_server(upt);
-}
+    max = (fd_s->rmb_udp > max)? fd_s->rmb_udp : max;
+    fd_s->max = max;
+    debug_print("CREATE FD STRUCT: rmb %d max %d\n",fd_s->rmb_udp, fd_s->max);
+    return fd_s;
+}   
 
-void init_fd_set(fd_set* set, int fd_stdin, int fd_si_udp, int fd_rmb_udp){
+void init_fd_set(fd_set* set, FdStruct* fd){
     FD_ZERO(set);
-    FD_SET(fd_stdin, set);
-    FD_SET(fd_si_udp, set);
-    FD_SET(fd_rmb_udp, set);
+    FD_SET(fd->std_in, set);
+    //FD_SET(fd->si_udp, set);
+    FD_SET(fd->rmb_udp, set);
 }
 
 int fd_max(FdStruct* fd_struct){
     if (fd_struct != NULL){
         return fd_struct->max;
     }
-    return NULL;
+    return -1;
 }
