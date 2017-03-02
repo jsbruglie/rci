@@ -32,7 +32,7 @@ int main(int argc, char* argv[]){
     
     int select_ret = -1;
 
-    FdStruct* fd_struct = create_fd_struct(upt); 
+    FdStruct* fd_struct = create_fd_struct(upt, tpt); 
     fd_set read_set; // Set of file descriptors to be monitored
 
     while(!end){
@@ -64,6 +64,10 @@ void check_fd(FdStruct* fd_struct, fd_set* read_set){
         if (FD_ISSET(fd_struct->rmb_udp, read_set)){
             handle_rmb_request(fd_struct->rmb_udp);
         }
+        /* Check if another message server is trying to connect */
+        if (FD_ISSET(fd_struct->msg_tcp, read_set)){
+            // accept tcp connection
+        }    
     }
 }
 
@@ -88,6 +92,7 @@ void handle_terminal(FdStruct* fd_struct){
     }
 }
 
+/* Alarm interruption functions for regular refresh with ID server */
 void handle_alarm(int sig){
     timer = true;
 }

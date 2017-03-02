@@ -23,6 +23,7 @@ typedef struct _FdStruct{
 	int std_in;
 	int rmb_udp;
 	int si_udp;
+	int msg_tcp;
 }FdStruct;
 
 #define STDIN 0
@@ -34,13 +35,14 @@ void parse_args(int argc, char** argv, char** _name, char** _ip, int* _upt, int*
 
 int create_udp_server(u_short port);
 int create_udp_client();
+int create_tcp_server(u_short port);
 
 void refresh(int fd, char* name, char* ip, char* siip, int sipt, int upt, int tpt);
 int send_messages(int fd, struct sockaddr_in* client_addr_ptr, MessageTable* msg_table, int n);
 void register_in_server(char* name, char* ip, char* siip, int sipt, int upt, int tpt);
 char* get_servers(char* siip, int sipt);
 
-FdStruct* create_fd_struct(int upt);
+FdStruct* create_fd_struct(int upt, int tpt);
 void delete_fd_struct(FdStruct* fd);
 void init_fd_set(fd_set* set, FdStruct* fd);
 int fd_max(FdStruct* fd_struct);
