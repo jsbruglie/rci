@@ -200,7 +200,7 @@ void fill_table(MessageTable* message_table, char* buffer, int* LogicClock){
             
             char msg[140];
             int clock;
-            sscanf(token,"%d;%256[^;]",&clock,msg);
+            sscanf(token,"%d;%140[^;]",&clock,msg);
             if(clock > max_clock)
                 max_clock = clock;
             //Insert this message in the table

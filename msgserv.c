@@ -42,7 +42,7 @@ int main(int argc, char* argv[]){
         write(fd,"SGET_MESSAGES\n",sizeof("SGET_MESSAGES\n"));
         
         read(fd, buffer, sizeof(buffer));
-        printf("%s\n", buffer);
+        printf("Received: %s\n", buffer);
         
         /*Fill the table with what we received*/
         fill_table(message_table,buffer,&LogicClock);
@@ -148,7 +148,21 @@ void handle_msg_connect(int fd_msg_tcp){
     printf("%s\n", buffer);
     // Interpret command
     // if SGET_MESSAGES - send_msg_table(message_table, new_fd);
-    // if SMESSAGES - insert_in_msg_table(message_table, message, LC);
+    char response[BUFFER] = "";
+    if(!strcmp("SGET_MESSAGES\n",buffer)){
+        //Answer with a message table
+        printf("Answering...\n");
+        char temp[256];
+        int i;
+        for(i=0;i<m;i++){
+            if(message_table->table[i] != NULL){
+                sprintf(temp, "%d;%s\n",message_table->table[i]->clock,message_table->table[i]->text);
+                strcat(response, temp);    
+            }
+        }
+        write(new_fd, response, sizeof(response));
+    }
+    // if SMESSAGES - insert_in_msg_table(message_table, message, LC);  
 
     close(new_fd);
 }

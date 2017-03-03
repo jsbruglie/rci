@@ -38,7 +38,7 @@ int tcp_connect(char* ip, int tpt){
     server_address.sin_addr.s_addr = ((struct in_addr *)(hostptr->h_addr_list[0]))->s_addr;
     server_address.sin_port = htons((u_short)tpt);
     int rv = connect(fd, (struct sockaddr*)&server_address,sizeof(server_address)); //blocked here
-    printf("%d\n", rv);
+    printf("TCP connection: %d\n", rv);
     if(!rv)
         return fd;
     else
