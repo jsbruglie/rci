@@ -96,7 +96,35 @@ int create_udp_client(){
     return fd;
 }
 
+int create_tcp_server(u_short port){
+    
+    int fd;
+    struct hostent *hostptr;
+    struct sockaddr_in server_address;
+
+    fd = socket(AF_INET, SOCK_STREAM, 0);
+    memset((void*) &server_address, (int) '\0', sizeof(server_address));
+    server_address.sin_family = AF_INET;
+    server_address.sin_addr.s_addr = htonl(INADDR_ANY);
+    server_address.sin_port = htons((u_short) port);
+    bind(fd, (struct sockaddr*) &server_address, sizeof(server_address));
+
+    listen(fd,5);
+
+    return fd;
+}
+
 /* Server Requests */
+
+int accept_tcp_connection(int fd){
+
+    int new_fd;
+    struct sockaddr_in client_address; 
+    int client_length = sizeof(client_address);
+
+    new_fd = accept(fd, (struct sockaddr*) &client_address, &client_length);
+    return new_fd;
+}
 
 void refresh(int fd, char* name, char* ip, char* siip, int sipt, int upt, int tpt){
     struct hostent *hostptr;
@@ -161,19 +189,24 @@ char* get_servers(char* siip, int sipt){
     return return_string;
 }
 
-FdStruct* create_fd_struct(int upt){
+FdStruct* create_fd_struct(int upt, int tpt){
+    
     int max = 0;
     FdStruct* fd_s = (FdStruct*) malloc(sizeof(FdStruct));
     if (fd_s == NULL){
         return NULL;
     }
     fd_s->std_in = STDIN;
-    fd_s->rmb_udp = create_udp_server(upt);
-    max = (fd_s->rmb_udp > max)? fd_s->rmb_udp : max;
+    fd_s->rmb_udp = create_udp_server(upt); 
     fd_s->si_udp = create_udp_client();
+    fd_s->msg_tcp = create_tcp_server(tpt);
+    // Set max to the highest integer among monitored file descriptors
+    max = (fd_s->rmb_udp > max)? fd_s->rmb_udp : max;  
     max = (fd_s->si_udp > max)? fd_s->si_udp : max;
+    max = (fd_s->msg_tcp > max)? fd_s->msg_tcp : max;
     fd_s->max = max;
-    debug_print("CREATE FD STRUCT: rmb %d si %d max %d\n",fd_s->rmb_udp, fd_s->si_udp, fd_s->max);
+    
+    debug_print("CREATE FD STRUCT: rmb %d si %d msg %d max %d\n",fd_s->rmb_udp, fd_s->si_udp, fd_s->msg_tcp, fd_s->max);
     return fd_s;
 }   
 
@@ -184,10 +217,13 @@ void delete_fd_struct(FdStruct* fd){
 }
 
 void init_fd_set(fd_set* set, FdStruct* fd){
-    FD_ZERO(set);
-    FD_SET(fd->std_in, set);
-    FD_SET(fd->si_udp, set);
-    FD_SET(fd->rmb_udp, set);
+    if (set != NULL && fd != NULL){
+        FD_ZERO(set);
+        FD_SET(fd->std_in, set);
+        FD_SET(fd->si_udp, set);
+        FD_SET(fd->rmb_udp, set);
+        FD_SET(fd->msg_tcp, set);
+    }    
 }
 
 int fd_max(FdStruct* fd_struct){

@@ -56,6 +56,5 @@ int main(int argc, char* argv[]){
         }
     }
 
-    free(siip);
     exit(EXIT_SUCCESS);
 }
