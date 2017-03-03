@@ -116,6 +116,16 @@ int create_tcp_server(u_short port){
 
 /* Server Requests */
 
+int accept_tcp_connection(int fd){
+
+    int new_fd;
+    struct sockaddr_in client_address; 
+    int client_length = sizeof(client_address);
+
+    new_fd = accept(fd, (struct sockaddr*) &client_address, &client_length);
+    return new_fd;
+}
+
 void refresh(int fd, char* name, char* ip, char* siip, int sipt, int upt, int tpt){
     struct hostent *hostptr;
     struct sockaddr_in server_address;

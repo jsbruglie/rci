@@ -66,7 +66,7 @@ void check_fd(FdStruct* fd_struct, fd_set* read_set){
         }
         /* Check if another message server is trying to connect */
         if (FD_ISSET(fd_struct->msg_tcp, read_set)){
-            // accept tcp connection
+            handle_msg_connect(fd_struct->msg_tcp);
         }    
     }
 }
@@ -92,21 +92,6 @@ void handle_terminal(FdStruct* fd_struct){
     }
 }
 
-/* Alarm interruption functions for regular refresh with ID server */
-void handle_alarm(int sig){
-    timer = true;
-}
-
-void handle_si_refresh(FdStruct* fd_struct){
-    if(timer){
-        if (fd_struct != NULL){
-            refresh(fd_struct->si_udp, name, ip, siip, sipt, upt, tpt);
-            timer = false;
-            alarm(r);
-        }
-    }
-}
-
 void handle_rmb_request(int fd_rmb_udp){
 
     struct sockaddr_in client_address;
@@ -126,6 +111,39 @@ void handle_rmb_request(int fd_rmb_udp){
     }else if(sscanf(buffer, "%s %s", protocol, message) == 2){
         if(!strcmp(protocol,"PUBLISH")){
             insert_in_msg_table(message_table, message, LogicClock++);
+            // for all servers in msg_server list
+            //  connect
+            //  send single message
+            //  close connection
+        }
+    }
+}
+
+void handle_msg_connect(int fd_msg_tcp){
+
+    char buffer[BUFFER];
+
+    int new_fd = accept_tcp_connection(fd_msg_tcp);
+    read(new_fd, buffer, sizeof(buffer));
+    
+    // Interpret command
+    // if SGET_MESSAGES - send_msg_table(message_table, new_fd);
+    // if SMESSAGES - insert_in_msg_table(message_table, message, LC);
+
+    close(new_fd);
+}
+
+/* Alarm interruption functions for regular refresh with ID server */
+void handle_alarm(int sig){
+    timer = true;
+}
+
+void handle_si_refresh(FdStruct* fd_struct){
+    if(timer){
+        if (fd_struct != NULL){
+            refresh(fd_struct->si_udp, name, ip, siip, sipt, upt, tpt);
+            timer = false;
+            alarm(r);
         }
     }
 }
