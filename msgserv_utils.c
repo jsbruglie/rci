@@ -141,22 +141,38 @@ void refresh(int fd, char* name, char* ip, char* siip, int sipt, int upt, int tp
     sprintf(registration, "REG %s;%s;%d;%d",name,ip,upt,tpt);
     address_length = sizeof(server_address);
     sendto(fd, registration, strlen(registration) + 1, 0, (struct sockaddr*) &server_address, address_length);
-    debug_print("REFRESH: Just registered in the Identity Server.\n");
+    //debug_print("REFRESH: Just registered in the Identity Server.\n");
 }
 
 int send_messages(int fd, struct sockaddr_in* client_addr_ptr, MessageTable* msg_table, int n){
 
-    int ret, address_length = sizeof(*client_addr_ptr);
+    int ret = -1;
+    int address_length = sizeof(*client_addr_ptr);
 
     sort_msg_table(msg_table);
-    int size = strlen("MESSAGES\n") + size_latest_messages(msg_table, n, !INCLUDE_CLK);
+    int size = strlen("MESSAGES\n") + size_latest_messages(msg_table, n, 0, !INCLUDE_CLK);
     char* buffer = malloc(sizeof(char) * size);
     strcpy(buffer,"MESSAGES\n");
-    get_latest_messages(msg_table, n, !INCLUDE_CLK, buffer);
+    get_latest_messages(msg_table, n, 0, !INCLUDE_CLK, buffer);
     //debug_print("SEND_MSG: %d/%d bytes \n%s\n", size, strlen(buffer) + 1, buffer);
-    
     ret = sendto(fd, buffer, size, 0, (struct sockaddr*) client_addr_ptr, address_length);
     free(buffer);
+    
+    return ret;
+}
+
+int send_messages_tcp(int fd, MessageTable* msg_table, int n, int all){
+
+    int ret = -1;
+    
+    int size = strlen("SMESSAGES\n") + size_latest_messages(msg_table, n, all, INCLUDE_CLK);
+    char* buffer = malloc(sizeof(char) * size);
+    strcpy(buffer,"SMESSAGES\n");
+    get_latest_messages(msg_table, n, all, INCLUDE_CLK, buffer);
+    //debug_print("SEND_MSG_TCP: %d/%d bytes \n%s\n", size, strlen(buffer) + 1, buffer);
+    ret = write(fd, buffer, strlen(buffer) + 1);
+    free(buffer);
+    
     return ret;
 }
 
