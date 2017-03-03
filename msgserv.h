@@ -12,5 +12,6 @@ void handle_si_refresh(FdStruct* fd_struct);
 void handle_terminal(FdStruct* fd_struct);
 void handle_rmb_request(int fd_rmb_udp);
 void handle_msg_connect(int fd_msg_tcp);
+void handle_msg_activity(int fd_msg_tcp);
 
 void cleanup();
