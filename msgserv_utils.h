@@ -12,9 +12,9 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <signal.h>
-#include <stdbool.h>
 
-# include "msg_table.h"
+#include "msg_table.h"
+#include "sv_list.h"
 #include "debug.h"
 
 /* */
@@ -25,6 +25,7 @@ typedef struct _FdStruct{
 	int si_udp;
 	int msg_tcp;
 }FdStruct;
+
 
 #define STDIN 0
 

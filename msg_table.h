@@ -55,4 +55,7 @@ int partition(Message** msg_table, int l, int r, int pivot);
 /* DEBUG */
 void print_msg_table(MessageTable* msg_table);
 
+/* Initial filling*/
+void fill_table(MessageTable* msg_table, char* buffer, int* LogicClock);
+
 #endif
