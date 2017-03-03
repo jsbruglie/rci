@@ -152,14 +152,14 @@ void handle_msg_connect(int fd_msg_tcp){
 
 /* Alarm interruption functions for regular refresh with ID server */
 void handle_alarm(int sig){
-    timer = true;
+    timer = 1;
 }
 
 void handle_si_refresh(FdStruct* fd_struct){
     if(timer){
         if (fd_struct != NULL){
             refresh(fd_struct->si_udp, name, ip, siip, sipt, upt, tpt);
-            timer = false;
+            timer = 0;
             alarm(r);
         }
     }
