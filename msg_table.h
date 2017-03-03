@@ -31,9 +31,9 @@ typedef struct _MessageTable{
 
 /* Functions */
 
-/* Create/Delete message table struct */
+/* Create/free message table struct */
 MessageTable* create_msg_table(int size);
-void delete_msg_table(MessageTable* msg_table);
+void free_msg_table(MessageTable* msg_table);
 int get_msg_clock(Message** msg_table, int i);
 void swap_msg(Message** msg_table, int a, int b);
 

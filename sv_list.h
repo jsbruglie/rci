@@ -14,6 +14,8 @@
 #include <netdb.h>
 #include <signal.h>
 
+#define MAX_SIZE 256
+
 /* Message Table struct type */
 /* Message server identity structure type */
 typedef struct _ServerID{
@@ -31,6 +33,7 @@ ServerID* server_list_push(ServerID * head, char* si_name, char* si_ip, int si_u
 void print_server_list(ServerID * head);
 int tcp_connect(char* ip, int tpt);
 ServerID* create_server_list(ServerID* server_list, char* server_string, char* name, int upt, int tpt);
-
+void free_server_list(ServerID* server_list);
+void delete_server_list(int del_fd, ServerID* server_list);	
 
 #endif

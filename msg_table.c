@@ -22,7 +22,7 @@ MessageTable* create_msg_table(int size){
     return message_table;
 }
 
-void delete_msg_table(MessageTable* msg_table){
+void free_msg_table(MessageTable* msg_table){
     if (msg_table != NULL){
         int i;
         for(i = 0; i < msg_table->size; i++){

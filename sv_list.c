@@ -7,9 +7,9 @@ ServerID* server_list_push(ServerID * head, char* si_name, char* si_ip, int si_u
         perror("server list error: ");
         exit(1);
     }
-    new->name = (char*)malloc(sizeof(si_name));
+    new->name = (char*)malloc(sizeof(char) * MAX_SIZE);
     strcpy(new->name, si_name);
-    new->ip = (char*)malloc(sizeof(si_ip));
+    new->ip = (char*)malloc(sizeof(char) * MAX_SIZE);
     strcpy(new->ip, si_ip);
     new->tpt = si_tpt;
     new->upt = si_upt;
@@ -68,4 +68,36 @@ ServerID* create_server_list(ServerID* server_list, char* server_string, char* n
         token = strtok(NULL, delimiter);
     }
     return first;
+}
+
+void free_server_list(ServerID* server_list){
+    ServerID* next;
+    ServerID* p;
+    for(p=server_list;p!=NULL;p=next){
+        next = p->next;
+        free(p->name);
+        free(p->ip);
+        free(p);
+    }
+}
+
+void delete_server_list(int del_fd, ServerID* server_list){
+    ServerID* aux, *prev;
+    ServerID* local = server_list;
+
+    for(aux = server_list; aux != NULL ; aux = aux->next){
+        if(aux->fd == del_fd){
+            if(aux == server_list){
+                server_list = local->next;
+            }else{
+                prev->next = aux->next;
+                server_list = local;
+            }
+            free(aux->name);
+            free(aux->ip);
+            free(aux);
+            return; //We can immediately return since we assume fd's are unique
+        }
+        prev = aux;
+    }
 }

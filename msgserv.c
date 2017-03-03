@@ -40,8 +40,10 @@ int main(int argc, char* argv[]){
         char buffer[2048];
         int fd = server_list->fd;
         write(fd,"SGET_MESSAGES\n",sizeof("SGET_MESSAGES\n"));
+        
         read(fd, buffer, sizeof(buffer));
         printf("%s\n", buffer);
+        
         /*Fill the table with what we received*/
         fill_table(message_table,buffer,&LogicClock);
     }
@@ -68,6 +70,7 @@ int main(int argc, char* argv[]){
     }
 
     cleanup();
+
     exit(EXIT_SUCCESS);
 }
 
@@ -142,7 +145,7 @@ void handle_msg_connect(int fd_msg_tcp){
 
     int new_fd = accept_tcp_connection(fd_msg_tcp);
     read(new_fd, buffer, sizeof(buffer));
-    
+    printf("%s\n", buffer);
     // Interpret command
     // if SGET_MESSAGES - send_msg_table(message_table, new_fd);
     // if SMESSAGES - insert_in_msg_table(message_table, message, LC);
@@ -166,7 +169,9 @@ void handle_si_refresh(FdStruct* fd_struct){
 }
 
 void cleanup(){
-    delete_msg_table(message_table);
+    free_msg_table(message_table);
+    free_server_list(server_list);
     free(name);
     free(ip);
 }
+
