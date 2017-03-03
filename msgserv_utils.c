@@ -153,7 +153,12 @@ char* get_servers(char* siip, int sipt){
     recvfrom(fd, server_list, sizeof(server_list), 0, (struct sockaddr*) &server_address, &address_length);
     close(fd);
 
+    char * return_string = (char*)malloc(sizeof(server_list));
+    strcpy(return_string,server_list);
+
     debug_print("%s", server_list);
+
+    return return_string;
 }
 
 FdStruct* create_fd_struct(int upt){
@@ -191,3 +196,6 @@ int fd_max(FdStruct* fd_struct){
     }
     return -1;
 }
+
+
+

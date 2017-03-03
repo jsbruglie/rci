@@ -13,10 +13,11 @@ int r = 10;                             // Time interval between registry entrie
 
 /* Global variables - so they can be accessed by concurrent threads */
 MessageTable* message_table;            // Table with message structs
+ServerID* server_list;
 int LogicClock = 0;                     // Logic Clock mechanism to ensure causality            
-int end = false;                        // Global exit variable
+int end = 0;                        // Global exit variable
 
-volatile sig_atomic_t timer = false;    // Timer for ID server refresh with UDP
+volatile int timer = 0;    // Timer for ID server refresh with UDP
 
 /* Main application */
 int main(int argc, char* argv[]){
@@ -28,8 +29,24 @@ int main(int argc, char* argv[]){
     alarm(r);                       // First setup of the alarm
 
     message_table = create_msg_table(m);
-    get_servers(siip, sipt);
     
+    /*==========Initial Request*========*/
+    char* server_string = get_servers(siip, sipt);
+    server_list = create_server_list(server_list, server_string, name, upt, tpt);    
+    if(server_list != NULL){
+        printf("Printing server list...\n");
+        print_server_list(server_list);
+        /*Request to the first server in the list*/
+        char buffer[2048];
+        int fd = server_list->fd;
+        write(fd,"SGET_MESSAGES\n",sizeof("SGET_MESSAGES\n"));
+        read(fd, buffer, sizeof(buffer));
+        printf("%s\n", buffer);
+        /*Fill the table with what we received*/
+        fill_table(message_table,buffer,&LogicClock);
+    }
+    /*==================================*/
+
     int select_ret = -1;
 
     FdStruct* fd_struct = create_fd_struct(upt); 
@@ -75,6 +92,7 @@ void handle_terminal(FdStruct* fd_struct){
                  refresh(fd_struct->si_udp, name, ip, siip, sipt, upt, tpt);
             }else if(!strcmp(command,"show_servers")){
                 /*List all the servers with which this server has a TCP session*/
+                print_server_list(server_list);
             }else if(!strcmp(command,"show_messages")){
                 print_msg_table(message_table);
             }else if(!strcmp(command,"exit")){
@@ -89,14 +107,14 @@ void handle_terminal(FdStruct* fd_struct){
 }
 
 void handle_alarm(int sig){
-    timer = true;
+    timer = 1;
 }
 
 void handle_si_refresh(FdStruct* fd_struct){
     if(timer){
         if (fd_struct != NULL){
             refresh(fd_struct->si_udp, name, ip, siip, sipt, upt, tpt);
-            timer = false;
+            timer = 0;
             alarm(r);
         }
     }
