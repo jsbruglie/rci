@@ -1,3 +1,14 @@
+/** @file msgserv.c
+ *  @brief Message Server Application
+ *
+ *  This is the msgserv.c file to run an
+ *  instance of the message server app
+ *
+ *  @author João Borrego
+ *  @author Pedro Abreu
+ *  @bug No know bugs.
+ */
+
 #include "msgserv.h"
 
 /* Mandatory Parameters */
@@ -30,28 +41,30 @@ int main(int argc, char* argv[]){
 
     message_table = create_msg_table(m);
     
-    /*==========Initial Request*========*/
-    char* server_string = get_servers(siip, sipt);
-    server_list = create_server_list(server_list, server_string, name, upt, tpt);    
+    FdStruct* fd_struct = create_fd_struct(upt, tpt); 
+    
+    /*==========Initial Request & Server List Connections*========*/
+    refresh(fd_struct->si_udp, name, ip, siip, sipt, upt, tpt); //Connect
+    char* server_string = get_servers(siip, sipt); //Get servers
+    server_list = create_server_list(server_list, server_string, name, upt, tpt); //Create a list + connect to previous servers  
     if(server_list != NULL){
         printf("Printing server list...\n");
         print_server_list(server_list);
-        /*Request to the first server in the list*/
-        char buffer[2048];
+        /*Request message table to the first server in the list*/
+        char buffer[BUFFER_SIZE];
         int fd = server_list->fd;
         write(fd,"SGET_MESSAGES\n",sizeof("SGET_MESSAGES\n"));
         
         read(fd, buffer, sizeof(buffer));
         printf("Received: %s\n", buffer);
         
-        /*Fill the table with what we received*/
+        /*Fill our table with what we received*/
         fill_table(message_table,buffer,&LogicClock);
     }
-    /*==================================*/
+    /*============================================================*/
 
     int select_ret = -1;
 
-    FdStruct* fd_struct = create_fd_struct(upt, tpt); 
     fd_set read_set; // Set of file descriptors to be monitored
 
     while(!end){
@@ -92,7 +105,7 @@ void check_fd(FdStruct* fd_struct, fd_set* read_set){
 }
 
 void handle_terminal(FdStruct* fd_struct){
-    char line[2048], command[128];
+    char line[BUFFER_SIZE], command[COMMAND_SIZE];
     if(fgets(line, sizeof(line), stdin)){
         if(sscanf(line, "%s",command) == 1){
             if(!strcmp(command,"join")){
@@ -117,7 +130,7 @@ void handle_rmb_request(int fd_rmb_udp){
     struct sockaddr_in client_address;
     int address_length = sizeof(client_address);
 
-    char buffer[BUFFER], protocol[256], message[140];   // String buffers
+    char buffer[BUFFER_SIZE], protocol[PROTOCOL_SIZE], message[MESSAGE_SIZE];   // String buffers
     int n;
 
     // Blocking recvfrom call - Waits for a request
@@ -128,31 +141,46 @@ void handle_rmb_request(int fd_rmb_udp){
         if(!strcmp(protocol,"GET_MESSAGES")){
             send_messages(fd_rmb_udp, &client_address, message_table, n);
         }
-    }else if(sscanf(buffer, "%s %s", protocol, message) == 2){
+    }else if(sscanf(buffer, "%s %140[^\n]", protocol, message) == 2){ //If you change MESSAGE_SIZE, change this aswell
         if(!strcmp(protocol,"PUBLISH")){
             insert_in_msg_table(message_table, message, LogicClock++);
             // for all servers in msg_server list
-            //  connect
             //  send single message
-            //  close connection
         }
     }
 }
 
 void handle_msg_connect(int fd_msg_tcp){
 
-    char buffer[BUFFER];
+    //read from fd
+    // if SMESSAGES - insert_in_msg_table(message_table, message, LC); 
+    //return
+    //if read times out, we go into accept
+    
+    char buffer[BUFFER_SIZE];
 
-    int new_fd = accept_tcp_connection(fd_msg_tcp);
+    int new_fd;
+    struct sockaddr_in client_address; 
+    int client_length = sizeof(client_address);
+
+    new_fd = accept(fd_msg_tcp, (struct sockaddr*) &client_address, &client_length);
+    char clientAddr[COMMAND_SIZE];
+
+    inet_ntop(AF_INET, &(client_address.sin_addr), clientAddr, sizeof(clientAddr));
+    printf("%s\n", clientAddr);
+    //Do a get servers, search for their ip and add it to my server list if we don't have a connection to it
+
+
+
     read(new_fd, buffer, sizeof(buffer));
     printf("%s\n", buffer);
     // Interpret command
     // if SGET_MESSAGES - send_msg_table(message_table, new_fd);
-    char response[BUFFER] = "";
+    char response[BUFFER_SIZE] = "";
     if(!strcmp("SGET_MESSAGES\n",buffer)){
         //Answer with a message table
         printf("Answering...\n");
-        char temp[256];
+        char temp[BUFFER_SIZE];
         int i;
         for(i=0;i<m;i++){
             if(message_table->table[i] != NULL){
@@ -162,9 +190,8 @@ void handle_msg_connect(int fd_msg_tcp){
         }
         write(new_fd, response, sizeof(response));
     }
-    // if SMESSAGES - insert_in_msg_table(message_table, message, LC);  
 
-    close(new_fd);
+
 }
 
 /* Alarm interruption functions for regular refresh with ID server */

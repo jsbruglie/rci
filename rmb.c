@@ -7,12 +7,12 @@ int main(int argc, char* argv[]){
     parse_args(argc, argv, &siip, &sipt);
 
     /*Parameters needed for publish*/
-    char msgserv_name[256] = "", msgserv_ip[256] = ""; //Name and ip of the message server we pick
+    char msgserv_name[NAMEIP_SIZE] = "", msgserv_ip[NAMEIP_SIZE] = ""; //Name and ip of the message server we pick
     int msgserv_upt = -1, msgserv_tpt = -1; //UDP and TCP port of the message server we pick
 
     /*Protocol variables + Interface variables*/
     int n, end = 0; //Number of messages you may want to get | ending variable for IO
-    char message[140], command[256], line[256]; //Message you may want to publish | Command line variables
+    char message[MESSAGE_SIZE], command[COMMAND_SIZE], line[BUFFER_SIZE]; //Message you may want to publish | Command line variables
    
     /* Command Line Interface */
     while(!end){
@@ -30,9 +30,8 @@ int main(int argc, char* argv[]){
                 }else
                     printf("Please input a valid command\n");
                 
-            }else if(sscanf(line, "%s %s",command,message) == 2){
+            }else if(sscanf(line, "%s %140[^\n]",command,message) == 2){
                 if(!strcmp(command,"publish")){
-                    
                     char* buffer = get_servers(siip, sipt); //Get servers
                     pick_server(buffer,msgserv_name,msgserv_ip,&msgserv_upt,&msgserv_tpt); //Pick one of the servers
                     debug_print("Name: %s IP: %s UDP: %d TCP: %d\n",msgserv_name,msgserv_ip,msgserv_upt,msgserv_tpt);

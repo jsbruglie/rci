@@ -4,7 +4,6 @@ void parse_args(int argc, char** argv, char** _siip, int* _sipt){
 
     char* siip = NULL;
     int sipt = -1;
-
     char opt;
 
     while( (opt = getopt(argc, argv, "i:p:")) != -1 ){
@@ -34,8 +33,8 @@ void show_latest_messages(int n, char* msgserv_ip, int msgserv_upt){
     struct sockaddr_in server_address;      // Server address struct
     int address_length;                     // Address length
 
-    char buffer[2048];
-    char protocol_msg[200] = "GET_MESSAGES ";
+    char buffer[BUFFER_SIZE];
+    char protocol_msg[PROTOCOL_SIZE] = "GET_MESSAGES ";
     char number_msg[10];
     snprintf(number_msg, 10, "%d", n);
     strcat(protocol_msg, number_msg);
@@ -51,12 +50,14 @@ void show_latest_messages(int n, char* msgserv_ip, int msgserv_upt){
     server_address.sin_port = htons((u_short)msgserv_upt);
 
     address_length = sizeof(server_address);
-    sendto(fd, protocol_msg, strlen(protocol_msg)+1, 0,(struct sockaddr*)&server_address, address_length);
+    int r = sendto(fd, protocol_msg, strlen(protocol_msg)+1, 0,(struct sockaddr*)&server_address, address_length);
+    if(r==-1)exit(EXIT_FAILURE);//error
 
     address_length = sizeof(server_address);
-    recvfrom(fd,buffer,sizeof(buffer), 0,(struct sockaddr*)&server_address, &address_length);
+    r = recvfrom(fd,buffer,sizeof(buffer), 0,(struct sockaddr*)&server_address, &address_length);
+    if(r==-1)exit(EXIT_FAILURE);//error
 
-    // Print server reply
+    // Print server reply, this is NOT debug
     printf("%s",buffer);
 
     close(fd);
@@ -67,7 +68,7 @@ char* get_servers(char* siip, int sipt){
     struct hostent *hostptr;
     struct sockaddr_in server_address;
     int address_length;
-    char server_list[2048];
+    char server_list[BUFFER_SIZE];
 
     fd = socket(AF_INET,SOCK_DGRAM,0);
     hostptr = gethostbyname(siip);
@@ -77,13 +78,18 @@ char* get_servers(char* siip, int sipt){
     server_address.sin_port = htons((u_short)sipt);
 
     address_length = sizeof(server_address);
-    sendto(fd, "GET_SERVERS", strlen("GET_SERVERS") + 1, 0, (struct sockaddr*) &server_address, address_length);
-
+    int n = sendto(fd, "GET_SERVERS", strlen("GET_SERVERS") + 1, 0, (struct sockaddr*) &server_address, address_length);
+    if(n==-1)exit(EXIT_FAILURE);//error
+    
     address_length = sizeof(server_address);
     recvfrom(fd, server_list, sizeof(server_list), 0, (struct sockaddr*) &server_address, &address_length);
+    if(n==-1)exit(EXIT_FAILURE);//error
     close(fd);
 
     char * return_string = (char*)malloc(sizeof(server_list));
+    if(return_string == NULL){
+        printf("Out of memory\n");exit(EXIT_FAILURE); 
+    }
     strcpy(return_string,server_list);
 
     debug_print("%s", server_list);
@@ -95,7 +101,7 @@ void pick_server(char* buffer, char* msgserv_name, char* msgserv_ip, int* msgser
     //Getting data - we just need to get the first msgserv in the list of servers we get and publish to that one, it will then propagate
     //Alter this to be a random server in buffer
     char* p1 = buffer + 8; 
-    char p2[256];
+    char p2[BUFFER_SIZE];
     sscanf(p1,"%[^\n]",p2);
     debug_print("%s\n", p2);
     sscanf(p2,"%256[^;];%256[^;];%d;%d",msgserv_name,msgserv_ip,&(*msgserv_upt),&(*msgserv_tpt));
@@ -106,7 +112,7 @@ void publish_msg(char* message, char* msgserv_ip, int msgserv_upt){
     struct hostent *hostptr;
     struct sockaddr_in server_address;
     int address_length;
-    char protocol_msg[200] = "PUBLISH ";
+    char protocol_msg[PROTOCOL_SIZE] = "PUBLISH ";
     strcat(protocol_msg,message);
 
     debug_print("Publishing message to msgserv, IP: %s PORT: %d\n", msgserv_ip, msgserv_upt);
@@ -119,7 +125,8 @@ void publish_msg(char* message, char* msgserv_ip, int msgserv_upt){
     server_address.sin_port = htons((u_short)msgserv_upt); 
 
     address_length = sizeof(server_address);
-    sendto(fd, protocol_msg, strlen(protocol_msg)+1,0,(struct sockaddr*)&server_address,address_length);
+    int n = sendto(fd, protocol_msg, strlen(protocol_msg)+1,0,(struct sockaddr*)&server_address,address_length);
+    if(n==-1)exit(EXIT_FAILURE);//error
 
     close(fd);
 }
@@ -129,7 +136,7 @@ void print_servers(char* siip, int sipt){
     struct hostent *hostptr;
     struct sockaddr_in server_address;
     int address_length;
-    char server_list[2048];
+    char server_list[BUFFER_SIZE];
 
     fd = socket(AF_INET,SOCK_DGRAM,0);
     hostptr = gethostbyname(siip);
@@ -139,11 +146,14 @@ void print_servers(char* siip, int sipt){
     server_address.sin_port = htons((u_short)sipt);
 
     address_length = sizeof(server_address);
-    sendto(fd, "GET_SERVERS", strlen("GET_SERVERS") + 1, 0, (struct sockaddr*) &server_address, address_length);
+    int n = sendto(fd, "GET_SERVERS", strlen("GET_SERVERS") + 1, 0, (struct sockaddr*) &server_address, address_length);
+    if(n==-1)exit(EXIT_FAILURE);//error
 
     address_length = sizeof(server_address);
-    recvfrom(fd, server_list, sizeof(server_list), 0, (struct sockaddr*) &server_address, &address_length);
+    n = recvfrom(fd, server_list, sizeof(server_list), 0, (struct sockaddr*) &server_address, &address_length);
+    if(n==-1)exit(EXIT_FAILURE);//error
+    
     close(fd);
 
-    printf("%s\n", server_list);
+    printf("%s\n", server_list); //This is not debug
 }

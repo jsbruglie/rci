@@ -123,6 +123,11 @@ int accept_tcp_connection(int fd){
     int client_length = sizeof(client_address);
 
     new_fd = accept(fd, (struct sockaddr*) &client_address, &client_length);
+    char clientAddr[COMMAND_SIZE];
+
+    inet_ntop(AF_INET, &(client_address.sin_addr), clientAddr, sizeof(clientAddr));
+    printf("%s\n", clientAddr);
+
     return new_fd;
 }
 
@@ -130,7 +135,7 @@ void refresh(int fd, char* name, char* ip, char* siip, int sipt, int upt, int tp
     struct hostent *hostptr;
     struct sockaddr_in server_address;
     int address_length;
-    char registration[1024];
+    char registration[BUFFER_SIZE];
 
     memset((void*)&server_address, (int)'\0',sizeof(server_address));
     server_address.sin_family = AF_INET;
@@ -168,7 +173,7 @@ char* get_servers(char* siip, int sipt){
     struct hostent *hostptr;
     struct sockaddr_in server_address;
     int address_length;
-    char server_list[2048];
+    char server_list[BUFFER_SIZE];
 
     fd = socket(AF_INET,SOCK_DGRAM,0);
     memset((void*)&server_address, (int)'\0',sizeof(server_address));

@@ -26,6 +26,10 @@ typedef struct _FdStruct{
 	int msg_tcp;
 }FdStruct;
 
+#define BUFFER_SIZE 2048 // Length of buffer for requests
+#define PROTOCOL_SIZE 256 // Length of protocol macros
+#define MESSAGE_SIZE 140 // Length of messages
+#define COMMAND_SIZE 128 // Length of commands from the terminal
 
 #define STDIN 0
 

@@ -7,9 +7,9 @@ ServerID* server_list_push(ServerID * head, char* si_name, char* si_ip, int si_u
         perror("server list error: ");
         exit(1);
     }
-    new->name = (char*)malloc(sizeof(char) * MAX_SIZE);
+    new->name = (char*)malloc(sizeof(char) * NAMEIP_SIZE);
     strcpy(new->name, si_name);
-    new->ip = (char*)malloc(sizeof(char) * MAX_SIZE);
+    new->ip = (char*)malloc(sizeof(char) * NAMEIP_SIZE);
     strcpy(new->ip, si_ip);
     new->tpt = si_tpt;
     new->upt = si_upt;
@@ -54,10 +54,10 @@ ServerID* create_server_list(ServerID* server_list, char* server_string, char* n
     while(token != NULL){
         if(strcmp("SERVERS",token) != 0){
             
-            char si_name[256], si_ip[256];
+            char si_name[NAMEIP_SIZE], si_ip[NAMEIP_SIZE];
             int si_upt;
             int si_tpt;
-            sscanf(token,"%256[^;];%256[^;];%d;%d",si_name,si_ip,&si_upt,&si_tpt);
+            sscanf(token,"%256[^;];%256[^;];%d;%d",si_name,si_ip,&si_upt,&si_tpt); //NAMEIP_SIZE is 256
             if(strcmp(si_name, name) && si_upt != upt && si_tpt != tpt){ //they may have the same ip (local ip for example)
                 printf("Token: %s\n", token);
                 int fd = tcp_connect(si_ip,si_tpt);

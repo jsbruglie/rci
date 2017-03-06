@@ -54,7 +54,7 @@ int insert_in_msg_table(MessageTable* msg_table, char* text, int clock){
 int insert_msg(MessageTable* msg_table, char* text, int clock){
     
     Message* new; 
-    if (text != NULL && clock >= 0 && strlen(text) < MSG_MAX_SIZE){
+    if (text != NULL && clock >= 0 && strlen(text) < MESSAGE_SIZE){
         new = (Message*) malloc(sizeof(Message));
         strcpy(new->text, text);
         new->clock = clock;
@@ -106,7 +106,7 @@ int size_latest_messages(MessageTable* msg_table, int n, int include_clk){
 
 int get_latest_messages(MessageTable* msg_table, int n, int include_clk, char* output){
     int i, items, length = 0;
-    char buffer[MSG_MAX_SIZE + CLK_MAX_SIZE + 10];
+    char buffer[MESSAGE_SIZE + CLK_MAX_SIZE + 10];
     if (msg_table != NULL ){
         items = (msg_table->items < n)? msg_table->items : n; // minimum
         if (include_clk){
@@ -198,7 +198,7 @@ void fill_table(MessageTable* message_table, char* buffer, int* LogicClock){
     while(token != NULL){
         if(strcmp("SMESSAGES",token) != 0){
             
-            char msg[140];
+            char msg[MESSAGE_SIZE];
             int clock;
             sscanf(token,"%d;%140[^;]",&clock,msg);
             if(clock > max_clock)
