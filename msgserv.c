@@ -21,14 +21,12 @@ char* siip = "tejo.tecnico.ulisboa.pt"; // Identity Server IP
 int sipt = 59000;                       // Identity Server UDP Port
 int m = 200;                            // Maximum number of stored messages
 int r = 10;                             // Time interval between registry entries
-
-/* Global variables - so they can be accessed by concurrent threads */
+/* Global variables */
 MessageTable* message_table;            // Table with message structs
-ServerID* server_list;
+ServerID* server_list;                  // Server ID Lists
 int LogicClock = 0;                     // Logic Clock mechanism to ensure causality            
-int end = 0;                        // Global exit variable
-
-volatile int timer = 0;    // Timer for ID server refresh with UDP
+int end = 0;                            // Global exit variable
+volatile int timer = 0;                 // Timer for ID server refresh with UDP
 
 /* Main application */
 int main(int argc, char* argv[]){
@@ -88,6 +86,7 @@ int main(int argc, char* argv[]){
 }
 
 void check_fd(FdStruct* fd_struct, fd_set* read_set){
+    ServerID* id;
     if (fd_struct != NULL){
         /* Check if there's keyboard input to be processed */
         if (FD_ISSET(fd_struct->std_in, read_set)){
@@ -100,7 +99,13 @@ void check_fd(FdStruct* fd_struct, fd_set* read_set){
         /* Check if another message server is trying to connect */
         if (FD_ISSET(fd_struct->msg_tcp, read_set)){
             handle_msg_connect(fd_struct->msg_tcp);
-        }    
+        }
+        /* Check other message servers requests */
+        for(id = server_list; id != NULL; id = id->next){
+            if (FD_ISSET(id->fd, read_set)){
+                handle_msg_activity(id->fd);
+            }
+        }
     }
 }
 
@@ -132,6 +137,7 @@ void handle_rmb_request(int fd_rmb_udp){
 
     char buffer[BUFFER_SIZE], protocol[PROTOCOL_SIZE], message[MESSAGE_SIZE];   // String buffers
     int n;
+    ServerID* id;
 
     // Blocking recvfrom call - Waits for a request
     recvfrom(fd_rmb_udp, buffer, sizeof(buffer), 0, (struct sockaddr*) &client_address, &address_length);
@@ -144,8 +150,9 @@ void handle_rmb_request(int fd_rmb_udp){
     }else if(sscanf(buffer, "%s %140[^\n]", protocol, message) == 2){ //If you change MESSAGE_SIZE, change this aswell
         if(!strcmp(protocol,"PUBLISH")){
             insert_in_msg_table(message_table, message, LogicClock++);
-            // for all servers in msg_server list
-            //  send single message
+            for(id = server_list; id != NULL; id = id->next){
+                send_messages_tcp(id->fd, message_table, 1, 0);
+            }
         }
     }
 }
@@ -173,6 +180,7 @@ void handle_msg_connect(int fd_msg_tcp){
 
 
     read(new_fd, buffer, sizeof(buffer));
+
     printf("%s\n", buffer);
     // Interpret command
     // if SGET_MESSAGES - send_msg_table(message_table, new_fd);
@@ -190,8 +198,10 @@ void handle_msg_connect(int fd_msg_tcp){
         }
         write(new_fd, response, sizeof(response));
     }
+}
 
-
+void handle_msg_activity(int fd_msg_tcp){
+    ServerID* id;
 }
 
 /* Alarm interruption functions for regular refresh with ID server */

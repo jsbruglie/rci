@@ -44,8 +44,10 @@ int create_tcp_server(u_short port);
 
 int accept_tcp_connection(int fd);
 void refresh(int fd, char* name, char* ip, char* siip, int sipt, int upt, int tpt);
+
 int send_messages(int fd, struct sockaddr_in* client_addr_ptr, MessageTable* msg_table, int n);
-void register_in_server(char* name, char* ip, char* siip, int sipt, int upt, int tpt);
+int send_messages_tcp(int fd, MessageTable* msg_table, int n, int all);
+
 char* get_servers(char* siip, int sipt);
 
 FdStruct* create_fd_struct(int upt, int tpt);

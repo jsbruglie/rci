@@ -2,10 +2,10 @@
 
 ServerID* server_list_push(ServerID * head, char* si_name, char* si_ip, int si_upt, int si_tpt, int fd) {
     ServerID * new;
-    new = (ServerID*)malloc(sizeof(ServerID));
+    new = (ServerID*) malloc(sizeof(ServerID));
     if(new == NULL){
         perror("server list error: ");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     new->name = (char*)malloc(sizeof(char) * NAMEIP_SIZE);
     strcpy(new->name, si_name);
@@ -18,8 +18,9 @@ ServerID* server_list_push(ServerID * head, char* si_name, char* si_ip, int si_u
     return new;
 }
 
-void print_server_list(ServerID * head){
-    ServerID * current = head;
+void print_server_list(ServerID* head){
+    ServerID* current = head;
+    debug_print("Hello!\n");
     if(current != NULL){
         while (current != NULL) {
             printf("LIST ELEMENT: %s %s %d %d\n", current->name, current->ip, current->upt, current->tpt);

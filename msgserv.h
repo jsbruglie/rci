@@ -65,6 +65,7 @@ void handle_rmb_request(int fd_rmb_udp);
  *  @return Void.
  */
 void handle_msg_connect(int fd_msg_tcp);
+void handle_msg_activity(int fd_msg_tcp);
 
 /** @brief Cleanup function to free memory and exit
  *
