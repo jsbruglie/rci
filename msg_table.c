@@ -216,6 +216,24 @@ void fill_table(MessageTable* message_table, char* buffer, int* LogicClock){
         }
         token = strtok(NULL, delimiter);
     }
-    *LogicClock = max_clock;
+    if (max_clock != -1)
+        *LogicClock = max_clock;
 }
 
+void update_msg_table(MessageTable* message_table, char* buffer, int* LogicClock){
+    int clock, max_clock = -1;
+    char* token;
+    const char delimiter[2] = "\n";
+    char msg[MESSAGE_SIZE];
+
+    token = strtok(buffer, delimiter);
+    while(token != NULL){
+        sscanf(token,"%d;%140[^;]", &clock, msg);
+        if(clock > max_clock)
+            max_clock = clock;
+        insert_in_msg_table(message_table, msg, clock);
+        token = strtok(NULL, delimiter);   
+    }
+    if (max_clock != -1)
+        *LogicClock = max_clock;
+}

@@ -19,14 +19,12 @@ ServerID* server_list_push(ServerID * head, char* si_name, char* si_ip, int si_u
 }
 
 void print_server_list(ServerID* head){
-    ServerID* current = head;
-    debug_print("Hello!\n");
-    if(current != NULL){
-        while (current != NULL) {
-            printf("LIST ELEMENT: %s %s %d %d\n", current->name, current->ip, current->upt, current->tpt);
-            current = current->next;
-        }
+    ServerID* current;
+    debug_print("PRINTING CURRENT SERVER LIST\n");
+    for (current = head; current != NULL; current = current->next){
+        debug_print("SERVER ID: %s %s %d %d\n", current->name, current->ip, current->upt, current->tpt);
     }
+
 }
 
 int tcp_connect(char* ip, int tpt){

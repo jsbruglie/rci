@@ -38,35 +38,25 @@ int main(int argc, char* argv[]){
     alarm(r);                       // First setup of the alarm
 
     message_table = create_msg_table(m);
-    
     FdStruct* fd_struct = create_fd_struct(upt, tpt); 
     
     /* Register message server in ID server */
-    refresh(fd_struct->si_udp, name, ip, siip, sipt, upt, tpt); 						// Connect
-    char* server_string = get_servers(siip, sipt); 										// Get servers
-    server_list = create_server_list(server_list, server_string, name, ip, upt, tpt);	// Create a list and connect to previous servers  
+    refresh(fd_struct->si_udp, name, ip, siip, sipt, upt, tpt);                         // Connect
+    char* server_string = get_servers(siip, sipt);                                      // Get servers
+    server_list = create_server_list(server_list, server_string, name, ip, upt, tpt);   // Create a list and connect to previous servers  
     
+    /* If there are already other message servers online */
     if(server_list != NULL){
-        // printf("Printing server list...\n");
-        // print_server_list(server_list);
-        /* Request message table to the first server in the list */
-        
         char buffer[BUFFER_SIZE];
         int fd = server_list->fd;
-
+        debug_print("CONNECTED TO SERVERS:\n"); 
+        print_server_list(server_list);
+        /* Request message table to the first server in the list */   
         write(fd,"SGET_MESSAGES\n",sizeof("SGET_MESSAGES\n"));
-        read(fd, buffer, sizeof(buffer));
-
-        // printf("Received: %s\n", buffer);
-        
-        /*Fill our table with what we received*/
-        fill_table(message_table,buffer,&LogicClock);
     }
-    /*============================================================*/
 
-    int select_ret = -1;
-
-    fd_set read_set; // Set of file descriptors to be monitored
+    int select_ret = -1;    // Select return value
+    fd_set read_set;        // Set of file descriptors to be monitored
 
     while(!end){
         
@@ -176,34 +166,34 @@ void handle_msg_connect(int fd_msg_tcp){
     read(new_fd, buffer, sizeof(buffer));
 
     if (sscanf(buffer, "%256[^\n]%256[^;];%256[^;];%d;%d", protocol, client_name, client_ip, &client_upt, &client_tpt)){
-    	/* Insert new server in identity list */    
-    	if (!strcmp(protocol, "ID")){
-    		debug_print("MSG_CONNECT: %s %s %d %d registered.\n", client_name, client_ip, upt, tpt);
-    		server_list_push(server_list, client_name, client_ip, client_upt, client_upt, new_fd);
-    	}
+        /* Insert new server in identity list */    
+        if (!strcmp(protocol, "ID")){
+            debug_print("MSG_CONNECT: %s %s %d %d registered.\n", client_name, client_ip, upt, tpt);
+            server_list_push(server_list, client_name, client_ip, client_upt, client_upt, new_fd);
+        }
     }
 }
 
 void handle_msg_activity(int fd_msg_tcp){
 
-	char buffer[BUFFER_SIZE*100], protocol[PROTOCOL_SIZE], messages[BUFFER_SIZE*100];
-	char* response;
-	int size;
+    char buffer[BUFFER_SIZE*100], protocol[PROTOCOL_SIZE], messages[BUFFER_SIZE*100];
+    char* response;
+    int size;
 
     read(fd_msg_tcp, buffer, sizeof(buffer));
 
     if (sscanf(buffer, "%256s", protocol)){
-    	if(!strcmp("SGET_MESSAGES\n",buffer)){
-        	size = size_latest_messages(message_table, 0, ALL_MSGS, INCLUDE_CLK);
-        	response = (char*) malloc(sizeof(char) * size);
-			write(fd_msg_tcp, response, size);
-		}
-	}	
-	if (sscanf(buffer, "%256s\n%s", protocol, messages)){
-		if(!strcmp("SMESSAGES", protocol)){
-			return;
-		}			
-	}
+        if(!strcmp("SGET_MESSAGES\n",buffer)){
+            size = size_latest_messages(message_table, 0, ALL_MSGS, INCLUDE_CLK);
+            response = (char*) malloc(sizeof(char) * size);
+            write(fd_msg_tcp, response, size);
+        }
+    }   
+    if (sscanf(buffer, "%256s\n%s", protocol, messages)){
+        if(!strcmp("SMESSAGES", protocol)){
+            update_msg_table(message_table, messages, &LogicClock);
+        }           
+    }
 }
 
 /* Alarm interruption functions for regular refresh with ID server */

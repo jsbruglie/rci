@@ -98,13 +98,12 @@ char* get_servers(char* siip, int sipt){
 }
 
 void pick_server(char* buffer, char* msgserv_name, char* msgserv_ip, int* msgserv_upt, int* msgserv_tpt){
-    //Getting data - we just need to get the first msgserv in the list of servers we get and publish to that one, it will then propagate
-    //Alter this to be a random server in buffer
+    // Picks the first server of the list
     char* p1 = buffer + 8; 
     char p2[BUFFER_SIZE];
-    sscanf(p1,"%[^\n]",p2);
+    sscanf(p1, "%[^\n]", p2);
     debug_print("%s\n", p2);
-    sscanf(p2,"%256[^;];%256[^;];%d;%d",msgserv_name,msgserv_ip,&(*msgserv_upt),&(*msgserv_tpt));
+    sscanf(p2, "%256[^;];%256[^;];%d;%d", msgserv_name, msgserv_ip, &(*msgserv_upt), &(*msgserv_tpt));
 }
 
 void publish_msg(char* message, char* msgserv_ip, int msgserv_upt){
@@ -126,7 +125,8 @@ void publish_msg(char* message, char* msgserv_ip, int msgserv_upt){
 
     address_length = sizeof(server_address);
     int n = sendto(fd, protocol_msg, strlen(protocol_msg)+1,0,(struct sockaddr*)&server_address,address_length);
-    if(n==-1)exit(EXIT_FAILURE);//error
+    if(n == -1)
+        exit(EXIT_FAILURE);
 
     close(fd);
 }
@@ -147,11 +147,13 @@ void print_servers(char* siip, int sipt){
 
     address_length = sizeof(server_address);
     int n = sendto(fd, "GET_SERVERS", strlen("GET_SERVERS") + 1, 0, (struct sockaddr*) &server_address, address_length);
-    if(n==-1)exit(EXIT_FAILURE);//error
+    if(n == -1)
+        exit(EXIT_FAILURE);
 
     address_length = sizeof(server_address);
     n = recvfrom(fd, server_list, sizeof(server_list), 0, (struct sockaddr*) &server_address, &address_length);
-    if(n==-1)exit(EXIT_FAILURE);//error
+    if(n == -1)
+        exit(EXIT_FAILURE);
     
     close(fd);
 

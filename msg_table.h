@@ -8,17 +8,17 @@
 
 #define CLK_MAX_SIZE 20
 
-#define ALL_MSGS 1
-#define INCLUDE_CLK 1
-#define MSG_FORMAT_CLK "%d;%s\n" // [clk];[text]\n
+#define ALL_MSGS 1					// Send the whole message table
+#define INCLUDE_CLK 1				// Include clock parameter
+#define MSG_FORMAT_CLK "%d;%s\n"	// [clk];[text]\n
 #define MSG_FORMAT_CLK_SIZE 2
-#define MSG_FORMAT "%s\n" // [text]\n
+#define MSG_FORMAT "%s\n" 			// [text]\n
 #define MSG_FORMAT_SIZE 1
 
-#define BUFFER_SIZE 2048 // Length of buffer for requests
-#define PROTOCOL_SIZE 256 // Length of protocol macros
-#define MESSAGE_SIZE 140 // Length of messages
-#define COMMAND_SIZE 128 // Length of commands from the terminal
+#define BUFFER_SIZE 2048 	// Length of buffer for requests
+#define PROTOCOL_SIZE 256	// Length of protocol macros
+#define MESSAGE_SIZE 140	// Length of messages
+#define COMMAND_SIZE 128	// Length of commands from the terminal
 
 /* Message struct type */
 typedef struct _Message{
@@ -61,5 +61,7 @@ void print_msg_table(MessageTable* msg_table);
 
 /* Initial filling*/
 void fill_table(MessageTable* msg_table, char* buffer, int* LogicClock);
+/* Update message table when a message is received */
+void update_msg_table(MessageTable* message_table, char* buffer, int* LogicClock);
 
 #endif
