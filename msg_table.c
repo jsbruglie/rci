@@ -218,3 +218,4 @@ void fill_table(MessageTable* message_table, char* buffer, int* LogicClock){
     }
     *LogicClock = max_clock;
 }
+

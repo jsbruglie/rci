@@ -41,20 +41,23 @@ int main(int argc, char* argv[]){
     
     FdStruct* fd_struct = create_fd_struct(upt, tpt); 
     
-    /*==========Initial Request & Server List Connections*========*/
-    refresh(fd_struct->si_udp, name, ip, siip, sipt, upt, tpt); //Connect
-    char* server_string = get_servers(siip, sipt); //Get servers
-    server_list = create_server_list(server_list, server_string, name, upt, tpt); //Create a list + connect to previous servers  
+    /* Register message server in ID server */
+    refresh(fd_struct->si_udp, name, ip, siip, sipt, upt, tpt); 						// Connect
+    char* server_string = get_servers(siip, sipt); 										// Get servers
+    server_list = create_server_list(server_list, server_string, name, ip, upt, tpt);	// Create a list and connect to previous servers  
+    
     if(server_list != NULL){
-        printf("Printing server list...\n");
-        print_server_list(server_list);
-        /*Request message table to the first server in the list*/
+        // printf("Printing server list...\n");
+        // print_server_list(server_list);
+        /* Request message table to the first server in the list */
+        
         char buffer[BUFFER_SIZE];
         int fd = server_list->fd;
+
         write(fd,"SGET_MESSAGES\n",sizeof("SGET_MESSAGES\n"));
-        
         read(fd, buffer, sizeof(buffer));
-        printf("Received: %s\n", buffer);
+
+        // printf("Received: %s\n", buffer);
         
         /*Fill our table with what we received*/
         fill_table(message_table,buffer,&LogicClock);
@@ -159,49 +162,48 @@ void handle_rmb_request(int fd_rmb_udp){
 
 void handle_msg_connect(int fd_msg_tcp){
 
-    //read from fd
-    // if SMESSAGES - insert_in_msg_table(message_table, message, LC); 
-    //return
-    //if read times out, we go into accept
-    
-    char buffer[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE], protocol[PROTOCOL_SIZE];
+    char client_name[NAMEIP_SIZE], client_ip[NAMEIP_SIZE];
+    int client_upt, client_tpt;
 
     int new_fd;
     struct sockaddr_in client_address; 
     int client_length = sizeof(client_address);
 
     new_fd = accept(fd_msg_tcp, (struct sockaddr*) &client_address, &client_length);
-    char clientAddr[COMMAND_SIZE];
-
-    inet_ntop(AF_INET, &(client_address.sin_addr), clientAddr, sizeof(clientAddr));
-    printf("%s\n", clientAddr);
-    //Do a get servers, search for their ip and add it to my server list if we don't have a connection to it
-
-
-
+   
+    /* Read the connecting server identity */
     read(new_fd, buffer, sizeof(buffer));
 
-    printf("%s\n", buffer);
-    // Interpret command
-    // if SGET_MESSAGES - send_msg_table(message_table, new_fd);
-    char response[BUFFER_SIZE] = "";
-    if(!strcmp("SGET_MESSAGES\n",buffer)){
-        //Answer with a message table
-        printf("Answering...\n");
-        char temp[BUFFER_SIZE];
-        int i;
-        for(i=0;i<m;i++){
-            if(message_table->table[i] != NULL){
-                sprintf(temp, "%d;%s\n",message_table->table[i]->clock,message_table->table[i]->text);
-                strcat(response, temp);    
-            }
-        }
-        write(new_fd, response, sizeof(response));
+    if (sscanf(buffer, "%256[^\n]%256[^;];%256[^;];%d;%d", protocol, client_name, client_ip, &client_upt, &client_tpt)){
+    	/* Insert new server in identity list */    
+    	if (!strcmp(protocol, "ID")){
+    		debug_print("MSG_CONNECT: %s %s %d %d registered.\n", client_name, client_ip, upt, tpt);
+    		server_list_push(server_list, client_name, client_ip, client_upt, client_upt, new_fd);
+    	}
     }
 }
 
 void handle_msg_activity(int fd_msg_tcp){
-    ServerID* id;
+
+	char buffer[BUFFER_SIZE*100], protocol[PROTOCOL_SIZE], messages[BUFFER_SIZE*100];
+	char* response;
+	int size;
+
+    read(fd_msg_tcp, buffer, sizeof(buffer));
+
+    if (sscanf(buffer, "%256s", protocol)){
+    	if(!strcmp("SGET_MESSAGES\n",buffer)){
+        	size = size_latest_messages(message_table, 0, ALL_MSGS, INCLUDE_CLK);
+        	response = (char*) malloc(sizeof(char) * size);
+			write(fd_msg_tcp, response, size);
+		}
+	}	
+	if (sscanf(buffer, "%256s\n%s", protocol, messages)){
+		if(!strcmp("SMESSAGES", protocol)){
+			return;
+		}			
+	}
 }
 
 /* Alarm interruption functions for regular refresh with ID server */
@@ -225,4 +227,3 @@ void cleanup(){
     free(name);
     free(ip);
 }
-

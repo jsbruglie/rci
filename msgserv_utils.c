@@ -123,11 +123,6 @@ int accept_tcp_connection(int fd){
     int client_length = sizeof(client_address);
 
     new_fd = accept(fd, (struct sockaddr*) &client_address, &client_length);
-    char clientAddr[COMMAND_SIZE];
-
-    inet_ntop(AF_INET, &(client_address.sin_addr), clientAddr, sizeof(clientAddr));
-    printf("%s\n", clientAddr);
-
     return new_fd;
 }
 

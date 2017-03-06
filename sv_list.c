@@ -46,24 +46,35 @@ int tcp_connect(char* ip, int tpt){
         return -1;
 }
 
-ServerID* create_server_list(ServerID* server_list, char* server_string, char* name, int upt, int tpt){
+ServerID* create_server_list(ServerID* server_list, char* server_string, char* name, char* ip, int upt, int tpt){
+    
     ServerID* first = server_list;
     char* token;
-    fflush(stdin);
     const char delimiter[2] = "\n";
+    
+    char si_name[NAMEIP_SIZE], si_ip[NAMEIP_SIZE];
+    int si_upt;
+    int si_tpt;
+    int fd;
+
+    char buffer[BUFFER_SIZE];
+
+    fflush(stdin);
     token = strtok(server_string, delimiter);
+
     while(token != NULL){
         if(strcmp("SERVERS",token) != 0){
             
-            char si_name[NAMEIP_SIZE], si_ip[NAMEIP_SIZE];
-            int si_upt;
-            int si_tpt;
-            sscanf(token,"%256[^;];%256[^;];%d;%d",si_name,si_ip,&si_upt,&si_tpt); //NAMEIP_SIZE is 256
-            if(strcmp(si_name, name) && si_upt != upt && si_tpt != tpt){ //they may have the same ip (local ip for example)
-                printf("Token: %s\n", token);
-                int fd = tcp_connect(si_ip,si_tpt);
-                if(fd != -1)
+            sscanf(token,"%256[^;];%256[^;];%d;%d", si_name, si_ip, &si_upt, &si_tpt);  // NAMEIP_SIZE is 256
+            // Prevent from adding myself to the server list
+            if(strcmp(si_name, name) && si_upt != upt && si_tpt != tpt){            
+                // printf("Token: %s\n", token);
+                fd = tcp_connect(si_ip,si_tpt);
+                if(fd != -1){
                     first = server_list_push(first, si_name, si_ip, si_upt, si_tpt, fd);
+                }
+                sprintf(buffer, "%s %s;%s;%d;%d", "ID", name, ip, upt, tpt);
+                write(fd, buffer, strlen(buffer) + 1);
             }
         }
         token = strtok(NULL, delimiter);
