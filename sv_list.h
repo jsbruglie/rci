@@ -14,10 +14,16 @@
 #include <netdb.h>
 #include <signal.h>
 
+
 #define MAX_SIZE 256
 
 /* Message Table struct type */
 /* Message server identity structure type */
+
+#include "debug.h"
+
+/* Message Server Identity structure type */
+
 typedef struct _ServerID{
     char* name;
     char* ip;

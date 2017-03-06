@@ -84,11 +84,15 @@ int remove_oldest(MessageTable* msg_table){
 
 /* Fetching messages from struct */
 
-int size_latest_messages(MessageTable* msg_table, int n, int include_clk){
+int size_latest_messages(MessageTable* msg_table, int n, int all, int include_clk){
     int i, items, length = 0;
     char clock[CLK_MAX_SIZE];
     if (msg_table != NULL ){
-        items = (msg_table->items < n)? msg_table->items : n; // minimum
+        if (all){
+            n = msg_table->items;
+        }else{
+            items = (msg_table->items < n)? msg_table->items : n; // minimum
+        }
         if (include_clk){
             for (i = 0; i < items; i++){
                 sprintf(clock, "%d", msg_table->table[i]->clock);
@@ -104,11 +108,15 @@ int size_latest_messages(MessageTable* msg_table, int n, int include_clk){
     return -1;
 }
 
-int get_latest_messages(MessageTable* msg_table, int n, int include_clk, char* output){
+int get_latest_messages(MessageTable* msg_table, int n, int all, int include_clk, char* output){
     int i, items, length = 0;
     char buffer[MSG_MAX_SIZE + CLK_MAX_SIZE + 10];
     if (msg_table != NULL ){
-        items = (msg_table->items < n)? msg_table->items : n; // minimum
+        if (all){
+            items = msg_table->items;
+        }else{
+            items = (msg_table->items < n)? msg_table->items : n; // minimum
+        }
         if (include_clk){
             for (i = 0; i < items; i++){
                 sprintf(buffer, MSG_FORMAT_CLK, msg_table->table[i]->clock, msg_table->table[i]->text);
