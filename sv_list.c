@@ -4,11 +4,12 @@ ServerID* server_list_push(ServerID * head, char* si_name, char* si_ip, int si_u
     ServerID * new;
     new = (ServerID*) malloc(sizeof(ServerID));
     if(new == NULL){
-        perror("server list error: "); exit(EXIT_FAILURE);
-    }    
-    new->name = (char*) malloc(sizeof(char) * (strlen(si_name) + 1));
+        perror("server list error: ");
+        exit(EXIT_FAILURE);
+    }
+    new->name = (char*)malloc(sizeof(char) * MAX_SIZE);
     strcpy(new->name, si_name);
-    new->ip = (char*) malloc(sizeof(char)* (strlen(si_ip) + 1));
+    new->ip = (char*)malloc(sizeof(char) * MAX_SIZE);
     strcpy(new->ip, si_ip);
     new->tpt = si_tpt;
     new->upt = si_upt;
@@ -38,7 +39,7 @@ int tcp_connect(char* ip, int tpt){
     server_address.sin_addr.s_addr = ((struct in_addr *)(hostptr->h_addr_list[0]))->s_addr;
     server_address.sin_port = htons((u_short)tpt);
     int rv = connect(fd, (struct sockaddr*)&server_address,sizeof(server_address)); //blocked here
-    printf("%d\n", rv);
+    printf("TCP connection: %d\n", rv);
     if(!rv)
         return fd;
     else
@@ -68,4 +69,36 @@ ServerID* create_server_list(ServerID* server_list, char* server_string, char* n
         token = strtok(NULL, delimiter);
     }
     return first;
+}
+
+void free_server_list(ServerID* server_list){
+    ServerID* next;
+    ServerID* p;
+    for(p=server_list;p!=NULL;p=next){
+        next = p->next;
+        free(p->name);
+        free(p->ip);
+        free(p);
+    }
+}
+
+void delete_server_list(int del_fd, ServerID* server_list){
+    ServerID* aux, *prev;
+    ServerID* local = server_list;
+
+    for(aux = server_list; aux != NULL ; aux = aux->next){
+        if(aux->fd == del_fd){
+            if(aux == server_list){
+                server_list = local->next;
+            }else{
+                prev->next = aux->next;
+                server_list = local;
+            }
+            free(aux->name);
+            free(aux->ip);
+            free(aux);
+            return; //We can immediately return since we assume fd's are unique
+        }
+        prev = aux;
+    }
 }

@@ -22,7 +22,7 @@ MessageTable* create_msg_table(int size){
     return message_table;
 }
 
-void delete_msg_table(MessageTable* msg_table){
+void free_msg_table(MessageTable* msg_table){
     if (msg_table != NULL){
         int i;
         for(i = 0; i < msg_table->size; i++){
@@ -208,7 +208,7 @@ void fill_table(MessageTable* message_table, char* buffer, int* LogicClock){
             
             char msg[140];
             int clock;
-            sscanf(token,"%d;%256[^;]",&clock,msg);
+            sscanf(token,"%d;%140[^;]",&clock,msg);
             if(clock > max_clock)
                 max_clock = clock;
             //Insert this message in the table

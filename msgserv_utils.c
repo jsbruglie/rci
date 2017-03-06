@@ -141,6 +141,7 @@ void refresh(int fd, char* name, char* ip, char* siip, int sipt, int upt, int tp
     sprintf(registration, "REG %s;%s;%d;%d",name,ip,upt,tpt);
     address_length = sizeof(server_address);
     sendto(fd, registration, strlen(registration) + 1, 0, (struct sockaddr*) &server_address, address_length);
+    
     //debug_print("REFRESH: Just registered in the Identity Server.\n");
 }
 

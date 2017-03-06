@@ -38,8 +38,10 @@ int main(int argc, char* argv[]){
         char buffer[2048];
         int fd = server_list->fd;
         write(fd,"SGET_MESSAGES\n",sizeof("SGET_MESSAGES\n"));
+        
         read(fd, buffer, sizeof(buffer));
-        printf("%s\n", buffer);
+        printf("Received: %s\n", buffer);
+        
         /*Fill the table with what we received*/
         fill_table(message_table,buffer,&LogicClock);
     }
@@ -66,6 +68,7 @@ int main(int argc, char* argv[]){
     }
 
     cleanup();
+
     exit(EXIT_SUCCESS);
 }
 
@@ -147,7 +150,25 @@ void handle_msg_connect(int fd_msg_tcp){
 
     int new_fd = accept_tcp_connection(fd_msg_tcp);
     read(new_fd, buffer, sizeof(buffer));
-    
+
+    printf("%s\n", buffer);
+    // Interpret command
+    // if SGET_MESSAGES - send_msg_table(message_table, new_fd);
+    char response[BUFFER] = "";
+    if(!strcmp("SGET_MESSAGES\n",buffer)){
+        //Answer with a message table
+        printf("Answering...\n");
+        char temp[256];
+        int i;
+        for(i=0;i<m;i++){
+            if(message_table->table[i] != NULL){
+                sprintf(temp, "%d;%s\n",message_table->table[i]->clock,message_table->table[i]->text);
+                strcat(response, temp);    
+            }
+        }
+        write(new_fd, response, sizeof(response));
+    }
+    // if SMESSAGES - insert_in_msg_table(message_table, message, LC);      
     // send_messages_tcp(id, message_table, 0, ALL_MSGS);
     close(new_fd);
 }
@@ -172,7 +193,9 @@ void handle_si_refresh(FdStruct* fd_struct){
 }
 
 void cleanup(){
-    delete_msg_table(message_table);
+    free_msg_table(message_table);
+    free_server_list(server_list);
     free(name);
     free(ip);
 }
+
