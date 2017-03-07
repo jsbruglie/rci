@@ -87,9 +87,9 @@ int remove_oldest(MessageTable* msg_table){
 int size_latest_messages(MessageTable* msg_table, int n, int all, int include_clk){
     int i, items, length = 0;
     char clock[CLK_MAX_SIZE];
-    if (msg_table != NULL ){
+    if (msg_table != NULL){
         if (all){
-            n = msg_table->items;
+            items = msg_table->items;
         }else{
             items = (msg_table->items < n)? msg_table->items : n; // minimum
         }
@@ -186,11 +186,11 @@ int partition(Message** m, int l, int r, int pivot){
     return i;
 }
 
-/* DEBUG */
 void print_msg_table(MessageTable* msg_table){
 
     int i;
     if (msg_table != NULL){
+        printf("MESSAGE TABLE: %d/%d messages\n", msg_table->items, msg_table->size);
         for (i = 0; i < msg_table->size; i++){
             if(msg_table->table[i] != NULL)
                 printf("MSG: %d - %s\n", msg_table->table[i]->clock, msg_table->table[i]->text);
@@ -198,7 +198,7 @@ void print_msg_table(MessageTable* msg_table){
     }
 }
 
-void fill_table(MessageTable* message_table, char* buffer, int* LogicClock){
+void fill_msg_table(MessageTable* message_table, char* buffer, int* LogicClock){
     int max_clock = -1;
     char* token;
     const char delimiter[2] = "\n";
@@ -215,24 +215,6 @@ void fill_table(MessageTable* message_table, char* buffer, int* LogicClock){
             insert_in_msg_table(message_table, msg, clock);
         }
         token = strtok(NULL, delimiter);
-    }
-    if (max_clock != -1)
-        *LogicClock = max_clock;
-}
-
-void update_msg_table(MessageTable* message_table, char* buffer, int* LogicClock){
-    int clock, max_clock = -1;
-    char* token;
-    const char delimiter[2] = "\n";
-    char msg[MESSAGE_SIZE];
-
-    token = strtok(buffer, delimiter);
-    while(token != NULL){
-        sscanf(token,"%d;%140[^;]", &clock, msg);
-        if(clock > max_clock)
-            max_clock = clock;
-        insert_in_msg_table(message_table, msg, clock);
-        token = strtok(NULL, delimiter);   
     }
     if (max_clock != -1)
         *LogicClock = max_clock;

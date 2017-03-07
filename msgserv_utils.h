@@ -19,17 +19,17 @@
 
 /* */
 typedef struct _FdStruct{
-	int max;
-	int std_in;
-	int rmb_udp;
-	int si_udp;
-	int msg_tcp;
+    int max;
+    int std_in;
+    int rmb_udp;
+    int si_udp;
+    int msg_tcp;
 }FdStruct;
 
-#define BUFFER_SIZE 2048 // Length of buffer for requests
-#define PROTOCOL_SIZE 256 // Length of protocol macros
-#define MESSAGE_SIZE 140 // Length of messages
-#define COMMAND_SIZE 128 // Length of commands from the terminal
+#define BUFFER_SIZE 2048    // Length of buffer for requests
+#define PROTOCOL_SIZE 256   // Length of protocol macros
+#define MESSAGE_SIZE 140    // Length of messages
+#define COMMAND_SIZE 128    // Length of commands from the terminal
 
 #define STDIN 0
 
@@ -52,7 +52,7 @@ char* get_servers(char* siip, int sipt);
 
 FdStruct* create_fd_struct(int upt, int tpt);
 void delete_fd_struct(FdStruct* fd);
-void init_fd_set(fd_set* set, FdStruct* fd);
-int fd_max(FdStruct* fd_struct);
+void init_fd_set(fd_set* set, FdStruct* fd, ServerID* sv);
+int fd_max(FdStruct* fd_struct, ServerID* sv_list);
 
 #endif

@@ -65,7 +65,11 @@ void parse_args(int argc, char** argv, char** _name, char** _ip, int* _upt, int*
         fprintf(stderr,"Error: UDP and TCP port are the same.\n");  
         exit(EXIT_FAILURE);
     }
-    
+    if (siip == NULL){
+        siip = (char*) malloc(sizeof(char) * (strlen(*_siip) + 1));
+        strcpy(siip, *_siip);
+    }
+
     *_name = name; *_ip = ip; *_upt = upt; *_tpt = tpt;
     
     if(siip != NULL) *_siip = siip;
@@ -170,8 +174,8 @@ int send_messages_tcp(int fd, MessageTable* msg_table, int n, int all){
     char* buffer = malloc(sizeof(char) * size);
     strcpy(buffer,"SMESSAGES\n");
     get_latest_messages(msg_table, n, all, INCLUDE_CLK, buffer);
-    //debug_print("SEND_MSG_TCP: %d/%d bytes \n%s\n", size, strlen(buffer) + 1, buffer);
     ret = write(fd, buffer, strlen(buffer) + 1);
+    debug_print("SEND_MSG_TCP: %d/%d bytes \n\t%s\n", size, (int) strlen(buffer) + 1, buffer);
     free(buffer);
     
     return ret;
@@ -229,23 +233,36 @@ FdStruct* create_fd_struct(int upt, int tpt){
 
 void delete_fd_struct(FdStruct* fd){
     if (fd != NULL){
+        close(fd->si_udp);
+        close(fd->rmb_udp);
+        close(fd->msg_tcp);
         free(fd);
     }
 }
 
-void init_fd_set(fd_set* set, FdStruct* fd){
+void init_fd_set(fd_set* set, FdStruct* fd, ServerID* sv){
+    ServerID* id;
     if (set != NULL && fd != NULL){
         FD_ZERO(set);
         FD_SET(fd->std_in, set);
         FD_SET(fd->si_udp, set);
         FD_SET(fd->rmb_udp, set);
         FD_SET(fd->msg_tcp, set);
+        for (id = sv; id != NULL; id = id->next){
+            FD_SET(id->fd, set);
+        }
     }    
 }
 
-int fd_max(FdStruct* fd_struct){
+int fd_max(FdStruct* fd_struct, ServerID* sv_list){
+    int max = -1;
+    ServerID* id;
     if (fd_struct != NULL){
-        return fd_struct->max;
+        max = fd_struct->max;
+        for (id = sv_list; id != NULL; id = id->next){
+            max = (id->fd > max)? id->fd : max;
+        }
+        return max;
     }
     return -1;
 }

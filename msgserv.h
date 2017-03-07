@@ -11,11 +11,11 @@
 
 #include "msgserv_utils.h"
 
-#define BUFFER_SIZE 2048 // Length of buffer for requests
-#define PROTOCOL_SIZE 256 // Length of protocol macros
-#define MESSAGE_SIZE 140 // Length of messages
-#define COMMAND_SIZE 128 // Length of commands from the terminal
-#define STDIN 0 // STDIN macro for the fd's
+#define BUFFER_SIZE 2048    // Length of buffer for requests
+#define PROTOCOL_SIZE 256   // Length of protocol macros
+#define MESSAGE_SIZE 140    // Length of messages
+#define COMMAND_SIZE 128    // Length of commands from the terminal
+#define STDIN 0             // STDIN macro for the fd's
 
 /** @brief Prints character ch at the current location
  *         of the cursor.

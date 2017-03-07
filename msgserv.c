@@ -22,8 +22,8 @@ int sipt = 59000;                       // Identity Server UDP Port
 int m = 200;                            // Maximum number of stored messages
 int r = 10;                             // Time interval between registry entries
 /* Global variables */
-MessageTable* message_table;            // Table with message structs
-ServerID* server_list;                  // Server ID Lists
+MessageTable* message_table = NULL;     // Table with message structs
+ServerID* server_list = NULL;           // Server ID Lists
 int LogicClock = 0;                     // Logic Clock mechanism to ensure causality            
 int end = 0;                            // Global exit variable
 volatile int timer = 0;                 // Timer for ID server refresh with UDP
@@ -49,10 +49,9 @@ int main(int argc, char* argv[]){
     if(server_list != NULL){
         char buffer[BUFFER_SIZE];
         int fd = server_list->fd;
-        debug_print("CONNECTED TO SERVERS:\n"); 
         print_server_list(server_list);
         /* Request message table to the first server in the list */   
-        write(fd,"SGET_MESSAGES\n",sizeof("SGET_MESSAGES\n"));
+        write(fd, "SGET_MESSAGES\n", sizeof("SGET_MESSAGES\n"));
     }
 
     int select_ret = -1;    // Select return value
@@ -61,10 +60,10 @@ int main(int argc, char* argv[]){
     while(!end){
         
         /* Initialize the file descriptor set */
-        init_fd_set(&read_set, fd_struct);
+        init_fd_set(&read_set, fd_struct, server_list);
 
         /* Blocking select() call - unblocks when there is input to read */
-        select_ret = select(fd_max(fd_struct) + 1, &read_set, NULL, NULL, NULL);
+        select_ret = select(fd_max(fd_struct, server_list) + 1, &read_set, NULL, NULL, NULL);
         if (select_ret > 0){
             check_fd(fd_struct, &read_set);
         }
@@ -107,9 +106,8 @@ void handle_terminal(FdStruct* fd_struct){
     if(fgets(line, sizeof(line), stdin)){
         if(sscanf(line, "%s",command) == 1){
             if(!strcmp(command,"join")){
-                 refresh(fd_struct->si_udp, name, ip, siip, sipt, upt, tpt);
+                refresh(fd_struct->si_udp, name, ip, siip, sipt, upt, tpt);
             }else if(!strcmp(command,"show_servers")){
-                /*List all the servers with which this server has a TCP session*/
                 print_server_list(server_list);
             }else if(!strcmp(command,"show_messages")){
                 print_msg_table(message_table);
@@ -144,6 +142,7 @@ void handle_rmb_request(int fd_rmb_udp){
         if(!strcmp(protocol,"PUBLISH")){
             insert_in_msg_table(message_table, message, LogicClock++);
             for(id = server_list; id != NULL; id = id->next){
+                debug_print("\tPROPAGATING TO %s %d\n", id->ip, id->tpt);
                 send_messages_tcp(id->fd, message_table, 1, 0);
             }
         }
@@ -164,12 +163,13 @@ void handle_msg_connect(int fd_msg_tcp){
    
     /* Read the connecting server identity */
     read(new_fd, buffer, sizeof(buffer));
+    debug_print("TCP: RECEIVED %s\n", buffer);
 
     if (sscanf(buffer, "%256[^\n]%256[^;];%256[^;];%d;%d", protocol, client_name, client_ip, &client_upt, &client_tpt)){
         /* Insert new server in identity list */    
         if (!strcmp(protocol, "ID")){
             debug_print("MSG_CONNECT: %s %s %d %d registered.\n", client_name, client_ip, upt, tpt);
-            server_list_push(server_list, client_name, client_ip, client_upt, client_upt, new_fd);
+            server_list = server_list_push(server_list, client_name, client_ip, client_upt, client_upt, new_fd);
         }
     }
 }
@@ -177,21 +177,25 @@ void handle_msg_connect(int fd_msg_tcp){
 void handle_msg_activity(int fd_msg_tcp){
 
     char buffer[BUFFER_SIZE*100], protocol[PROTOCOL_SIZE], messages[BUFFER_SIZE*100];
-    char* response;
-    int size;
-
-    read(fd_msg_tcp, buffer, sizeof(buffer));
+    
+    memset(buffer, (int) '\0', sizeof(buffer));
+    
+    if(read(fd_msg_tcp, buffer, sizeof(buffer)) <= 0){
+        /* Connection closed by peer */
+        // delete_server_list(fd_msg_tcp, server_list);
+        // debug_print("TCP: Server is not responding. Closing %d.\n", fd_msg_tcp);
+        return;
+    }
+    debug_print("TCP: Received '%s'\n", buffer);
 
     if (sscanf(buffer, "%256s", protocol)){
-        if(!strcmp("SGET_MESSAGES\n",buffer)){
-            size = size_latest_messages(message_table, 0, ALL_MSGS, INCLUDE_CLK);
-            response = (char*) malloc(sizeof(char) * size);
-            write(fd_msg_tcp, response, size);
+        if(!strcmp("SGET_MESSAGES\n", buffer)){
+            send_messages_tcp(fd_msg_tcp, message_table, 0, ALL_MSGS);
         }
     }   
-    if (sscanf(buffer, "%256s\n%s", protocol, messages)){
+    if (sscanf(buffer, "%256s\n", protocol)){
         if(!strcmp("SMESSAGES", protocol)){
-            update_msg_table(message_table, messages, &LogicClock);
+            fill_msg_table(message_table, buffer, &LogicClock);
         }           
     }
 }
@@ -216,4 +220,5 @@ void cleanup(){
     free_server_list(server_list);
     free(name);
     free(ip);
+    free(siip);
 }
