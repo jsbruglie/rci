@@ -15,14 +15,7 @@
 #include <signal.h>
 
 #include "debug.h"
-
-#define BUFFER_SIZE 2048  // Length of buffer for requests
-#define PROTOCOL_SIZE 256 // Length of protocol macros
-#define MESSAGE_SIZE 140  // Length of messages
-#define COMMAND_SIZE 128  // Length of commands from the terminal
-#define NAMEIP_SIZE 256   // Length for the name of servers and their ip
-
-#define MAX_SIZE 256
+#include "defs.h"
 
 #define DELETE 1
 

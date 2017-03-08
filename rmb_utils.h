@@ -20,12 +20,8 @@
 #include <netdb.h>
 
 #include "debug.h"
+#include "defs.h"
 
-#define BUFFER_SIZE 2048 // Length of buffer for requests
-#define PROTOCOL_SIZE 256 // Length of protocol macros
-#define MESSAGE_SIZE 140 // Length of messages
-#define COMMAND_SIZE 128 // Length of commands from the terminal
-#define NAMEIP_SIZE 256
 
 /** @brief Prints character ch at the current location
  *         of the cursor.

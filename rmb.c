@@ -2,8 +2,7 @@
 
 int main(int argc, char* argv[]){
     /* Optional Parameters */
-    //char* siip = "tejo.tecnico.ulisboa.pt";   // Identity Server IP
-    char* siip = "127.0.0.1";                   // Identity Server IP 
+    char* siip = "tejo.tecnico.ulisboa.pt";   // Identity Server IP
     int sipt = 59000;                           // Identity Server UDP Port
     parse_args(argc, argv, &siip, &sipt);
 

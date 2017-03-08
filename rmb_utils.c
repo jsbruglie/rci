@@ -10,7 +10,7 @@ void parse_args(int argc, char** argv, char** _siip, int* _sipt){
         switch(opt){
 
             case 'i':
-                siip = (char*)malloc(sizeof(char) * (sizeof(optarg)/sizeof(optarg[0])));
+                siip = (char*) malloc(sizeof(char) * (strlen(optarg) +1));
                 strcpy(siip, optarg);
                 break;
             case 'p':
@@ -22,8 +22,14 @@ void parse_args(int argc, char** argv, char** _siip, int* _sipt){
                 exit(EXIT_FAILURE);
         }
     }
-    if (siip != NULL) *_siip = siip;
-    if (sipt != -1) *_sipt = sipt;
+    if (siip != NULL){
+        siip = (char*) malloc(sizeof(char) * (strlen(siip)));
+        strcpy(siip, *_siip);
+    }
+    *_siip = siip;
+    
+    if (sipt != -1)
+        *_sipt = sipt;
 }
 
 void show_latest_messages(int n, char* msgserv_ip, int msgserv_upt){

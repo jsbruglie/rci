@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "debug.h"
+#include "defs.h"
 
 #define CLK_MAX_SIZE 20
 
@@ -15,10 +17,7 @@
 #define MSG_FORMAT "%s\n" 			// [text]\n
 #define MSG_FORMAT_SIZE 1
 
-#define BUFFER_SIZE 2048 	// Length of buffer for requests
-#define PROTOCOL_SIZE 256	// Length of protocol macros
-#define MESSAGE_SIZE 140	// Length of messages
-#define COMMAND_SIZE 128	// Length of commands from the terminal
+
 
 /* Message struct type */
 typedef struct _Message{

@@ -5,15 +5,14 @@
 MessageTable* create_msg_table(int size){
 
     MessageTable* message_table = (MessageTable*) malloc(sizeof(MessageTable));
-    Message** table = (Message**) malloc(sizeof(Message*) * size);
+    message_table->table = (Message**) malloc(sizeof(Message*) * size);
     message_table->size = size;
     message_table->items = 0;
     
     int i;
     for(i = 0; i < size; i++){
-        table[i] = NULL;
+        message_table->table[i] = NULL;
     }
-    message_table->table = table;
 
     return message_table;
 }
@@ -25,6 +24,7 @@ void free_msg_table(MessageTable* msg_table){
             if(msg_table->table[i] != NULL)
                 free(msg_table->table[i]);
         }
+        free(msg_table->table);
         free(msg_table);
     }
 }

@@ -76,7 +76,7 @@ int main(int argc, char* argv[]){
         handle_si_refresh(fd_struct);
     }
 
-    cleanup();
+    cleanup(fd_struct);
 
     exit(EXIT_SUCCESS);
 }
@@ -142,9 +142,10 @@ void handle_rmb_request(int fd_rmb_udp){
         if(!strcmp(protocol,"GET_MESSAGES")){
             send_messages(fd_rmb_udp, &client_address, message_table, n);
         }
-    }else if(sscanf(buffer, "%s %140[^\n]", protocol, message) == 2){ //If you change MESSAGE_SIZE, change this aswell
+    }else if(sscanf(buffer, SSCANF_MESSAGE, protocol, message) == 2){ //If you change MESSAGE_SIZE, change this aswell
         if(!strcmp(protocol,"PUBLISH")){
-            insert_in_msg_table(message_table, message, LogicClock++);
+            LogicClock++;
+            insert_in_msg_table(message_table, message, LogicClock);
             for(id = server_list; id != NULL; id = id->next){
                 debug_print("\tPROPAGATING TO %s %d\n", id->ip, id->tpt);
                 send_messages_tcp(id->fd, message_table, 1, 0);
@@ -180,7 +181,7 @@ void handle_msg_connect(int fd_msg_tcp){
 
 void handle_msg_activity(int fd_msg_tcp){
 
-    char buffer[BUFFER_SIZE*100], protocol[PROTOCOL_SIZE], messages[BUFFER_SIZE*100];
+    char buffer[LARGE_BUFFER_SIZE], protocol[PROTOCOL_SIZE], messages[LARGE_BUFFER_SIZE];
     
     memset(buffer, (int) '\0', sizeof(buffer));
     
@@ -217,9 +218,10 @@ void handle_si_refresh(FdStruct* fd_struct){
     }
 }
 
-void cleanup(){
+void cleanup(FdStruct* fd_struct){
     free_msg_table(message_table);
     free_server_list(server_list);
+    delete_fd_struct(fd_struct);
     free(name);
     free(ip);
     free(siip);
