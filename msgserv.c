@@ -17,19 +17,21 @@ char* ip = NULL;                        // Message Server IP
 int tpt = -1;                           // TCP Port for Session Requests
 int upt = -1;                           // UDP Port for Terminal Requests, is global so the udp server thread can get it
 /* Optional Parameters */
-char* siip = "tejo.tecnico.ulisboa.pt"; // Identity Server IP
-int sipt = 59000;                       // Identity Server UDP Port
-int m = 200;                            // Maximum number of stored messages
-int r = 10;                             // Time interval between registry entries
+char* siip = DEFAULT_SIPT;              // Identity Server IP
+int sipt = DEFAULT_SIIP;                // Identity Server UDP Port
+int m = DEFAULT_MAX_MESSAGES;           // Maximum number of stored messages
+int r = DEFAULT_REFRESH_RATE;           // Time interval between registry entries
 /* Global variables */
-MessageTable* message_table;            // Table with message structs
-ServerID* server_list;                  // Server ID Lists
+MessageTable* message_table = NULL;     // Table with message structs
+ServerID* server_list = NULL;           // Server ID Lists
 int LogicClock = 0;                     // Logic Clock mechanism to ensure causality            
 int end = 0;                            // Global exit variable
 volatile int timer = 0;                 // Timer for ID server refresh with UDP
 
 /* Main application */
 int main(int argc, char* argv[]){
+
+    char server_string[BUFFER_SIZE];
 
     parse_args(argc, argv, &name, &ip, &upt, &tpt, &siip, &sipt, &m, &r);
     debug_print("ARGS: name %s ip %s upt %d tpt %d siip %s sipt %d m %d r %d\n", name, ip, upt, tpt, siip, sipt, m, r);
@@ -38,49 +40,43 @@ int main(int argc, char* argv[]){
     alarm(r);                       // First setup of the alarm
 
     message_table = create_msg_table(m);
-    
     FdStruct* fd_struct = create_fd_struct(upt, tpt); 
     
-    /*==========Initial Request & Server List Connections*========*/
-    refresh(fd_struct->si_udp, name, ip, siip, sipt, upt, tpt); //Connect
-    char* server_string = get_servers(siip, sipt); //Get servers
-    server_list = create_server_list(server_list, server_string, name, upt, tpt); //Create a list + connect to previous servers  
+    /* Register message server in ID server */
+    refresh(fd_struct->si_udp, name, ip, siip, sipt, upt, tpt);            // Connect to Identity Server
+    get_servers(siip, sipt, server_string);                                // Get the Identity of connected servers
+    server_list = create_server_list(server_string, name, ip, upt, tpt);   // Create a list and connect to previous servers  
+    
+    /* If there are already other message servers online */
     if(server_list != NULL){
-        printf("Printing server list...\n");
-        print_server_list(server_list);
-        /*Request message table to the first server in the list*/
         char buffer[BUFFER_SIZE];
         int fd = server_list->fd;
-        write(fd,"SGET_MESSAGES\n",sizeof("SGET_MESSAGES\n"));
-        
-        read(fd, buffer, sizeof(buffer));
-        printf("Received: %s\n", buffer);
-        
-        /*Fill our table with what we received*/
-        fill_table(message_table,buffer,&LogicClock);
+        print_server_list(server_list);
+        /* Request message table to the first server in the list */   
+        write(fd, "SGET_MESSAGES\n", sizeof("SGET_MESSAGES\n"));
     }
-    /*============================================================*/
 
-    int select_ret = -1;
-
-    fd_set read_set; // Set of file descriptors to be monitored
+    int select_ret = -1;    // Select return value
+    fd_set read_set;        // Set of file descriptors to be monitored
 
     while(!end){
         
         /* Initialize the file descriptor set */
-        init_fd_set(&read_set, fd_struct);
+        init_fd_set(&read_set, fd_struct, server_list);
 
         /* Blocking select() call - unblocks when there is input to read */
-        select_ret = select(fd_max(fd_struct) + 1, &read_set, NULL, NULL, NULL);
+        select_ret = select(fd_max(fd_struct, server_list) + 1, &read_set, NULL, NULL, NULL);
         if (select_ret > 0){
             check_fd(fd_struct, &read_set);
         }
+
+        server_list = delete_scheduled(server_list);
 
         /* Refresh connection with Identity Server */
         handle_si_refresh(fd_struct);
     }
 
-    cleanup();
+    cleanup(fd_struct);
 
     exit(EXIT_SUCCESS);
 }
@@ -114,9 +110,8 @@ void handle_terminal(FdStruct* fd_struct){
     if(fgets(line, sizeof(line), stdin)){
         if(sscanf(line, "%s",command) == 1){
             if(!strcmp(command,"join")){
-                 refresh(fd_struct->si_udp, name, ip, siip, sipt, upt, tpt);
+                refresh(fd_struct->si_udp, name, ip, siip, sipt, upt, tpt);
             }else if(!strcmp(command,"show_servers")){
-                /*List all the servers with which this server has a TCP session*/
                 print_server_list(server_list);
             }else if(!strcmp(command,"show_messages")){
                 print_msg_table(message_table);
@@ -140,17 +135,20 @@ void handle_rmb_request(int fd_rmb_udp){
     ServerID* id;
 
     // Blocking recvfrom call - Waits for a request
-    recvfrom(fd_rmb_udp, buffer, sizeof(buffer), 0, (struct sockaddr*) &client_address, &address_length);
+    int nbytes = recvfrom(fd_rmb_udp, buffer, sizeof(buffer), 0, (struct sockaddr*) &client_address, &address_length);
+    if(nbytes == -1) exit(EXIT_FAILURE);
     debug_print("UDP: Received '%s'\n", buffer); 
     
     if(sscanf(buffer, "%s %d", protocol, &n) == 2){
         if(!strcmp(protocol,"GET_MESSAGES")){
             send_messages(fd_rmb_udp, &client_address, message_table, n);
         }
-    }else if(sscanf(buffer, "%s %140[^\n]", protocol, message) == 2){ //If you change MESSAGE_SIZE, change this aswell
+    }else if(sscanf(buffer, SSCANF_MESSAGE_PUBLISH, protocol, message) == 2){ //If you change MESSAGE_SIZE, change this aswell
         if(!strcmp(protocol,"PUBLISH")){
-            insert_in_msg_table(message_table, message, LogicClock++);
+            LogicClock++;
+            insert_in_msg_table(message_table, message, LogicClock);
             for(id = server_list; id != NULL; id = id->next){
+                debug_print("\tPROPAGATING TO %s %d\n", id->ip, id->tpt);
                 send_messages_tcp(id->fd, message_table, 1, 0);
             }
         }
@@ -159,49 +157,51 @@ void handle_rmb_request(int fd_rmb_udp){
 
 void handle_msg_connect(int fd_msg_tcp){
 
-    //read from fd
-    // if SMESSAGES - insert_in_msg_table(message_table, message, LC); 
-    //return
-    //if read times out, we go into accept
-    
-    char buffer[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE], protocol[PROTOCOL_SIZE];
+    char client_name[NAMEIP_SIZE], client_ip[NAMEIP_SIZE];
+    int client_upt, client_tpt;
 
     int new_fd;
     struct sockaddr_in client_address; 
     int client_length = sizeof(client_address);
 
     new_fd = accept(fd_msg_tcp, (struct sockaddr*) &client_address, &client_length);
-    char clientAddr[COMMAND_SIZE];
-
-    inet_ntop(AF_INET, &(client_address.sin_addr), clientAddr, sizeof(clientAddr));
-    printf("%s\n", clientAddr);
-    //Do a get servers, search for their ip and add it to my server list if we don't have a connection to it
-
-
-
+   
+    /* Read the connecting server identity */
     read(new_fd, buffer, sizeof(buffer));
+    debug_print("TCP: RECEIVED %s\n", buffer);
 
-    printf("%s\n", buffer);
-    // Interpret command
-    // if SGET_MESSAGES - send_msg_table(message_table, new_fd);
-    char response[BUFFER_SIZE] = "";
-    if(!strcmp("SGET_MESSAGES\n",buffer)){
-        //Answer with a message table
-        printf("Answering...\n");
-        char temp[BUFFER_SIZE];
-        int i;
-        for(i=0;i<m;i++){
-            if(message_table->table[i] != NULL){
-                sprintf(temp, "%d;%s\n",message_table->table[i]->clock,message_table->table[i]->text);
-                strcat(response, temp);    
-            }
+    if (sscanf(buffer, SSCANF_ID, protocol, client_name, client_ip, &client_upt, &client_tpt)){
+        /* Insert new server in identity list */    
+        if (!strcmp(protocol, "ID")){
+            debug_print("MSG_CONNECT: %s %s %d %d registered.\n", client_name, client_ip, upt, tpt);
+            server_list = server_list_push(server_list, client_name, client_ip, client_upt, client_upt, new_fd);
         }
-        write(new_fd, response, sizeof(response));
     }
 }
 
 void handle_msg_activity(int fd_msg_tcp){
-    ServerID* id;
+
+    char buffer[LARGE_BUFFER_SIZE], protocol[PROTOCOL_SIZE], messages[LARGE_BUFFER_SIZE];
+    
+    memset(buffer, (int) '\0', sizeof(buffer)); //To avoid errors
+    
+    if(read(fd_msg_tcp, buffer, sizeof(buffer)) <= 0){
+        flag_for_deletion(fd_msg_tcp, server_list);
+        return;
+    }
+    debug_print("TCP: Received '%s'\n", buffer);
+
+    if (sscanf(buffer, SSCANF_SGET_MESSAGES, protocol)){
+        if(!strcmp("SGET_MESSAGES\n", buffer)){
+            send_messages_tcp(fd_msg_tcp, message_table, 0, ALL_MSGS);
+        }
+    }   
+    if (sscanf(buffer, SSCANF_SMESSAGES, protocol)){
+        if(!strcmp("SMESSAGES", protocol)){
+            fill_msg_table(message_table, buffer, &LogicClock);
+        }           
+    }
 }
 
 /* Alarm interruption functions for regular refresh with ID server */
@@ -219,10 +219,11 @@ void handle_si_refresh(FdStruct* fd_struct){
     }
 }
 
-void cleanup(){
+void cleanup(FdStruct* fd_struct){
     free_msg_table(message_table);
     free_server_list(server_list);
+    delete_fd_struct(fd_struct);
     free(name);
     free(ip);
+    free(siip);
 }
-
