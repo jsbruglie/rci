@@ -17,10 +17,10 @@ char* ip = NULL;                        // Message Server IP
 int tpt = -1;                           // TCP Port for Session Requests
 int upt = -1;                           // UDP Port for Terminal Requests, is global so the udp server thread can get it
 /* Optional Parameters */
-char* siip = "tejo.tecnico.ulisboa.pt"; // Identity Server IP
-int sipt = 59000;                       // Identity Server UDP Port
-int m = 200;                            // Maximum number of stored messages
-int r = 10;                             // Time interval between registry entries
+char* siip = DEFAULT_SIPT;              // Identity Server IP
+int sipt = DEFAULT_SIIP;                // Identity Server UDP Port
+int m = DEFAULT_MAX_MESSAGES;           // Maximum number of stored messages
+int r = DEFAULT_REFRESH_RATE;           // Time interval between registry entries
 /* Global variables */
 MessageTable* message_table = NULL;     // Table with message structs
 ServerID* server_list = NULL;           // Server ID Lists
@@ -135,14 +135,15 @@ void handle_rmb_request(int fd_rmb_udp){
     ServerID* id;
 
     // Blocking recvfrom call - Waits for a request
-    recvfrom(fd_rmb_udp, buffer, sizeof(buffer), 0, (struct sockaddr*) &client_address, &address_length);
+    int nbytes = recvfrom(fd_rmb_udp, buffer, sizeof(buffer), 0, (struct sockaddr*) &client_address, &address_length);
+    if(nbytes == -1) exit(EXIT_FAILURE);
     debug_print("UDP: Received '%s'\n", buffer); 
     
     if(sscanf(buffer, "%s %d", protocol, &n) == 2){
         if(!strcmp(protocol,"GET_MESSAGES")){
             send_messages(fd_rmb_udp, &client_address, message_table, n);
         }
-    }else if(sscanf(buffer, SSCANF_MESSAGE, protocol, message) == 2){ //If you change MESSAGE_SIZE, change this aswell
+    }else if(sscanf(buffer, SSCANF_MESSAGE_PUBLISH, protocol, message) == 2){ //If you change MESSAGE_SIZE, change this aswell
         if(!strcmp(protocol,"PUBLISH")){
             LogicClock++;
             insert_in_msg_table(message_table, message, LogicClock);
@@ -170,7 +171,7 @@ void handle_msg_connect(int fd_msg_tcp){
     read(new_fd, buffer, sizeof(buffer));
     debug_print("TCP: RECEIVED %s\n", buffer);
 
-    if (sscanf(buffer, "%256[^\n]%256[^;];%256[^;];%d;%d", protocol, client_name, client_ip, &client_upt, &client_tpt)){
+    if (sscanf(buffer, SSCANF_ID, protocol, client_name, client_ip, &client_upt, &client_tpt)){
         /* Insert new server in identity list */    
         if (!strcmp(protocol, "ID")){
             debug_print("MSG_CONNECT: %s %s %d %d registered.\n", client_name, client_ip, upt, tpt);
@@ -183,7 +184,7 @@ void handle_msg_activity(int fd_msg_tcp){
 
     char buffer[LARGE_BUFFER_SIZE], protocol[PROTOCOL_SIZE], messages[LARGE_BUFFER_SIZE];
     
-    memset(buffer, (int) '\0', sizeof(buffer));
+    memset(buffer, (int) '\0', sizeof(buffer)); //To avoid errors
     
     if(read(fd_msg_tcp, buffer, sizeof(buffer)) <= 0){
         flag_for_deletion(fd_msg_tcp, server_list);
@@ -191,12 +192,12 @@ void handle_msg_activity(int fd_msg_tcp){
     }
     debug_print("TCP: Received '%s'\n", buffer);
 
-    if (sscanf(buffer, "%256s", protocol)){
+    if (sscanf(buffer, SSCANF_SGET_MESSAGES, protocol)){
         if(!strcmp("SGET_MESSAGES\n", buffer)){
             send_messages_tcp(fd_msg_tcp, message_table, 0, ALL_MSGS);
         }
     }   
-    if (sscanf(buffer, "%256s\n", protocol)){
+    if (sscanf(buffer, SSCANF_SMESSAGES, protocol)){
         if(!strcmp("SMESSAGES", protocol)){
             fill_msg_table(message_table, buffer, &LogicClock);
         }           
