@@ -70,6 +70,8 @@ int main(int argc, char* argv[]){
             check_fd(fd_struct, &read_set);
         }
 
+        server_list = delete_scheduled(server_list);
+
         /* Refresh connection with Identity Server */
         handle_si_refresh(fd_struct);
     }
@@ -98,9 +100,6 @@ void check_fd(FdStruct* fd_struct, fd_set* read_set){
         for(id = server_list; id != NULL; id = id->next){
             if (FD_ISSET(id->fd, read_set)){
                 handle_msg_activity(id->fd);
-            }
-            if (id == NULL){
-                break;
             }
         }
     }
@@ -186,10 +185,7 @@ void handle_msg_activity(int fd_msg_tcp){
     memset(buffer, (int) '\0', sizeof(buffer));
     
     if(read(fd_msg_tcp, buffer, sizeof(buffer)) <= 0){
-        /* Connection closed by peer */
-        close(fd_msg_tcp);
-        delete_from_server_list(fd_msg_tcp, &server_list);
-        //debug_print("TCP: Server is not responding. Closing %d.\n", fd_msg_tcp);
+        flag_for_deletion(fd_msg_tcp, server_list);
         return;
     }
     debug_print("TCP: Received '%s'\n", buffer);

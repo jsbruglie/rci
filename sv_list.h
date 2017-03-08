@@ -24,6 +24,8 @@
 
 #define MAX_SIZE 256
 
+#define DELETE 1
+
 /* Message server identity structure type */
 
 #include "debug.h"
@@ -36,6 +38,7 @@ typedef struct _ServerID{
     int tpt;
     int upt;
     int fd;
+    int flag;				// Flag entry for deletion 
     struct _ServerID* next;
 }ServerID;
 
@@ -46,6 +49,8 @@ void print_server_list(ServerID * head);
 int tcp_connect(char* ip, int tpt);
 ServerID* create_server_list(char* server_string, char* name, char* ip, int upt, int tpt);
 void free_server_list(ServerID* server_list);
-void delete_from_server_list(int del_fd, ServerID** server_list);	
+
+void flag_for_deletion(int fd, ServerID* first);
+ServerID* delete_scheduled(ServerID* first);
 
 #endif

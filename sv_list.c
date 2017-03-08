@@ -7,13 +7,14 @@ ServerID* server_list_push(ServerID* head, char* si_name, char* si_ip, int si_up
         perror("server list error: ");
         exit(EXIT_FAILURE);
     }
+    //memset(new, 0, sizeof(ServerID));
     strcpy(new->name, si_name);
     strcpy(new->ip, si_ip);
     new->tpt = si_tpt;
     new->upt = si_upt;
     new->fd = fd;
     new->next = head;
-    debug_print("PUSH %zu/%zu\n", sizeof(new->name) + sizeof(new->ip) + sizeof(new->upt) + sizeof(new->fd) + sizeof(new->next), sizeof(ServerID));
+    new->flag = !DELETE;
     return new;
 }
 
@@ -81,64 +82,50 @@ ServerID* create_server_list(char* server_string, char* name, char* ip, int upt,
     return first;
 }
 
-void free_server_list(ServerID* server_list){
-    ServerID* aux;
-    for(aux = server_list; aux != NULL; aux = aux->next){
+void free_server_list(ServerID* first){
+    ServerID* aux, *next;
+
+    for(aux = first; aux != NULL; aux = next){
+        next = aux->next;
         close(aux->fd);
         free(aux);
     }
 }
 
-void delete_from_server_list(int del_fd, ServerID** server_list){
-    ServerID* aux, *prev, *local;
-    
-    if (server_list != NULL){
+void flag_for_deletion(int fd, ServerID* first){
+    ServerID* aux;
 
-        local = *(server_list);
-
-        /* Linear search until the desired node is found */
-        for(aux = local; aux != NULL ; aux = aux->next){
-            if(aux->fd == del_fd){
-                /* If the node to delete is the first one */
-                if(aux == local){
-                    *(server_list) = local->next;
-                }else{
-                    prev->next = aux->next;
-                    *(server_list) = local;
-                }
-                debug_print("DELETING %d %s %s\n", aux->fd, aux->name, aux->ip);
-                close(aux->fd);
-                free(aux);
-                return; //We can immediately return since we assume fd's are unique
-            }
-            prev = aux;
-        }
-    }
-
-    /*
-        if ((*server_list)->fd == del_fd){
-            
-            *(server_list) = (*server_list)->next;
-            debug_print("DELETING %d %s %s\n", aux->fd, aux->name, aux->ip);
-            close(aux->fd);
-            free(aux);
+    for (aux = first; aux != NULL; aux = aux->next){
+        if (aux->fd == fd){
+            aux->flag = DELETE;
             return;
         }
+    }
+}
 
-        local = (*server_list)->next;
-        prev = *(server_list);
+ServerID* delete_scheduled(ServerID* first){
+
+    ServerID* delete, *aux = first;
+
+    // Remove items from the begining of the list
+    while (first != NULL && first->flag == DELETE){
         
-        while(local != NULL && prev != NULL){
-            if (local->fd == del_fd){
-                aux = local;
-                prev->next = local->next;
-                debug_print("DELETING %d %s %s\n", aux->fd, aux->name, aux->ip);
-                close(aux->fd);
-                free(aux);
-                return;     
-            }
-            prev = local;
-            local = local->next;
+        delete = first;
+        first = first->next;
+        close(delete->fd);
+        free(delete);
+    }
+
+    // Remove non-initial matching elements
+    for (aux = first; aux != NULL; aux = aux->next)
+    {
+        while (aux->next != NULL && aux->next->flag == DELETE)
+        {
+            delete = aux->next;
+            aux->next = delete->next;
+            close(delete->fd);
+            free(delete);
         }
-    */
+    }
+    return first;
 }
