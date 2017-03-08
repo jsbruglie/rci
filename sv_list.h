@@ -31,8 +31,8 @@
 /* Message Server Identity structure type */
 
 typedef struct _ServerID{
-    char* name;
-    char* ip;
+    char name[NAMEIP_SIZE];
+    char ip[NAMEIP_SIZE];
     int tpt;
     int upt;
     int fd;
@@ -44,8 +44,8 @@ typedef struct _ServerID{
 ServerID* server_list_push(ServerID * head, char* si_name, char* si_ip, int si_upt, int si_tpt, int fd);
 void print_server_list(ServerID * head);
 int tcp_connect(char* ip, int tpt);
-ServerID* create_server_list(ServerID* server_list, char* server_string, char* name, char* ip, int upt, int tpt);
+ServerID* create_server_list(char* server_string, char* name, char* ip, int upt, int tpt);
 void free_server_list(ServerID* server_list);
-void delete_server_list(int del_fd, ServerID* server_list);	
+void delete_from_server_list(int del_fd, ServerID** server_list);	
 
 #endif

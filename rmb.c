@@ -21,8 +21,7 @@ int main(int argc, char* argv[]){
             if(sscanf(line, "%s %d",command,&n) == 2){
                 if(!strcmp(command,"show_latest_messages")){
                         char* buffer = get_servers(siip, sipt); //Get servers
-                        pick_server(buffer,msgserv_name,msgserv_ip,&msgserv_upt,&msgserv_tpt); //Pick one of the servers
-                        
+                        pick_server(buffer,msgserv_name, msgserv_ip, &msgserv_upt, &msgserv_tpt); //Pick one of the servers
                         if(msgserv_upt != -1 && msgserv_ip != NULL) //If there is a server
                             show_latest_messages(n, msgserv_ip, msgserv_upt); 
                         else

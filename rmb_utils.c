@@ -92,7 +92,7 @@ char* get_servers(char* siip, int sipt){
     }
     strcpy(return_string,server_list);
 
-    debug_print("%s", server_list);
+    //debug_print("%s", server_list);
 
     return return_string;
 }

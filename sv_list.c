@@ -7,14 +7,13 @@ ServerID* server_list_push(ServerID* head, char* si_name, char* si_ip, int si_up
         perror("server list error: ");
         exit(EXIT_FAILURE);
     }
-    new->name = (char*)malloc(sizeof(char) * NAMEIP_SIZE);
     strcpy(new->name, si_name);
-    new->ip = (char*)malloc(sizeof(char) * NAMEIP_SIZE);
     strcpy(new->ip, si_ip);
     new->tpt = si_tpt;
     new->upt = si_upt;
     new->fd = fd;
     new->next = head;
+    debug_print("PUSH %zu/%zu\n", sizeof(new->name) + sizeof(new->ip) + sizeof(new->upt) + sizeof(new->fd) + sizeof(new->next), sizeof(ServerID));
     return new;
 }
 
@@ -44,9 +43,9 @@ int tcp_connect(char* ip, int tpt){
         return -1;
 }
 
-ServerID* create_server_list(ServerID* server_list, char* server_string, char* name, char* ip, int upt, int tpt){
+ServerID* create_server_list(char* server_string, char* name, char* ip, int upt, int tpt){
     
-    ServerID* first = server_list;
+    ServerID* first = NULL;
     char* token;
     const char delimiter[2] = "\n";
     
@@ -83,37 +82,63 @@ ServerID* create_server_list(ServerID* server_list, char* server_string, char* n
 }
 
 void free_server_list(ServerID* server_list){
-    ServerID* next;
-    ServerID* p;
-    for(p = server_list; p != NULL; p = next){
-        next = p->next;
-        //close(p->fd);
-        free(p->name);
-        free(p->ip);
-        free(p);
+    ServerID* aux;
+    for(aux = server_list; aux != NULL; aux = aux->next){
+        close(aux->fd);
+        free(aux);
     }
 }
 
-void delete_server_list(int del_fd, ServerID* server_list){
+void delete_from_server_list(int del_fd, ServerID** server_list){
     ServerID* aux, *prev, *local;
-    local = server_list;
+    
+    if (server_list != NULL){
 
-    /* Linear search until the desired node is found */
-    for(aux = server_list; aux != NULL ; aux = aux->next){
-        if(aux->fd == del_fd){
-            /* If the node to delete is the first one */
-            if(aux == server_list){
-                server_list = local->next;
-            }else{
-                prev->next = aux->next;
-                server_list = local;
+        local = *(server_list);
+
+        /* Linear search until the desired node is found */
+        for(aux = local; aux != NULL ; aux = aux->next){
+            if(aux->fd == del_fd){
+                /* If the node to delete is the first one */
+                if(aux == local){
+                    *(server_list) = local->next;
+                }else{
+                    prev->next = aux->next;
+                    *(server_list) = local;
+                }
+                debug_print("DELETING %d %s %s\n", aux->fd, aux->name, aux->ip);
+                close(aux->fd);
+                free(aux);
+                return; //We can immediately return since we assume fd's are unique
             }
-            //close(aux->fd);
-            free(aux->name);
-            free(aux->ip);
-            free(aux);
-            return; //We can immediately return since we assume fd's are unique
+            prev = aux;
         }
-        prev = aux;
     }
+
+    /*
+        if ((*server_list)->fd == del_fd){
+            
+            *(server_list) = (*server_list)->next;
+            debug_print("DELETING %d %s %s\n", aux->fd, aux->name, aux->ip);
+            close(aux->fd);
+            free(aux);
+            return;
+        }
+
+        local = (*server_list)->next;
+        prev = *(server_list);
+        
+        while(local != NULL && prev != NULL){
+            if (local->fd == del_fd){
+                aux = local;
+                prev->next = local->next;
+                debug_print("DELETING %d %s %s\n", aux->fd, aux->name, aux->ip);
+                close(aux->fd);
+                free(aux);
+                return;     
+            }
+            prev = local;
+            local = local->next;
+        }
+    */
 }

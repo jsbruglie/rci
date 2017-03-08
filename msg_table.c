@@ -8,14 +8,10 @@ MessageTable* create_msg_table(int size){
     Message** table = (Message**) malloc(sizeof(Message*) * size);
     message_table->size = size;
     message_table->items = 0;
-    //message_table->items = size;
-
+    
     int i;
     for(i = 0; i < size; i++){
         table[i] = NULL;
-        //table[i] = (Message*) malloc(sizeof(Message)); // DEBUG INIT
-        //table[i]->clock = i;
-        //sprintf(table[i]->text, "%d", size-i);
     }
     message_table->table = table;
 

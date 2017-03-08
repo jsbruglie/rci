@@ -181,13 +181,13 @@ int send_messages_tcp(int fd, MessageTable* msg_table, int n, int all){
     return ret;
 }
 
-char* get_servers(char* siip, int sipt){
+void get_servers(char* siip, int sipt, char* server_string){
 
     int fd;
     struct hostent *hostptr;
     struct sockaddr_in server_address;
     int address_length;
-    char server_list[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE];
 
     fd = socket(AF_INET,SOCK_DGRAM,0);
     memset((void*)&server_address, (int)'\0',sizeof(server_address));
@@ -199,15 +199,11 @@ char* get_servers(char* siip, int sipt){
     address_length = sizeof(server_address);
     sendto(fd, "GET_SERVERS", strlen("GET_SERVERS") + 1, 0, (struct sockaddr*) &server_address, address_length);
     address_length = sizeof(server_address);
-    recvfrom(fd, server_list, sizeof(server_list), 0, (struct sockaddr*) &server_address, &address_length);
+    recvfrom(fd, buffer, sizeof(buffer), 0, (struct sockaddr*) &server_address, &address_length);
     close(fd);
 
-    char * return_string = (char*)malloc(sizeof(server_list));
-    strcpy(return_string,server_list);
-
-    debug_print("%s", server_list);
-
-    return return_string;
+    strcpy(server_string, buffer);
+    debug_print("%s", server_string);
 }
 
 FdStruct* create_fd_struct(int upt, int tpt){

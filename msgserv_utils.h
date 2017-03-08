@@ -48,7 +48,7 @@ void refresh(int fd, char* name, char* ip, char* siip, int sipt, int upt, int tp
 int send_messages(int fd, struct sockaddr_in* client_addr_ptr, MessageTable* msg_table, int n);
 int send_messages_tcp(int fd, MessageTable* msg_table, int n, int all);
 
-char* get_servers(char* siip, int sipt);
+void get_servers(char* siip, int sipt, char* server_string);
 
 FdStruct* create_fd_struct(int upt, int tpt);
 void delete_fd_struct(FdStruct* fd);

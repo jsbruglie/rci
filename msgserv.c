@@ -31,6 +31,8 @@ volatile int timer = 0;                 // Timer for ID server refresh with UDP
 /* Main application */
 int main(int argc, char* argv[]){
 
+    char server_string[BUFFER_SIZE];
+
     parse_args(argc, argv, &name, &ip, &upt, &tpt, &siip, &sipt, &m, &r);
     debug_print("ARGS: name %s ip %s upt %d tpt %d siip %s sipt %d m %d r %d\n", name, ip, upt, tpt, siip, sipt, m, r);
 
@@ -41,9 +43,9 @@ int main(int argc, char* argv[]){
     FdStruct* fd_struct = create_fd_struct(upt, tpt); 
     
     /* Register message server in ID server */
-    refresh(fd_struct->si_udp, name, ip, siip, sipt, upt, tpt);                         // Connect
-    char* server_string = get_servers(siip, sipt);                                      // Get servers
-    server_list = create_server_list(server_list, server_string, name, ip, upt, tpt);   // Create a list and connect to previous servers  
+    refresh(fd_struct->si_udp, name, ip, siip, sipt, upt, tpt);            // Connect to Identity Server
+    get_servers(siip, sipt, server_string);                                // Get the Identity of connected servers
+    server_list = create_server_list(server_string, name, ip, upt, tpt);   // Create a list and connect to previous servers  
     
     /* If there are already other message servers online */
     if(server_list != NULL){
@@ -96,6 +98,9 @@ void check_fd(FdStruct* fd_struct, fd_set* read_set){
         for(id = server_list; id != NULL; id = id->next){
             if (FD_ISSET(id->fd, read_set)){
                 handle_msg_activity(id->fd);
+            }
+            if (id == NULL){
+                break;
             }
         }
     }
@@ -182,8 +187,9 @@ void handle_msg_activity(int fd_msg_tcp){
     
     if(read(fd_msg_tcp, buffer, sizeof(buffer)) <= 0){
         /* Connection closed by peer */
-        // delete_server_list(fd_msg_tcp, server_list);
-        // debug_print("TCP: Server is not responding. Closing %d.\n", fd_msg_tcp);
+        close(fd_msg_tcp);
+        delete_from_server_list(fd_msg_tcp, &server_list);
+        //debug_print("TCP: Server is not responding. Closing %d.\n", fd_msg_tcp);
         return;
     }
     debug_print("TCP: Received '%s'\n", buffer);
