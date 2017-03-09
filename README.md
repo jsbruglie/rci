@@ -1,57 +1,29 @@
-rci
+[![RMB](http://i.imgur.com/fkOT6bY.png)](https://github.com/pedro-abreu/rci)
 =========
+[![Travis Build Status](https://travis-ci.org/neovim/neovim.svg?branch=master)](https://travis-ci.org/neovim/neovim)
+[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/urdqjrik5u521fac/branch/master?svg=true)](https://ci.appveyor.com/project/neovim/neovim/branch/master)
+[![Pull requests waiting for review](https://badge.waffle.io/neovim/neovim.svg?label=RFC&title=RFCs)](https://waffle.io/neovim/neovim)
+[![Coverage Status](https://img.shields.io/coveralls/neovim/neovim.svg)](https://coveralls.io/r/neovim/neovim)
+[![Coverity Scan Build](https://scan.coverity.com/projects/2227/badge.svg)](https://scan.coverity.com/projects/2227)
+[![Clang Scan Build](https://neovim.io/doc/reports/clang/badge.svg)](https://neovim.io/doc/reports/clang)
 
-Computer Networks and Internet
-
-## Test Suite:
-
-For all tests, compilation and a reset of the Identity Server(64bit example) is recommended. The following should print an empty server list:
-
-```
-killall -9 sid64 && ./sid64 && rm sid.txt
-make
-./rmb
-show_servers
-```
-
-chmod 777 sid64
-
-To test, always use valgrind:
-
-valgrind --leak-check=yes ./rmb -i 127.0.0.1
-valgrind --leak-check=yes ./msgserv -n aperture01 -j 127.0.0.1 -u 9001 -t 10001 -i 127.0.0.1 -r 2
-valgrind --leak-check=yes ./msgserv -n aperture02 -j 127.0.0.1 -u 9002 -t 10002 -i 127.0.0.1 -r 2
-
-To find still reachable blocks:
-valgrind --leak-check=full --show-leak-kinds=all
-
-### Test 1 - ID is sent between msgserv, msgserv have correct connections
-
-1. Launch sid64
-2. Launch rmb and do a show_servers
-3. Launch aperture01
-4. Launch aperture02, verify message exchange
-5. show_servers on aperture01, show_servers on aperture02
-
-### Test 2 - SGET_MESSAGES upon connect gets the correct table back
-
-
-### Test 3 - Upon publish to a server, all other servers receive that publish via the first
-
-
-### Test 4 - Testing LogicClocks
-
-
-### Functional Tests + Protocol check
-
-* rmb <----> Identity Server
-* rmb <----> msgserv
-
-join
-
-
-* msgserv <----> Identity Server
 
 ## Top-Level View of the System and Protocols
 
-image
+Test cases
+--------------------
+
+You can find the test suite we designed to test the application [here](https://github.com/pedro-abreu/rci/blob/dev/tests.md). We recommend you check this to better understand how this works.
+
+
+
+Install from source
+--------------------
+
+Clone this repo and simple `make` on the same directory. No aditional libraries are required.
+
+
+License
+-------
+
+This project is licensed under the terms of the MIT license.
