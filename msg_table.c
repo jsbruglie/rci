@@ -5,7 +5,15 @@
 MessageTable* create_msg_table(int size){
 
     MessageTable* message_table = (MessageTable*) malloc(sizeof(MessageTable));
+    if(message_table == NULL){
+        fprintf(stderr, "Malloc failed. Memory full\n");
+        exit(EXIT_FAILURE);
+    }
     message_table->table = (Message**) malloc(sizeof(Message*) * size);
+    if(message_table->table == NULL){
+        fprintf(stderr, "Malloc failed. Memory full\n");
+        exit(EXIT_FAILURE);
+    }
     message_table->size = size;
     message_table->items = 0;
     
@@ -204,7 +212,7 @@ void fill_msg_table(MessageTable* message_table, char* buffer, int* LogicClock){
             
             char msg[MESSAGE_SIZE];
             int clock;
-            sscanf(token,"%d;%140[^;]",&clock,msg);
+            sscanf(token, SSCANF_MESSAGE_CLOCK_TABLE_INSERT ,&clock,msg);
             if(clock > max_clock)
                 max_clock = clock;
             //Insert this message in the table

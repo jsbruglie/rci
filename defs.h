@@ -15,7 +15,8 @@
 #define SSCANF_ID "%256[^\n]%256[^;];%256[^;];%d;%d"
 #define SSCANF_SGET_MESSAGES "%256s"
 #define SSCANF_SMESSAGES "%256s"
-
+#define SSCANF_SERVERS_PARSING "%256[^;];%256[^;];%d;%d" //sv_list.c
+#define SSCANF_MESSAGE_CLOCK_TABLE_INSERT "%d;%140[^;]" //msg_table.c
 
 //Identity Server default IP and port (UDP)
 #define DEFAULT_SIPT "tejo.tecnico.ulisboa.pt"
