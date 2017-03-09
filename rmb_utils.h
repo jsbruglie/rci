@@ -2,7 +2,7 @@
  *  @brief Function prototypes for rmb_utils.c
  *
  *  This contains the utility functions for a 
- *  terminal user, the RMB - Remote Message Board App
+ *  terminal user, the RMB - Reliable Message Board App
  *
  *  @author João Borrego
  *  @author Pedro Abreu
@@ -22,57 +22,69 @@
 #include "debug.h"
 #include "defs.h"
 
+#define PRINT 1 // Flag for get servers 
 
-/** @brief Prints character ch at the current location
- *         of the cursor.
+/** @brief Parses the optional arguments for execution from 
+ *         the command line arguments. 
  *
- *  @param fd_struct structure that contains the fds to check
- *  @param read_set set that has the fds that have been set
+ *  @param argc
+ *  @param argv
+ *  @param _siip ID server ip string pointer
+ *  @param _sipt ID server UDP port pointer
  *  @return Void.
  */
 void parse_args(int argc, char** argv, char** _siip, int* _sipt);
 
-/** @brief Prints character ch at the current location
- *         of the cursor.
+/** @brief Shows the latest n messages in the message server with 
+ *         which the terminal has a connection.
  *
- *  @param fd_struct structure that contains the fds to check
- *  @param read_set set that has the fds that have been set
+ *  @param n number of messages to retrieve
+ *  @param msgserv_ip message server ip string
+ *  @param msgserv_upt message server UDP port
  *  @return Void.
  */
 void show_latest_messages(int n, char* msgserv_ip, int msgserv_upt);
 
-/** @brief Prints character ch at the current location
- *         of the cursor.
+/** @brief Fetches the identity of the active servers from the 
+ *         ID server.
  *
- *  @param fd_struct structure that contains the fds to check
- *  @param read_set set that has the fds that have been set
+ *  @param siip ID server ip string
+ *  @param sipt ID server UDP port
+ *  @param server_list list of servers returned by ID server; set internally
+ *  @param print whether the function should print the server response or not
  *  @return Void.
  */
-char* get_servers(char* siip, int sipt);
+void get_servers(char* siip, int sipt, char* server_list, int print);
 
-/** @brief Prints character ch at the current location
- *         of the cursor.
+
+/** @brief Generic UDP request. Performs a request and awaits a response.
  *
- *  @param fd_struct structure that contains the fds to check
- *  @param read_set set that has the fds that have been set
+ *  @param ip server ip
+ *  @param upt server UDP port
+ *  @param send message to be sent
+ *  @param send_size size of message to be sent
+ *  @param recv server response
+ *  @param recv_size maximum size of server response
  *  @return Void.
  */
-void pick_server(char* buffer, char* msgserv_name, char* msgserv_ip, int* msgserv_upt, int* msgserv_tpt);
+void request_udp(char* ip, int upt, char* send, int send_size, char* recv, int recv_size);
 
-/** @brief Prints character ch at the current location
- *         of the cursor.
+/** @brief Choose a message server from a non-empty list of servers.
  *
- *  @param fd_struct structure that contains the fds to check
- *  @param read_set set that has the fds that have been set
- *  @return Void.
+ *  @param buffer
+ *  @param msgserv_name message server name; set internally
+ *  @param msgserv_ip message server ip; set internally
+ *  @param msgserv_upt message server UDP port; set internally
+ *  @param msgserv_tpt message server TCP port; set internally  
+ *  @return 0 on success, -1 otherwise.
  */
-void print_servers(char* siip, int sipt);
+int pick_server(char* buffer, char* msgserv_name, char* msgserv_ip, int* msgserv_upt, int* msgserv_tpt);
 
-/** @brief Prints character ch at the current location
- *         of the cursor.
+/** @brief Publishes a message to a given message server.
  *
- *  @param fd_struct structure that contains the fds to check
- *  @param read_set set that has the fds that have been set
+ *  @param message message to be published
+ *  @param msgserv_ip message server ip
+ *  @param msgserv_ip message server UDP port
  *  @return Void.
  */
 void publish_msg(char* message, char* msgserv_ip, int msgserv_upt);
