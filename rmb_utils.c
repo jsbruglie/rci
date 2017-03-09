@@ -86,14 +86,14 @@ void request_udp(char* ip, int upt, char* send, int send_size, char* recv, int r
     address_length = sizeof(server_address);
     int n = sendto(fd, send, send_size, 0, (struct sockaddr*) &server_address, address_length);
     if(n == -1){
-        // Error
+        fprintf(stderr, "Sendto failed. Exiting.\n");
         exit(EXIT_FAILURE);
     }
     
     address_length = sizeof(server_address);
     recvfrom(fd, recv, recv_size, 0, (struct sockaddr*) &server_address, &address_length);
     if(n == -1){
-        // Error
+        fprintf(stderr, "Recvfrom failed. Exiting.\n"); 
         exit(EXIT_FAILURE);
     }
     
@@ -136,8 +136,10 @@ void publish_msg(char* message, char* msgserv_ip, int msgserv_upt){
 
     address_length = sizeof(server_address);
     int n = sendto(fd, protocol_msg, strlen(protocol_msg)+1,0,(struct sockaddr*)&server_address,address_length);
-    if(n == -1)
+    if(n == -1){
+        fprintf(stderr, "Could not publish message. Send failed. Exiting.\n");
         exit(EXIT_FAILURE);
+    }
 
     close(fd);
 }
