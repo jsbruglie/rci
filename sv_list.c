@@ -1,6 +1,6 @@
 #include "sv_list.h"
 
-ServerID* server_list_push(ServerID* head, char* si_name, char* si_ip, int si_upt, int si_tpt, int fd) {
+ServerID* server_list_push(ServerID* head, char* sv_name, char* sv_ip, int sv_upt, int sv_tpt, int fd) {
     ServerID * new;
     new = (ServerID*) malloc(sizeof(ServerID));
     if(new == NULL){
@@ -8,10 +8,10 @@ ServerID* server_list_push(ServerID* head, char* si_name, char* si_ip, int si_up
         exit(EXIT_FAILURE);
     }
     //memset(new, 0, sizeof(ServerID));
-    strcpy(new->name, si_name);
-    strcpy(new->ip, si_ip);
-    new->tpt = si_tpt;
-    new->upt = si_upt;
+    strcpy(new->name, sv_name);
+    strcpy(new->ip, sv_ip);
+    new->tpt = sv_tpt;
+    new->upt = sv_upt;
     new->fd = fd;
     new->next = head;
     new->flag = !DELETE;

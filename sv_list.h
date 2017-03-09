@@ -28,82 +28,82 @@
 #include "debug.h"
 #include "defs.h"
 
-#define DELETE 1 //For deletion flag
+#define DELETE 1 /**< Flag is set to `DELETE` when the entry is scheduled for deletion. */
 
 #include "debug.h"
 
-/* Message Server ÍD structure */
-
+/**
+ * @brief Structure for storing a list of server identities
+ */
 typedef struct _ServerID{
-    char name[NAMEIP_SIZE];
-    char ip[NAMEIP_SIZE];
-    int tpt;
-    int upt;
-    int fd;
-    int flag;               // Flag entry for deletion 
-    struct _ServerID* next;
+    char name[NAMEIP_SIZE]; /**< Server name */
+    char ip[NAMEIP_SIZE];   /**< Server ip */
+    int tpt;                /**< Server TCP port for monitoring incoming connections */
+    int upt;                /**< Server UDP port for monitoring incoming connections */
+    int fd;                 /**< Server file descriptor */
+    int flag;               /**< Flag used for scheduling an entry for posterior deletion */ 
+    struct _ServerID* next; /**< Pointer to the next entry in the list */
 }ServerID;
 
-/** @brief Prints character ch at the current location
- *         of the cursor.
+/** @brief Inserts a server identity in a `ServerID` list
  *
- *  @param fd_struct structure that contains the fds to check
- *  @param read_set set that has the fds that have been set
- *  @return Void.
+ *  @param head Head of the list
+ *  @param si_name Server name
+ *  @param si_ip Server ip
+ *  @param si_upt Server UDP port for monitoring incoming connections
+ *  @param si_tpt Server TCP port for monitoring incoming connections
+ *  @param fd Server file descriptor
+ *  @return The head of the new list.
  */
-ServerID* server_list_push(ServerID * head, char* si_name, char* si_ip, int si_upt, int si_tpt, int fd);
+ServerID* server_list_push(ServerID * head, char* sv_name, char* sv_ip, int sv_upt, int sv_tpt, int fd);
 
-/** @brief Prints character ch at the current location
- *         of the cursor.
+/** @brief Prints a given `ServerID` list
  *
- *  @param fd_struct structure that contains the fds to check
- *  @param read_set set that has the fds that have been set
+ *  @param head The head of the list
  *  @return Void.
  */
 void print_server_list(ServerID * head);
 
-/** @brief Prints character ch at the current location
- *         of the cursor.
+/** @brief Creates a TCP connection given a message server ip and TCP port
  *
- *  @param fd_struct structure that contains the fds to check
- *  @param read_set set that has the fds that have been set
- *  @return Void.
+ *  @param ip Message server ip
+ *  @param tpt Message server TCP port
+ *  @return the fd of the new connection on success, -1 otherwise.
  */
 int tcp_connect(char* ip, int tpt);
 
-/** @brief Prints character ch at the current location
- *         of the cursor.
+/** @brief Creates a server list from the response of the ID Server
  *
- *  @param fd_struct structure that contains the fds to check
- *  @param read_set set that has the fds that have been set
- *  @return Void.
+ *  Given the response string of the Identity Server, it outputs a list of the active 
+ *  message servers. The current instance of `msgserv` is not present in this list.
+ *
+ *  @param server_string The ID Server response to a request for listing active servers
+ *  @param name The name of the current instance of `msgserv`
+ *  @param ip The ip of the current instance of `msgserv`
+ *  @param The UDP port of the current instance of `msgserv`
+ *  @param The TCP port of the current instance of `msgserv`
+ *  @return The resulting list structure with the identity of the active servers.
  */
 ServerID* create_server_list(char* server_string, char* name, char* ip, int upt, int tpt);
 
-/** @brief Prints character ch at the current location
- *         of the cursor.
+/** @brief Free a `ServerID` list structure
  *
- *  @param fd_struct structure that contains the fds to check
- *  @param read_set set that has the fds that have been set
+ *  @param server_list The server list
  *  @return Void.
  */
 void free_server_list(ServerID* server_list);
 
-/** @brief Prints character ch at the current location
- *         of the cursor.
+/** @brief Flags the entry corresponding to a given fd for deletion
  *
- *  @param fd_struct structure that contains the fds to check
- *  @param read_set set that has the fds that have been set
+ *  @param fd The file descriptor corresponding to the server intended to be removed from the list
+ *  @param first The first node of the list
  *  @return Void.
  */
 void flag_for_deletion(int fd, ServerID* first);
 
-/** @brief Prints character ch at the current location
- *         of the cursor.
+/** @brief Deletes all entries with the `flag` field set to `DELETE`
  *
- *  @param fd_struct structure that contains the fds to check
- *  @param read_set set that has the fds that have been set
- *  @return Void.
+ *  @param first The first node of the list
  */
 ServerID* delete_scheduled(ServerID* first);
 
