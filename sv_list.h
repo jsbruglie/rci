@@ -17,13 +17,11 @@
 #include "debug.h"
 #include "defs.h"
 
-#define DELETE 1
-
-/* Message server identity structure type */
+#define DELETE 1 //For deletion flag
 
 #include "debug.h"
 
-/* Message Server Identity structure type */
+/* Message Server ÍD structure */
 
 typedef struct _ServerID{
     char name[NAMEIP_SIZE];
@@ -35,15 +33,67 @@ typedef struct _ServerID{
     struct _ServerID* next;
 }ServerID;
 
-/* Functions */
-
+/** @brief Prints character ch at the current location
+ *         of the cursor.
+ *
+ *  @param fd_struct structure that contains the fds to check
+ *  @param read_set set that has the fds that have been set
+ *  @return Void.
+ */
 ServerID* server_list_push(ServerID * head, char* si_name, char* si_ip, int si_upt, int si_tpt, int fd);
+
+/** @brief Prints character ch at the current location
+ *         of the cursor.
+ *
+ *  @param fd_struct structure that contains the fds to check
+ *  @param read_set set that has the fds that have been set
+ *  @return Void.
+ */
 void print_server_list(ServerID * head);
+
+/** @brief Prints character ch at the current location
+ *         of the cursor.
+ *
+ *  @param fd_struct structure that contains the fds to check
+ *  @param read_set set that has the fds that have been set
+ *  @return Void.
+ */
 int tcp_connect(char* ip, int tpt);
+
+/** @brief Prints character ch at the current location
+ *         of the cursor.
+ *
+ *  @param fd_struct structure that contains the fds to check
+ *  @param read_set set that has the fds that have been set
+ *  @return Void.
+ */
 ServerID* create_server_list(char* server_string, char* name, char* ip, int upt, int tpt);
+
+/** @brief Prints character ch at the current location
+ *         of the cursor.
+ *
+ *  @param fd_struct structure that contains the fds to check
+ *  @param read_set set that has the fds that have been set
+ *  @return Void.
+ */
 void free_server_list(ServerID* server_list);
 
+/** @brief Prints character ch at the current location
+ *         of the cursor.
+ *
+ *  @param fd_struct structure that contains the fds to check
+ *  @param read_set set that has the fds that have been set
+ *  @return Void.
+ */
 void flag_for_deletion(int fd, ServerID* first);
+
+/** @brief Prints character ch at the current location
+ *         of the cursor.
+ *
+ *  @param fd_struct structure that contains the fds to check
+ *  @param read_set set that has the fds that have been set
+ *  @return Void.
+ */
 ServerID* delete_scheduled(ServerID* first);
 
 #endif

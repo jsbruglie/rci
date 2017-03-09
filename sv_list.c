@@ -79,7 +79,7 @@ ServerID* create_server_list(char* server_string, char* name, char* ip, int upt,
                     }
                     //debug_print("CONNECTING TO %s %d\n\t%s\n", si_ip, si_upt, buffer);
                 }else{
-                    printf("Connect failed!Exiting...\n");
+                    fprintf(stderr, "Connect failed!Exiting...\n");
                     exit(EXIT_FAILURE);
                 }
             }
