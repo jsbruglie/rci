@@ -1,3 +1,14 @@
+/** @file sv_list.h
+ *  @brief Function prototypes for sv_list.c
+ *
+ *  Contains the definition of a server identity list structure
+ *  as well the functions for its creation, alteration and deletion.
+ *
+ *  @author João Borrego
+ *  @author Pedro Abreu
+ *  @bug No known bugs.
+ */
+
 #ifndef SV_LIST
 #define SV_LIST
 
@@ -29,7 +40,7 @@ typedef struct _ServerID{
     int tpt;
     int upt;
     int fd;
-    int flag;				// Flag entry for deletion 
+    int flag;               // Flag entry for deletion 
     struct _ServerID* next;
 }ServerID;
 
