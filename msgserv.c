@@ -161,12 +161,14 @@ void handle_msg_connect(int fd_msg_tcp){
     char client_name[NAMEIP_SIZE], client_ip[NAMEIP_SIZE];
     int client_upt, client_tpt;
 
-    int new_fd;
     struct sockaddr_in client_address; 
     int client_length = sizeof(client_address);
 
-    new_fd = accept(fd_msg_tcp, (struct sockaddr*) &client_address, &client_length);
-   
+    int new_fd = accept(fd_msg_tcp, (struct sockaddr*) &client_address, &client_length);
+    if(new_fd == -1){
+        fprintf(stderr, "Accept crashed. Exiting...\n");
+        exit(EXIT_FAILURE);
+    }
     /* Read the connecting server identity */
     read(new_fd, buffer, sizeof(buffer));
     debug_print("TCP: RECEIVED %s\n", buffer);

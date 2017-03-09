@@ -4,7 +4,7 @@ ServerID* server_list_push(ServerID* head, char* si_name, char* si_ip, int si_up
     ServerID * new;
     new = (ServerID*) malloc(sizeof(ServerID));
     if(new == NULL){
-        perror("server list error: ");
+        fprintf(stderr, "Malloc failed. Memory full\n");
         exit(EXIT_FAILURE);
     }
     //memset(new, 0, sizeof(ServerID));
@@ -63,7 +63,7 @@ ServerID* create_server_list(char* server_string, char* name, char* ip, int upt,
     while(token != NULL){
         if(strcmp("SERVERS",token) != 0){
             
-            sscanf(token,"%256[^;];%256[^;];%d;%d", si_name, si_ip, &si_upt, &si_tpt);  // NAMEIP_SIZE is 256
+            sscanf(token, SSCANF_SERVERS_PARSING, si_name, si_ip, &si_upt, &si_tpt);  // NAMEIP_SIZE is 256
             // Prevent from adding myself to the server list
             if(strcmp(si_name, name) && si_upt != upt && si_tpt != tpt){            
                 // printf("Token: %s\n", token);
@@ -72,8 +72,15 @@ ServerID* create_server_list(char* server_string, char* name, char* ip, int upt,
                     debug_print("INSERTING %d - %s %s %d %d\n", new_fd, si_name, si_ip, si_upt, si_tpt);
                     first = server_list_push(first, si_name, si_ip, si_upt, si_tpt, new_fd);
                     sprintf(buffer, "%s\n%s;%s;%d;%d", "ID", name, ip, upt, tpt);
-                    write(new_fd, buffer, strlen(buffer) + 1);
+                    int nbytes = write(new_fd, buffer, strlen(buffer) + 1);
+                    if(nbytes == -1){
+                        fprintf(stderr,"Write failed. Exiting...\n");
+                        exit(EXIT_FAILURE);
+                    }
                     //debug_print("CONNECTING TO %s %d\n\t%s\n", si_ip, si_upt, buffer);
+                }else{
+                    fprintf(stderr, "Connect failed!Exiting...\n");
+                    exit(EXIT_FAILURE);
                 }
             }
         }
