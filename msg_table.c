@@ -37,12 +37,6 @@ void free_msg_table(MessageTable* msg_table){
     }
 }
 
-/* Insertion in table */
-
-/**
- *  @brief Inserts a message in the table, overwriting the oldest, if necessary
- *  @return 0 upon success, -1 otherwise
- */
 int insert_in_msg_table(MessageTable* msg_table, char* text, int clock){
     if(msg_table != NULL){
         if (msg_table_full(msg_table)) 
@@ -114,7 +108,7 @@ int size_latest_messages(MessageTable* msg_table, int n, int all, int include_cl
 
 int get_latest_messages(MessageTable* msg_table, int n, int all, int include_clk, char* output){
     int i, items, length = 0;
-    char buffer[MESSAGE_SIZE + CLK_MAX_SIZE + 10];
+    char buffer[MESSAGE_SIZE + CLK_MAX_SIZE + strlen(MSG_FORMAT_CLK) + 1];
     if (msg_table != NULL ){
         if (all){
             items = msg_table->items;
@@ -122,12 +116,14 @@ int get_latest_messages(MessageTable* msg_table, int n, int all, int include_clk
             items = (msg_table->items < n)? msg_table->items : n; // minimum
         }
         if (include_clk){
-            for (i = 0; i < items; i++){
+            for (i = items - 1; i >= 0; i--){
+                memset(buffer, (int)'\0', sizeof(buffer));
                 sprintf(buffer, MSG_FORMAT_CLK, msg_table->table[i]->clock, msg_table->table[i]->text);
                 strcat(output, buffer);
             }
         }else{
-            for (i = 0; i < items; i++){
+            for (i = items - 1; i >= 0; i--){
+                memset(buffer, (int)'\0', sizeof(buffer));
                 sprintf(buffer, MSG_FORMAT, msg_table->table[i]->text);
                 strcat(output, buffer);
             }
@@ -195,7 +191,7 @@ void print_msg_table(MessageTable* msg_table){
     int i;
     if (msg_table != NULL){
         printf("MESSAGE TABLE: %d/%d messages\n", msg_table->items, msg_table->size);
-        for (i = 0; i < msg_table->size; i++){
+        for (i = msg_table->items - 1; i >= 0; i--){
             if(msg_table->table[i] != NULL)
                 printf("MSG: %d - %s\n", msg_table->table[i]->clock, msg_table->table[i]->text);
         }

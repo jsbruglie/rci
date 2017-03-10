@@ -117,7 +117,7 @@ void refresh(int fd, char* name, char* ip, char* siip, int sipt, int upt, int tp
  *  @param n Number of messages the client requested
  *  @return Void.
  */
-void send_messages(int fd, struct sockaddr_in* client_addr_ptr, MessageTable* msg_table, int n);
+void send_messages_udp(int fd, struct sockaddr_in* client_addr_ptr, MessageTable* msg_table, int n);
 
 /** @brief Function to send n messages or all of 
  *  the message table over TCP. Used in the communication
@@ -130,6 +130,8 @@ void send_messages(int fd, struct sockaddr_in* client_addr_ptr, MessageTable* ms
  *  @return Void.
  */
 void send_messages_tcp(int fd, MessageTable* msg_table, int n, int all);
+
+void safe_tcp_write(int fd, char* buffer, int size);
 
 /** @brief Make a request to the Identity Server to get the servers
  *

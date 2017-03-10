@@ -69,18 +69,14 @@ ServerID* create_server_list(char* server_string, char* name, char* ip, int upt,
                 // printf("Token: %s\n", token);
                 new_fd = tcp_connect(si_ip,si_tpt);
                 if(new_fd != -1){
-                    debug_print("INSERTING %d - %s %s %d %d\n", new_fd, si_name, si_ip, si_upt, si_tpt);
-                    first = server_list_push(first, si_name, si_ip, si_upt, si_tpt, new_fd);
                     sprintf(buffer, "%s\n%s;%s;%d;%d", "ID", name, ip, upt, tpt);
                     int nbytes = write(new_fd, buffer, strlen(buffer) + 1);
                     if(nbytes == -1){
                         fprintf(stderr,"Write failed. Exiting...\n");
                         exit(EXIT_FAILURE);
                     }
-                    //debug_print("CONNECTING TO %s %d\n\t%s\n", si_ip, si_upt, buffer);
-                }else{
-                    fprintf(stderr, "Connect failed!Exiting...\n");
-                    exit(EXIT_FAILURE);
+                    first = server_list_push(first, si_name, si_ip, si_upt, si_tpt, new_fd);
+                    debug_print("INSERTING %d - %s %s %d %d\n", new_fd, si_name, si_ip, si_upt, si_tpt);
                 }
             }
         }

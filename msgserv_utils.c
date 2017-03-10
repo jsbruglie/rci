@@ -175,7 +175,7 @@ void refresh(int fd, char* name, char* ip, char* siip, int sipt, int upt, int tp
     //debug_print("REFRESH: Just registered in the Identity Server.\n");
 }
 
-void send_messages(int fd, struct sockaddr_in* client_addr_ptr, MessageTable* msg_table, int n){
+void send_messages_udp(int fd, struct sockaddr_in* client_addr_ptr, MessageTable* msg_table, int n){
 
     int address_length = sizeof(*client_addr_ptr);
 
@@ -202,13 +202,12 @@ void send_messages_tcp(int fd, MessageTable* msg_table, int n, int all){
     get_latest_messages(msg_table, n, all, INCLUDE_CLK, buffer);
     int nbytes = write(fd, buffer, strlen(buffer) + 1);
     debug_print("SEND_MSG_TCP: %d/%d bytes \n\t%s\n", size, (int) strlen(buffer) + 1, buffer);
-    if(nbytes==-1){
+    if(nbytes == -1){
         fprintf(stderr, "TCP WRITE CRASHED. Exiting..." );
         free(buffer);
         exit(EXIT_FAILURE);
     }
-    free(buffer);
-    
+    free(buffer);   
 }
 
 void get_servers(char* siip, int sipt, char* server_string){
