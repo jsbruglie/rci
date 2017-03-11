@@ -24,7 +24,7 @@ void parse_args(int argc, char** argv, char** _siip, int* _sipt){
         }
     }
     if (siip == NULL){
-        siip = (char*) malloc(sizeof(char) * (strlen(siip)));
+        siip = (char*) malloc(sizeof(char) * (strlen(*_siip) + 1));
         strcpy(siip, *_siip);
     }
     
@@ -125,7 +125,7 @@ void publish_msg(char* message, char* msgserv_ip, int msgserv_upt){
     char protocol_msg[PROTOCOL_SIZE] = "PUBLISH ";
     strcat(protocol_msg,message);
 
-    debug_print("Publishing message to msgserv, IP: %s PORT: %d\n", msgserv_ip, msgserv_upt);
+    debug_print("Publishing message %s to msgserv, IP: %s PORT: %d\n", message, msgserv_ip, msgserv_upt);
 
     fd = socket(AF_INET,SOCK_DGRAM,0);
     hostptr = gethostbyname(msgserv_ip);
@@ -135,7 +135,7 @@ void publish_msg(char* message, char* msgserv_ip, int msgserv_upt){
     server_address.sin_port = htons((u_short)msgserv_upt); 
 
     address_length = sizeof(server_address);
-    int n = sendto(fd, protocol_msg, strlen(protocol_msg)+1,0,(struct sockaddr*)&server_address,address_length);
+    int n = sendto(fd, protocol_msg, strlen(protocol_msg) + 1, 0, (struct sockaddr*) &server_address, address_length);
     if(n == -1){
         fprintf(stderr, "Could not publish message. Send failed. Exiting.\n");
         exit(EXIT_FAILURE);

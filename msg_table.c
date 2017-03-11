@@ -37,12 +37,6 @@ void free_msg_table(MessageTable* msg_table){
     }
 }
 
-/* Insertion in table */
-
-/**
- *  @brief Inserts a message in the table, overwriting the oldest, if necessary
- *  @return 0 upon success, -1 otherwise
- */
 int insert_in_msg_table(MessageTable* msg_table, char* text, int clock){
     if(msg_table != NULL){
         if (msg_table_full(msg_table)) 
@@ -82,6 +76,7 @@ int remove_oldest(MessageTable* msg_table){
     if (msg_table != NULL){
         free(msg_table->table[msg_table->items - 1]);
         msg_table->items--;
+        return 0;
     }
     return -1;
 }
@@ -114,7 +109,7 @@ int size_latest_messages(MessageTable* msg_table, int n, int all, int include_cl
 
 int get_latest_messages(MessageTable* msg_table, int n, int all, int include_clk, char* output){
     int i, items, length = 0;
-    char buffer[MESSAGE_SIZE + CLK_MAX_SIZE + 10];
+    char buffer[MESSAGE_SIZE + CLK_MAX_SIZE + strlen(MSG_FORMAT_CLK) + 1];
     if (msg_table != NULL ){
         if (all){
             items = msg_table->items;
@@ -122,12 +117,14 @@ int get_latest_messages(MessageTable* msg_table, int n, int all, int include_clk
             items = (msg_table->items < n)? msg_table->items : n; // minimum
         }
         if (include_clk){
-            for (i = 0; i < items; i++){
+            for (i = items - 1; i >= 0; i--){
+                memset(buffer, (int)'\0', sizeof(buffer));
                 sprintf(buffer, MSG_FORMAT_CLK, msg_table->table[i]->clock, msg_table->table[i]->text);
                 strcat(output, buffer);
             }
         }else{
-            for (i = 0; i < items; i++){
+            for (i = items - 1; i >= 0; i--){
+                memset(buffer, (int)'\0', sizeof(buffer));
                 sprintf(buffer, MSG_FORMAT, msg_table->table[i]->text);
                 strcat(output, buffer);
             }
@@ -190,12 +187,12 @@ int partition(Message** m, int l, int r, int pivot){
     return i;
 }
 
-void print_msg_table(MessageTable* msg_table){
+void print_msg_table(MessageTable* msg_table, int LogicClock){
 
     int i;
     if (msg_table != NULL){
-        printf("MESSAGE TABLE: %d/%d messages\n", msg_table->items, msg_table->size);
-        for (i = 0; i < msg_table->size; i++){
+        printf("MESSAGE TABLE: %d/%d messages, with LC: %d\n", msg_table->items, msg_table->size, LogicClock);
+        for (i = msg_table->items - 1; i >= 0; i--){
             if(msg_table->table[i] != NULL)
                 printf("MSG: %d - %s\n", msg_table->table[i]->clock, msg_table->table[i]->text);
         }
@@ -221,5 +218,5 @@ void fill_msg_table(MessageTable* message_table, char* buffer, int* LogicClock){
         token = strtok(NULL, delimiter);
     }
     if (max_clock != -1)
-        *LogicClock = max_clock;
+        *LogicClock = max_clock + 1; /*This is according to presentation, when we received a new table our LC is LC+1*/
 }

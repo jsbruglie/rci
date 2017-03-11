@@ -1,7 +1,7 @@
 /** @file rmb_utils.h
  *  @brief Function prototypes for rmb_utils.c
  *
- *  This contains the utility functions for a 
+ *  Contains the utility functions for a 
  *  terminal user, the RMB - Reliable Message Board App
  *
  *  @author João Borrego

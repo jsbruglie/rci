@@ -12,21 +12,21 @@
 #include "msgserv.h"
 
 /* Mandatory Parameters */
-char* name = NULL;                      // Message Server Name
-char* ip = NULL;                        // Message Server IP    
-int tpt = -1;                           // TCP Port for Session Requests
-int upt = -1;                           // UDP Port for Terminal Requests, is global so the udp server thread can get it
+char* name = NULL;                      /**< Message Server Name */
+char* ip = NULL;                        /**< Message Server IP */    
+int tpt = -1;                           /**< TCP Port for Session Requests */
+int upt = -1;                           /**< UDP Port for Terminal Requests, is global so the udp server thread can get it */
 /* Optional Parameters */
-char* siip = DEFAULT_SIPT;              // Identity Server IP
-int sipt = DEFAULT_SIIP;                // Identity Server UDP Port
-int m = DEFAULT_MAX_MESSAGES;           // Maximum number of stored messages
-int r = DEFAULT_REFRESH_RATE;           // Time interval between registry entries
+char* siip = DEFAULT_SIPT;              /**< Identity Server IP */
+int sipt = DEFAULT_SIIP;                /**< Identity Server UDP Port */
+int m = DEFAULT_MAX_MESSAGES;           /**< Maximum number of stored messages */
+int r = DEFAULT_REFRESH_RATE;           /**< Time interval between registry entries */
 /* Global variables */
-MessageTable* message_table = NULL;     // Table with message structs
-ServerID* server_list = NULL;           // Server ID Lists
-int LogicClock = 0;                     // Logic Clock mechanism to ensure causality            
-int end = 0;                            // Global exit variable
-volatile int timer = 0;                 // Timer for ID server refresh with UDP
+MessageTable* message_table = NULL;     /**< Table with message structs */
+ServerID* server_list = NULL;           /**< Server ID Lists */
+int LogicClock = 0;                     /**< Logic Clock mechanism to ensure causality */          
+int end = 0;                            /**< Global exit variable */
+volatile int timer = 0;                 /**< Timer for ID server refresh with UDP */
 
 /* Main application */
 int main(int argc, char* argv[]){
@@ -36,8 +36,9 @@ int main(int argc, char* argv[]){
     parse_args(argc, argv, &name, &ip, &upt, &tpt, &siip, &sipt, &m, &r);
     debug_print("ARGS: name %s ip %s upt %d tpt %d siip %s sipt %d m %d r %d\n", name, ip, upt, tpt, siip, sipt, m, r);
 
-    signal(SIGALRM, handle_alarm);  // Alarm for refresh handle
-    alarm(r);                       // First setup of the alarm
+    signal(SIGALRM, handle_alarm);  /**< Alarm for refresh handle */
+    signal(SIGPIPE, SIG_IGN);       /**< Handle SIGPIPE signal */
+    alarm(r);                       /**< First setup of the alarm */
 
     message_table = create_msg_table(m);
     FdStruct* fd_struct = create_fd_struct(upt, tpt); 
@@ -49,9 +50,8 @@ int main(int argc, char* argv[]){
     
     /* If there are already other message servers online */
     if(server_list != NULL){
-        char buffer[BUFFER_SIZE];
         int fd = server_list->fd;
-        print_server_list(server_list);
+        print_server_list(server_list); // DEBUG
         /* Request message table to the first server in the list */   
         write(fd, "SGET_MESSAGES\n", sizeof("SGET_MESSAGES\n"));
     }
@@ -114,7 +114,7 @@ void handle_terminal(FdStruct* fd_struct){
             }else if(!strcmp(command,"show_servers")){
                 print_server_list(server_list);
             }else if(!strcmp(command,"show_messages")){
-                print_msg_table(message_table);
+                print_msg_table(message_table, LogicClock);
             }else if(!strcmp(command,"exit")){
                 end = 1;
             }else{
@@ -125,6 +125,7 @@ void handle_terminal(FdStruct* fd_struct){
         }
     }
 }
+
 void handle_rmb_request(int fd_rmb_udp){
 
     struct sockaddr_in client_address;
@@ -141,7 +142,7 @@ void handle_rmb_request(int fd_rmb_udp){
     
     if(sscanf(buffer, "%s %d", protocol, &n) == 2){
         if(!strcmp(protocol,"GET_MESSAGES")){
-            send_messages(fd_rmb_udp, &client_address, message_table, n);
+            send_messages_udp(fd_rmb_udp, &client_address, message_table, n);
         }
     }else if(sscanf(buffer, SSCANF_MESSAGE_PUBLISH, protocol, message) == 2){ //If you change MESSAGE_SIZE, change this aswell
         if(!strcmp(protocol,"PUBLISH")){
