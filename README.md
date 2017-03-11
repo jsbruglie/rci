@@ -1,4 +1,4 @@
-[![RMB](http://i.imgur.com/fkOT6bY.png = 600px)](https://github.com/pedro-abreu/rci)
+<img src="http://i.imgur.com/fkOT6bY.png" width="600">
 =========
 [![Travis Build Status](https://travis-ci.org/neovim/neovim.svg?branch=master)](https://travis-ci.org/neovim/neovim)
 [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/urdqjrik5u521fac/branch/master?svg=true)](https://ci.appveyor.com/project/neovim/neovim/branch/master)
@@ -10,7 +10,7 @@
 Test cases
 --------------------
 
-You can find the test suite we designed to test the application [here](https://github.com/pedro-abreu/rci/blob/docs/tests.md). We recommend you check this to better understand how this works.
+You can find the test suite we designed to test the application [here](https://github.com/pedro-abreu/rci/blob/dev/tests.md). We recommend you check this to better understand how this works.
 
 
 Install from source
