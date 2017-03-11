@@ -82,6 +82,7 @@ int remove_oldest(MessageTable* msg_table){
     if (msg_table != NULL){
         free(msg_table->table[msg_table->items - 1]);
         msg_table->items--;
+        return 0;
     }
     return -1;
 }
@@ -190,11 +191,11 @@ int partition(Message** m, int l, int r, int pivot){
     return i;
 }
 
-void print_msg_table(MessageTable* msg_table){
+void print_msg_table(MessageTable* msg_table, int LogicClock){
 
     int i;
     if (msg_table != NULL){
-        printf("MESSAGE TABLE: %d/%d messages\n", msg_table->items, msg_table->size);
+        printf("MESSAGE TABLE: %d/%d messages, with LC: %d\n", msg_table->items, msg_table->size, LogicClock);
         for (i = 0; i < msg_table->size; i++){
             if(msg_table->table[i] != NULL)
                 printf("MSG: %d - %s\n", msg_table->table[i]->clock, msg_table->table[i]->text);
@@ -221,5 +222,5 @@ void fill_msg_table(MessageTable* message_table, char* buffer, int* LogicClock){
         token = strtok(NULL, delimiter);
     }
     if (max_clock != -1)
-        *LogicClock = max_clock;
+        *LogicClock = max_clock + 1; /*This is according to presentation, when we received a new table our LC is LC+1*/
 }

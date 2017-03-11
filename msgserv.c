@@ -114,7 +114,7 @@ void handle_terminal(FdStruct* fd_struct){
             }else if(!strcmp(command,"show_servers")){
                 print_server_list(server_list);
             }else if(!strcmp(command,"show_messages")){
-                print_msg_table(message_table);
+                print_msg_table(message_table, LogicClock);
             }else if(!strcmp(command,"exit")){
                 end = 1;
             }else{

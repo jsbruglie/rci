@@ -48,6 +48,11 @@ int main(int argc, char* argv[]){
                     end = 1;
                 else
                     printf("Please input a valid command\n");
+            /*DEBUG*/
+            }else if(sscanf(line, SSCANF_DEBUGMESSAGE_PUBLISH, command, message, msgserv_ip, &msgserv_upt) == 4){
+                if(!strcmp(command, "debug_publish")){
+                    publish_msg(message, msgserv_ip, msgserv_upt);
+                }
             }else{
                 printf("Please input a valid command\n");
             }
