@@ -31,6 +31,12 @@
 #define SSCANF_SMESSAGES "%256s"
 #define SSCANF_SERVERS_PARSING "%256[^;];%256[^;];%d;%d" //sv_list.c
 #define SSCANF_MESSAGE_CLOCK_TABLE_INSERT "%d;%140[^;]" //msg_table.c
+#define SSCANF_DEBUGMESSAGE_PUBLISH "%s %140[^\n] %s %d"
+
+#define MSG_FORMAT_CLK "%d;%s\n"
+#define MSG_FORMAT "%s\n"
+#define MSG_FORMAT_CLK_SIZE 2		 			
+#define MSG_FORMAT_SIZE 1
 
 #define DEFAULT_SIPT "tejo.tecnico.ulisboa.pt"  /**< Default Identity Server IP */
 #define DEFAULT_SIIP 59000                      /**< Default Identity Server UDP port */
