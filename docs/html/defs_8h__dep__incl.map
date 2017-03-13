@@ -1,0 +1,8 @@
+<map id="defs.h" name="defs.h">
+<area shape="rect" id="node2" href="$msg__table_8h.html" title="Function prototypes for msg_table.c. " alt="" coords="5,80,99,107"/>
+<area shape="rect" id="node3" href="$msgserv__utils_8h.html" title="Function prototypes for the functions used in msgserv as subroutines. " alt="" coords="104,155,219,181"/>
+<area shape="rect" id="node4" href="$msgserv_8h.html" title="Function prototypes the message server. " alt="" coords="193,229,276,256"/>
+<area shape="rect" id="node6" href="$sv__list_8h.html" title="Function prototypes for sv_list.c. " alt="" coords="174,80,245,107"/>
+<area shape="rect" id="node7" href="$rmb__utils_8h.html" title="Function prototypes for rmb_utils.c. " alt="" coords="321,80,407,107"/>
+<area shape="rect" id="node5" href="$msgserv_8c.html" title="Message Server Application. " alt="" coords="193,304,276,331"/>
+</map>

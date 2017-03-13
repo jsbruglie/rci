@@ -144,7 +144,7 @@ void handle_rmb_request(int fd_rmb_udp){
         if(!strcmp(protocol,"GET_MESSAGES")){
             send_messages_udp(fd_rmb_udp, &client_address, message_table, n);
         }
-    }else if(sscanf(buffer, SSCANF_MESSAGE_PUBLISH, protocol, message) == 2){ //If you change MESSAGE_SIZE, change this aswell
+    }else if(sscanf(buffer, SSCANF_MESSAGE_PUBLISH, protocol, message) == 2){
         if(!strcmp(protocol,"PUBLISH")){
             LogicClock++;
             insert_in_msg_table(message_table, message, LogicClock);
