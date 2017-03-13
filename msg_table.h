@@ -19,27 +19,27 @@
 #include "debug.h"
 #include "defs.h"
 
-#define CLK_MAX_SIZE 20 			/**< Max size of clock to string. */
+#define CLK_MAX_SIZE 20             /**< The maximum number of chars to represent the `clock` field as a string */
 
-#define ALL_MSGS 1					/**< Parameter to have all messages or not */
-#define INCLUDE_CLK 1				/**< Parameter to have clock in the list you are sending */
+#define ALL_MSGS 1                  /**< Parameter to specify whether we want all the messages or not */
+#define INCLUDE_CLK 1               /**< Parameter to specify if we want to include the `clock` field in exported data */
 
 
 /**
  * @brief Structure for a single message
  */
 typedef struct _Message{
-    char text[MESSAGE_SIZE]; /**< Flag is set to `DELETE` when the entry is scheduled for deletion. */
-    int clock; /**< Flag is set to `DELETE` when the entry is scheduled for deletion. */
+    char text[MESSAGE_SIZE];    /**< The actual text whitin a message. It is limited to `MESSAGE_SIZE` characters */
+    int clock;                  /**< The respective clock data. Serves a synchronisation purpose. */
 }Message;
 
 /**
  * @brief Structure for the message table
  */
 typedef struct _MessageTable{
-    int size; /**< Flag is set to `DELETE` when the entry is scheduled for deletion. */
-    int items; /**< Flag is set to `DELETE` when the entry is scheduled for deletion. */
-    Message** table; /**< Flag is set to `DELETE` when the entry is scheduled for deletion. */
+    int size;           /**< The size of the table: maximum number of stored messages. */
+    int items;          /**< The number of occupied position in the table. */
+    Message** table;    /**< The actual messsage table. */
 }MessageTable;
 
 

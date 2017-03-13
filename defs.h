@@ -22,7 +22,7 @@
 #define NAMEIP_SIZE 256                     /**< Length for the name of servers and their ip */
 #define MAX_NUMBER_MSG 10   
 
-#define STDIN 0             /**< `stdin` Macro for handling file descriptor in a clear way */
+#define STDIN 0 /**< `stdin` Macro for handling file descriptor in a clear way */
 
 /* The following macro's are generally identified by the protocol they are processing */
 #define SSCANF_MESSAGE_PUBLISH "%s %140[^\n]"

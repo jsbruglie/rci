@@ -34,17 +34,24 @@
 #include "debug.h"
 #include "defs.h"
 
-/*FD Struct for fd handling*/
+/**
+ * @brief Structure for storing several file descriptors for better code readibility
+ *
+ *  Contains the file descriptors for handling
+ *  - `stdin`
+ *  - UDP connections with RMB clients (terminals)
+ *  - UDP connections with the Identity Server
+ *  - TCP connections requested by other messages server instances 
+ */
 typedef struct _FdStruct{
-    int max;
-    int std_in;
-    int rmb_udp;
-    int si_udp;
-    int msg_tcp;
+    int max;        /**< The highest number among file descriptors */
+    int std_in;     /**< `stdin` (should always be 0) */
+    int rmb_udp;    /**< UDP connections with RMB clients (terminals)*/
+    int si_udp;     /**< UDP connections with the Identity Server*/
+    int msg_tcp;    /**< TCP connections requested by other messages server instances */
 }FdStruct;
 
-/** @brief Pãrses command line arguments using getopt
- *
+/** @brief Parses command line arguments using getopt
  *
  *  @param argc main argument count
  *  @param argv main argument list
