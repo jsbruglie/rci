@@ -21,7 +21,12 @@ int main(int argc, char* argv[]){
     /* Command Line Interface */
     while(!end){
         if(fgets(line, sizeof(line), stdin)){
-            if(sscanf(line, "%s %d", command, &n) == 2){
+            /*DEBUG*/
+            if(sscanf(line, SSCANF_DEBUGMESSAGE_PUBLISH, command, msgserv_ip, &msgserv_upt, message) == 4){
+                if(!strcmp(command, "debug_publish")){
+                    publish_msg(message, msgserv_ip, msgserv_upt);
+                }
+            }else if(sscanf(line, "%s %d", command, &n) == 2){
                 if(!strcmp(command, "show_latest_messages")){
                     get_servers(siip, sipt, buffer, !PRINT);
                     if(pick_server(buffer, msgserv_name, msgserv_ip, &msgserv_upt, &msgserv_tpt) == 0)  // Pick a message server                               
@@ -48,11 +53,6 @@ int main(int argc, char* argv[]){
                     end = 1;
                 else
                     printf("Please input a valid command\n");
-            /*DEBUG*/
-            }else if(sscanf(line, SSCANF_DEBUGMESSAGE_PUBLISH, command, message, msgserv_ip, &msgserv_upt) == 4){
-                if(!strcmp(command, "debug_publish")){
-                    publish_msg(message, msgserv_ip, msgserv_upt);
-                }
             }else{
                 printf("Please input a valid command\n");
             }

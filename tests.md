@@ -26,7 +26,7 @@ valgrind --leak-check=yes ./msgserv -n aperture02 -j 127.0.0.1 -u 9002 -t 10002 
 1. Launch sid64
 2. Launch a msgserv, aperture01
 3. On the aperture01 terminal do a join
-4. Do a show_servers on aperture01 terminal
+4. Do a show_servers on aperture01 terminal (should be empty, no tcp connections)
 
 ### 2 -- rmb <---> sid (USE WIRESHARK)
 
@@ -36,7 +36,7 @@ valgrind --leak-check=yes ./msgserv -n aperture02 -j 127.0.0.1 -u 9002 -t 10002 
 
 ### 3 -- rmb <---> msgserv 
 
-1. On the rmb, do a publish 'sabem qual o programa das JEEC'
+1. On the rmb, do a publish 'sabem qual o programa das JEEC?'
 2. Confirm message (Do a show_messages on aperture01) was received and LC(aperture01)=1
 3. On rmb, do show_latest_messages 10
 4. Confirm you see a message
@@ -59,19 +59,11 @@ valgrind --leak-check=yes ./msgserv -n aperture02 -j 127.0.0.1 -u 9002 -t 10002 
 
 1. From rmb client02, publish to aperture02 'e o programa do FESTin?'
 2. Confirm that the message is propagated to aperture01
-3. At the end of this, do a show_messages on aperture01 and aperture02, and now LC(aperture01)=4 and LC(aperture02)=2
-
-### 7 - msgserv <---> msgserv another message between the msgservs the other way
-
-1. From rmb client01, publish to aperture01 'g'anda programa o da JEEC!'
-2. Confirm that the message is propagated to aperture02
-3. At the end of this, do a show_messages on aperture01 and aperture02, and now LC(aperture01)=5 and LC(aperture02)=3
-
-### 8 - msgserv <---> msgserv another message between the msgserves
-
-1. From rmb client01, publish to aperture01 'e o programa do FESTin?'
-2. Confirm that message is propagated to aperture01
-3. At the end, 
+3. At the end of this, do a show_messages on aperture01 and aperture02, and now LC(aperture02)=4 and LC(aperture01)=5
+4. If the delay in this propagation is large then LC(aperture01)=2
+5. client01 should publish to aperture01 and now LC(aperture01)=3.
+6. This publish propagates to aperture02 and thus now LC(aperture02)=5
+7. Finally the first delayed message in 4 arrives at aperture01 and thus LC(aperture01)=5 and all messages should be synced
 
 ## Unit tests
 
