@@ -1,5 +1,6 @@
 <img src="http://i.imgur.com/fkOT6bY.png" width="600">
 =========
+This simple distributed message exchange program is our final project for our Computer Networks and the Internet master's course at IST, Lisbon.
 
 Test cases
 --------------------
