@@ -1,4 +1,4 @@
-## Test Suite:
+## Test Suite
 
 For all tests, compilation and a reset of the Identity Server(64bit example) is recommended. The following should print an empty server list:
 
