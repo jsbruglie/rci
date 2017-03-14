@@ -22,7 +22,7 @@
 #include "debug.h"
 #include "defs.h"
 
-#define PRINT 1 // Flag for get servers 
+#define PRINT 1 /**< Flag for get servers */ 
 
 /** @brief Parses the optional arguments for execution from 
  *         the command line arguments. 

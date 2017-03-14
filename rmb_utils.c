@@ -42,7 +42,7 @@ void show_latest_messages(int n, char* msgserv_ip, int msgserv_upt){
     snprintf(number, MAX_NUMBER_MSG, "%d", n);
     strcat(msg, number);
 
-    if (n < 0 || !strcmp(msgserv_ip,"") || msgserv_upt < 0){
+    if (n <= 0 || !strcmp(msgserv_ip,"") || msgserv_upt < 0){
         // Invalid Command
         return;
     }
@@ -75,8 +75,17 @@ void request_udp(char* ip, int upt, char* send, int send_size, char* recv, int r
     struct hostent *hostptr;                // Host name structure pointer
     struct sockaddr_in server_address;      // Server address struct
     int address_length;                     // Address length
+    struct timeval tv;                      // Time value structure for timeout
+    tv.tv_sec = RMB_TIMEOUT;                // Timeout value in seconds
+    tv.tv_usec = 0;
+
 
     fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(struct timeval)) < 0){
+        err_print("Could not configure socket timeout. Exiting...");
+        exit(EXIT_FAILURE);
+    }
+
     hostptr = gethostbyname(ip);
     memset((void*) &server_address, (int) '\0', sizeof(server_address));
     server_address.sin_family = AF_INET;

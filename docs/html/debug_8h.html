@@ -104,9 +104,9 @@ Macros</h2></td></tr>
 <tr class="memitem:a42f8c497a1968074f38bf5055c650dca"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a42f8c497a1968074f38bf5055c650dca"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>VERBOSE</b></td></tr>
 <tr class="separator:a42f8c497a1968074f38bf5055c650dca"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5b3328168f68ea3021dc4af704f06eb9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5b3328168f68ea3021dc4af704f06eb9"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>debug_print</b>(args...)&#160;&#160;&#160;{printf(args);}</td></tr>
-<tr class="separator:a5b3328168f68ea3021dc4af704f06eb9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a535857fc71b2e83d8c4b575dfc2dc677"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a535857fc71b2e83d8c4b575dfc2dc677"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>debug_print</b>(M, ...)&#160;&#160;&#160;printf(&quot;DEBUG: %s:%d:%s: &quot; M &quot;\n&quot;, __FILE__, __LINE__, __func__, ##__VA_ARGS__)</td></tr>
+<tr class="separator:a535857fc71b2e83d8c4b575dfc2dc677"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Macros for debug and verbose options. </p>
