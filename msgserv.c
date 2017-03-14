@@ -167,7 +167,7 @@ void handle_msg_connect(int fd_msg_tcp){
 
     int new_fd = accept(fd_msg_tcp, (struct sockaddr*) &client_address, &client_length);
     if(new_fd == -1){
-        fprintf(stderr, "Accept crashed. Exiting...\n");
+        err_print("Accept crashed. Exiting...");
         exit(EXIT_FAILURE);
     }
     /* Read the connecting server identity */

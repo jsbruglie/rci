@@ -4,7 +4,7 @@ ServerID* server_list_push(ServerID* head, char* sv_name, char* sv_ip, int sv_up
     ServerID * new;
     new = (ServerID*) malloc(sizeof(ServerID));
     if(new == NULL){
-        fprintf(stderr, "Malloc failed. Memory full\n");
+        err_print("Malloc failed. Memory full");
         exit(EXIT_FAILURE);
     }
     //memset(new, 0, sizeof(ServerID));
@@ -22,7 +22,7 @@ void print_server_list(ServerID* head){
     ServerID* current;
     printf("SERVER LIST:\n");
     for (current = head; current != NULL; current = current->next){
-        printf("\t%s %s %d %d\n", current->name, current->ip, current->upt, current->tpt);
+        printf("%s %s %d %d\n", current->name, current->ip, current->upt, current->tpt);
     }
 
 }
@@ -72,7 +72,7 @@ ServerID* create_server_list(char* server_string, char* name, char* ip, int upt,
                     sprintf(buffer, "%s\n%s;%s;%d;%d", "ID", name, ip, upt, tpt);
                     int nbytes = write(new_fd, buffer, strlen(buffer) + 1);
                     if(nbytes == -1){
-                        fprintf(stderr,"Write failed. Exiting...\n");
+                        err_print("Write failed. Exiting...");
                         exit(EXIT_FAILURE);
                     }
                     first = server_list_push(first, si_name, si_ip, si_upt, si_tpt, new_fd);

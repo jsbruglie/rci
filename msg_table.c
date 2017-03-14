@@ -6,12 +6,12 @@ MessageTable* create_msg_table(int size){
 
     MessageTable* message_table = (MessageTable*) malloc(sizeof(MessageTable));
     if(message_table == NULL){
-        fprintf(stderr, "Malloc failed. Memory full\n");
+        err_print("Malloc failed. Memory full");
         exit(EXIT_FAILURE);
     }
     message_table->table = (Message**) malloc(sizeof(Message*) * size);
     if(message_table->table == NULL){
-        fprintf(stderr, "Malloc failed. Memory full\n");
+        err_print("Malloc failed. Memory full");
         exit(EXIT_FAILURE);
     }
     message_table->size = size;

@@ -62,7 +62,7 @@ void parse_args(int argc, char** argv, char** _name, char** _ip, int* _upt, int*
         exit(EXIT_FAILURE);
     }
     if(upt == tpt){
-        fprintf(stderr,"Error: UDP and TCP port are the same.\n");  
+        err_print("UDP and TCP port are the same.");  
         exit(EXIT_FAILURE);
     }
     if (siip == NULL){
@@ -86,7 +86,7 @@ int create_udp_server(u_short port){
 
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
     if(fd == -1){
-        fprintf(stderr, "FD SOCKET CREATION PROBLEM. Exiting...\n");
+        err_print("Could not create a socket. Exiting...");
         exit(EXIT_FAILURE);
     }
 
@@ -96,7 +96,7 @@ int create_udp_server(u_short port){
     server_address.sin_port = htons((u_short) port);
     int ret = bind(fd, (struct sockaddr*) &server_address, sizeof(server_address));
     if(ret == -1){
-        fprintf(stderr, "BIND FAILED\n");
+        err_print("Bind failed. Exiting...");
         exit(EXIT_FAILURE);
     }
 
@@ -106,7 +106,7 @@ int create_udp_server(u_short port){
 int create_udp_client(){
     int fd = socket(AF_INET,SOCK_DGRAM,0);
     if(fd == -1){
-        fprintf(stderr,"FD SOCKET CREATION PROBLEM. Exiting...\n");
+        err_print("Could not create a socket. Exiting...");
         exit(EXIT_FAILURE);
     }
     return fd;
@@ -119,7 +119,7 @@ int create_tcp_server(u_short port){
 
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     if(fd == -1){
-        fprintf(stderr, "FD SOCKET CREATION PROBLEM. Exiting...\n");
+        err_print("Could not create a socket. Exiting...");
         exit(EXIT_FAILURE);
     }
 
@@ -129,7 +129,7 @@ int create_tcp_server(u_short port){
     server_address.sin_port = htons((u_short) port);
     int ret = bind(fd, (struct sockaddr*) &server_address, sizeof(server_address));
     if(ret == -1){
-        fprintf(stderr, "BIND FAILED...\n");
+        err_print("Bind failed. Exiting...");
         exit(EXIT_FAILURE);
     }
     listen(fd,5);
@@ -147,7 +147,7 @@ int accept_tcp_connection(int fd){
 
     new_fd = accept(fd, (struct sockaddr*) &client_address, &client_length);
     if(new_fd == -1){
-        fprintf(stderr, "Accept failed. Exiting...\n");
+        err_print("Accept failed. Exiting...");
         exit(EXIT_FAILURE);
     }
     return new_fd;
@@ -169,7 +169,7 @@ void refresh(int fd, char* name, char* ip, char* siip, int sipt, int upt, int tp
     address_length = sizeof(server_address);
     int n = sendto(fd, registration, strlen(registration) + 1, 0, (struct sockaddr*) &server_address, address_length);
     if(n==-1){
-        fprintf(stderr, "REFRESH SENDTO FAILED\n");
+        err_print("sendto failed. Check if identity server is online. Exiting...");
         exit(EXIT_FAILURE);
     }
     //debug_print("REFRESH: Just registered in the Identity Server.\n");
@@ -187,7 +187,7 @@ void send_messages_udp(int fd, struct sockaddr_in* client_addr_ptr, MessageTable
     //debug_print("SEND_MSG: %d/%d bytes \n%s\n", size, strlen(buffer) + 1, buffer);
     int nbytes = sendto(fd, buffer, size, 0, (struct sockaddr*) client_addr_ptr, address_length);
     if(nbytes==-1){
-        fprintf(stderr, "SENDO CRASHED. Exiting...");
+        err_print("sendto failed. Exiting...");
         free(buffer);
         exit(EXIT_FAILURE);
     } 
@@ -203,7 +203,9 @@ void send_messages_tcp(int fd, MessageTable* msg_table, int n, int all){
     int nbytes = write(fd, buffer, strlen(buffer) + 1);
     debug_print("SEND_MSG_TCP: %d/%d bytes \n\t%s", size, (int) strlen(buffer) + 1, buffer);
     if(nbytes == -1){
-        fprintf(stderr, "TCP WRITE CRASHED. Exiting..." );
+        // It may be that a peer closes the socket; Would probably be a good idea to just remove the server from the list
+        //  instead of exiting...
+        err_print("TCP write failed. Exiting...");
         free(buffer);
         exit(EXIT_FAILURE);
     }
@@ -219,7 +221,7 @@ void get_servers(char* siip, int sipt, char* server_string){
 
     int fd = socket(AF_INET,SOCK_DGRAM,0);
     if(fd==-1){
-        fprintf(stderr,"FD SOCKET CREATION PROBLEM. Exiting...\n");
+        err_print("Could not create a socket. Exiting...");
         exit(EXIT_FAILURE);
     }
 
@@ -232,13 +234,13 @@ void get_servers(char* siip, int sipt, char* server_string){
     address_length = sizeof(server_address);
     int nbytes = sendto(fd, "GET_SERVERS", strlen("GET_SERVERS") + 1, 0, (struct sockaddr*) &server_address, address_length);
     if(nbytes==-1){
-        fprintf(stderr, "UDP SENDTO CRASHED. Exiting...");
+        err_print("sendto failed. Check if identity server is online.Exiting...");
         exit(EXIT_FAILURE);
     }
     address_length = sizeof(server_address);
     nbytes = recvfrom(fd, buffer, sizeof(buffer), 0, (struct sockaddr*) &server_address, &address_length);
     if(nbytes==-1){
-        fprintf(stderr, "UDP RECVFROM CRASHED.Exiting...\n");
+        err_print("recvfrom failed. Check if identity server is online. Exiting...");
         exit(EXIT_FAILURE);
     }
     close(fd);
