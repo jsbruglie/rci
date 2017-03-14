@@ -201,7 +201,7 @@ void send_messages_tcp(int fd, MessageTable* msg_table, int n, int all){
     strcpy(buffer,"SMESSAGES\n");
     get_latest_messages(msg_table, n, all, INCLUDE_CLK, buffer);
     int nbytes = write(fd, buffer, strlen(buffer) + 1);
-    debug_print("SEND_MSG_TCP: %d/%d bytes \n\t%s\n", size, (int) strlen(buffer) + 1, buffer);
+    debug_print("SEND_MSG_TCP: %d/%d bytes \n\t%s", size, (int) strlen(buffer) + 1, buffer);
     if(nbytes == -1){
         fprintf(stderr, "TCP WRITE CRASHED. Exiting..." );
         free(buffer);
@@ -264,7 +264,7 @@ FdStruct* create_fd_struct(int upt, int tpt){
     max = (fd_s->msg_tcp > max)? fd_s->msg_tcp : max;
     fd_s->max = max;
     
-    debug_print("CREATE FD STRUCT: rmb %d si %d msg %d max %d\n",fd_s->rmb_udp, fd_s->si_udp, fd_s->msg_tcp, fd_s->max);
+    debug_print("Created: rmb %d si %d msg %d max %d",fd_s->rmb_udp, fd_s->si_udp, fd_s->msg_tcp, fd_s->max);
     return fd_s;
 }   
 

@@ -14,7 +14,7 @@
 #define VERBOSE
 
 #ifdef VERBOSE
-#define debug_print(M, ...) printf("DEBUG: %s:%d:%s: " M, __FILE__, __LINE__, __func__, ##__VA_ARGS__)
+#define debug_print(M, ...) printf("DEBUG: %s:l %d:%s: " M "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 #else
 #define debug_print(M, ...)
 #endif

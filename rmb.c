@@ -6,7 +6,7 @@ int main(int argc, char* argv[]){
     char* siip = "tejo.tecnico.ulisboa.pt"; // Identity Server IP
     int sipt = 59000;                       // Identity Server UDP Port
     parse_args(argc, argv, &siip, &sipt);
-    debug_print("ARGS: siip %s sipt %d\n", siip, sipt);
+    debug_print("ARGS: siip %s sipt %d", siip, sipt);
 
     /* Selected Message Server Parameters */
     char msgserv_name[NAMEIP_SIZE] = "", msgserv_ip[NAMEIP_SIZE] = "";  // Name and ip of the selected message server 

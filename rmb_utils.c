@@ -125,7 +125,7 @@ void publish_msg(char* message, char* msgserv_ip, int msgserv_upt){
     char protocol_msg[PROTOCOL_SIZE] = "PUBLISH ";
     strcat(protocol_msg,message);
 
-    debug_print("Publishing message %s to msgserv, IP: %s PORT: %d\n", message, msgserv_ip, msgserv_upt);
+    debug_print("Publishing message %s to msgserv ip: %s port: %d", message, msgserv_ip, msgserv_upt);
 
     fd = socket(AF_INET,SOCK_DGRAM,0);
     hostptr = gethostbyname(msgserv_ip);

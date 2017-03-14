@@ -20,9 +20,9 @@ ServerID* server_list_push(ServerID* head, char* sv_name, char* sv_ip, int sv_up
 
 void print_server_list(ServerID* head){
     ServerID* current;
-    debug_print("PRINTING CURRENT SERVER LIST\n");
+    printf("SERVER LIST:\n");
     for (current = head; current != NULL; current = current->next){
-        debug_print("SERVER ID: %s %s %d %d\n", current->name, current->ip, current->upt, current->tpt);
+        printf("\t%s %s %d %d\n", current->name, current->ip, current->upt, current->tpt);
     }
 
 }
@@ -37,7 +37,7 @@ int tcp_connect(char* ip, int tpt){
     server_address.sin_addr.s_addr = ((struct in_addr *)(hostptr->h_addr_list[0]))->s_addr;
     server_address.sin_port = htons((u_short)tpt);
     int rv = connect(fd, (struct sockaddr*)&server_address,sizeof(server_address)); //blocked here
-    debug_print("TCP connection: %d\n", rv);
+    debug_print("TCP connection: %d", rv);
     if(!rv)
         return fd;
     else
@@ -76,7 +76,7 @@ ServerID* create_server_list(char* server_string, char* name, char* ip, int upt,
                         exit(EXIT_FAILURE);
                     }
                     first = server_list_push(first, si_name, si_ip, si_upt, si_tpt, new_fd);
-                    debug_print("INSERTING %d - %s %s %d %d\n", new_fd, si_name, si_ip, si_upt, si_tpt);
+                    debug_print("Inserting %d - %s %s %d %d", new_fd, si_name, si_ip, si_upt, si_tpt);
                 }
             }
         }
