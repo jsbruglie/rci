@@ -36,8 +36,8 @@ void parse_args(int argc, char** argv, char** _siip, int* _sipt){
 void show_latest_messages(int n, char* msgserv_ip, int msgserv_upt){
     
     char msg[PROTOCOL_SIZE] = "GET_MESSAGES ";
-    char number[MAX_NUMBER_MSG];
-    char buffer[LARGE_BUFFER_SIZE];
+    char number[MAX_NUMBER_MSG] = "";
+    char buffer[LARGE_BUFFER_SIZE] = "";
 
     snprintf(number, MAX_NUMBER_MSG, "%d", n);
     strcat(msg, number);
@@ -56,11 +56,9 @@ void show_latest_messages(int n, char* msgserv_ip, int msgserv_upt){
 void get_servers(char* siip, int sipt, char* server_list, int print){
 
     char msg[PROTOCOL_SIZE] = "GET_SERVERS";
-    char buffer[LARGE_BUFFER_SIZE];
+    char buffer[LARGE_BUFFER_SIZE] = "";
 
     request_udp(siip, sipt, msg, sizeof(msg), buffer, sizeof(buffer));
-
-    memset(server_list, 0, sizeof(server_list));
     strcpy(server_list, buffer);
 
     if(print){

@@ -158,9 +158,6 @@ Functions</h2></td></tr>
 <tr class="memitem:a1f90c1112ebbdb61a3a61f9ee965c19f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="msgserv__utils_8h.html#a1f90c1112ebbdb61a3a61f9ee965c19f">send_messages_tcp</a> (int fd, <a class="el" href="msg__table_8h.html#a146a38b27ce7a4d6795e876d29ffe758">MessageTable</a> *msg_table, int n, int all)</td></tr>
 <tr class="memdesc:a1f90c1112ebbdb61a3a61f9ee965c19f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to send n messages or all of the message table over TCP. Used in the communication between message servers to keep tables consistent.  <a href="#a1f90c1112ebbdb61a3a61f9ee965c19f">More...</a><br /></td></tr>
 <tr class="separator:a1f90c1112ebbdb61a3a61f9ee965c19f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3f6b86fe2ff4e39ae62ac33bd921faea"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3f6b86fe2ff4e39ae62ac33bd921faea"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>safe_tcp_write</b> (int fd, char *buffer, int size)</td></tr>
-<tr class="separator:a3f6b86fe2ff4e39ae62ac33bd921faea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6e350c9b404a80332777b4bd15cfb427"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="msgserv__utils_8h.html#a6e350c9b404a80332777b4bd15cfb427">get_servers</a> (char *<a class="el" href="msgserv_8c.html#aa8953b1ea23057af50118e20f6f12419">siip</a>, int <a class="el" href="msgserv_8c.html#ae9a254764e848e3ffb966ea5f014a976">sipt</a>, char *server_string)</td></tr>
 <tr class="memdesc:a6e350c9b404a80332777b4bd15cfb427"><td class="mdescLeft">&#160;</td><td class="mdescRight">Make a request to the Identity Server to get the servers.  <a href="#a6e350c9b404a80332777b4bd15cfb427">More...</a><br /></td></tr>
 <tr class="separator:a6e350c9b404a80332777b4bd15cfb427"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -174,7 +171,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>safe_tcp_write</b> (i
 <tr class="memdesc:a0b6ff3d84b52215c4085050978736aae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints character ch at the current location of the cursor.  <a href="#a0b6ff3d84b52215c4085050978736aae">More...</a><br /></td></tr>
 <tr class="separator:a0b6ff3d84b52215c4085050978736aae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab6b9920c9427e883cf445a6e0fe4a4ac"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="msgserv__utils_8h.html#ab6b9920c9427e883cf445a6e0fe4a4ac">fd_max</a> (<a class="el" href="msgserv__utils_8h.html#a0dfdaecf6094bcf3f0c4d20f9b5648dd">FdStruct</a> *fd_struct, <a class="el" href="sv__list_8h.html#a633aa5d3603de06513b9fed5c69c3236">ServerID</a> *sv_list)</td></tr>
-<tr class="memdesc:ab6b9920c9427e883cf445a6e0fe4a4ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints character ch at the current location of the cursor.  <a href="#ab6b9920c9427e883cf445a6e0fe4a4ac">More...</a><br /></td></tr>
+<tr class="memdesc:ab6b9920c9427e883cf445a6e0fe4a4ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get integer corresponding to the biggest file descriptor.  <a href="#ab6b9920c9427e883cf445a6e0fe4a4ac">More...</a><br /></td></tr>
 <tr class="separator:ab6b9920c9427e883cf445a6e0fe4a4ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -384,15 +381,15 @@ Pedro Abreu </dd></dl>
       </table>
 </div><div class="memdoc">
 
-<p>Prints character ch at the current location of the cursor. </p>
+<p>Get integer corresponding to the biggest file descriptor. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">fd_struct</td><td>structure that contains the fds to check </td></tr>
-    <tr><td class="paramname">read_set</td><td>set that has the fds that have been set </td></tr>
+    <tr><td class="paramname">sv_list</td><td>server identities list </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Void. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>the maximum file descritpor integer. </dd></dl>
 
 </div>
 </div>
