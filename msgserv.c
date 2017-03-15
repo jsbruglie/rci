@@ -149,6 +149,7 @@ void handle_rmb_request(int fd_rmb_udp){
             LogicClock++;
             insert_in_msg_table(message_table, message, LogicClock);
             for(id = server_list; id != NULL; id = id->next){
+                int i; scanf("%d", &i); // DEBUG
                 debug_print("\tPROPAGATING TO %s %d", id->ip, id->tpt);
                 send_messages_tcp(id->fd, message_table, 1, !ALL_MSGS);
             }
