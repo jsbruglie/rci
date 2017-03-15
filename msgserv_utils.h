@@ -138,8 +138,6 @@ void send_messages_udp(int fd, struct sockaddr_in* client_addr_ptr, MessageTable
  */
 void send_messages_tcp(int fd, MessageTable* msg_table, int n, int all);
 
-void safe_tcp_write(int fd, char* buffer, int size);
-
 /** @brief Make a request to the Identity Server to get the servers
  *
  *  @param siip IP of the Identity Server
@@ -176,12 +174,11 @@ void delete_fd_struct(FdStruct* fd);
  */
 void init_fd_set(fd_set* set, FdStruct* fd, ServerID* sv);
 
-/** @brief Prints character ch at the current location
- *         of the cursor.
+/** @brief Get integer corresponding to the biggest file descriptor.
  *
  *  @param fd_struct structure that contains the fds to check
- *  @param read_set set that has the fds that have been set
- *  @return Void.
+ *  @param sv_list server identities list
+ *  @return the maximum file descritpor integer.
  */
 int fd_max(FdStruct* fd_struct, ServerID* sv_list);
 

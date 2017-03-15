@@ -88,3 +88,5 @@ void handle_msg_activity(int fd_msg_tcp);
  *  @return Void.
  */
 void cleanup(FdStruct* fd_struct);
+
+void debug_lc();

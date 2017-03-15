@@ -14,7 +14,9 @@
 #define VERBOSE
 
 #ifdef VERBOSE
-#define debug_print(args...){printf(args);}
+#define debug_print(M, ...) printf("DEBUG: %s:%d:%s: " M "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 #else
-#define debug_print(args...)
+#define debug_print(M, ...)
 #endif
+
+#define err_print(M, ...) fprintf(stderr, "ERROR: %s:%d:%s: " M "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__)

@@ -36,13 +36,13 @@ void parse_args(int argc, char** argv, char** _siip, int* _sipt){
 void show_latest_messages(int n, char* msgserv_ip, int msgserv_upt){
     
     char msg[PROTOCOL_SIZE] = "GET_MESSAGES ";
-    char number[MAX_NUMBER_MSG];
-    char buffer[LARGE_BUFFER_SIZE];
+    char number[MAX_NUMBER_MSG] = "";
+    char buffer[LARGE_BUFFER_SIZE] = "";
 
     snprintf(number, MAX_NUMBER_MSG, "%d", n);
     strcat(msg, number);
 
-    if (n < 0 || !strcmp(msgserv_ip,"") || msgserv_upt < 0){
+    if (n <= 0 || !strcmp(msgserv_ip,"") || msgserv_upt < 0){
         // Invalid Command
         return;
     }
@@ -56,11 +56,9 @@ void show_latest_messages(int n, char* msgserv_ip, int msgserv_upt){
 void get_servers(char* siip, int sipt, char* server_list, int print){
 
     char msg[PROTOCOL_SIZE] = "GET_SERVERS";
-    char buffer[LARGE_BUFFER_SIZE];
+    char buffer[LARGE_BUFFER_SIZE] = "";
 
     request_udp(siip, sipt, msg, sizeof(msg), buffer, sizeof(buffer));
-
-    memset(server_list, 0, sizeof(server_list));
     strcpy(server_list, buffer);
 
     if(print){
@@ -75,8 +73,17 @@ void request_udp(char* ip, int upt, char* send, int send_size, char* recv, int r
     struct hostent *hostptr;                // Host name structure pointer
     struct sockaddr_in server_address;      // Server address struct
     int address_length;                     // Address length
+    struct timeval tv;                      // Time value structure for timeout
+    tv.tv_sec = RMB_TIMEOUT;                // Timeout value in seconds
+    tv.tv_usec = 0;
+
 
     fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(struct timeval)) < 0){
+        err_print("Could not configure socket timeout. Exiting...");
+        exit(EXIT_FAILURE);
+    }
+
     hostptr = gethostbyname(ip);
     memset((void*) &server_address, (int) '\0', sizeof(server_address));
     server_address.sin_family = AF_INET;
@@ -86,14 +93,14 @@ void request_udp(char* ip, int upt, char* send, int send_size, char* recv, int r
     address_length = sizeof(server_address);
     int n = sendto(fd, send, send_size, 0, (struct sockaddr*) &server_address, address_length);
     if(n == -1){
-        fprintf(stderr, "Sendto failed. Exiting.\n");
+        err_print("sendto failed. Exiting...");
         exit(EXIT_FAILURE);
     }
     
     address_length = sizeof(server_address);
     recvfrom(fd, recv, recv_size, 0, (struct sockaddr*) &server_address, &address_length);
     if(n == -1){
-        fprintf(stderr, "Recvfrom failed. Exiting.\n"); 
+        err_print("recvfrom failed. Exiting..."); 
         exit(EXIT_FAILURE);
     }
     
@@ -108,7 +115,7 @@ int pick_server(char* buffer, char* msgserv_name, char* msgserv_ip, int* msgserv
     char p2[BUFFER_SIZE] = "";
     
     sscanf(p1, "%[^\n]", p2);
-    sscanf(p2, "%256[^;];%256[^;];%d;%d", msgserv_name, msgserv_ip, msgserv_upt, msgserv_tpt);
+    sscanf(p2, SSCANF_SERVERS_PARSING, msgserv_name, msgserv_ip, msgserv_upt, msgserv_tpt);
 
     if(*msgserv_upt != -1 && msgserv_ip != NULL){
         return 0;
@@ -125,7 +132,7 @@ void publish_msg(char* message, char* msgserv_ip, int msgserv_upt){
     char protocol_msg[PROTOCOL_SIZE] = "PUBLISH ";
     strcat(protocol_msg,message);
 
-    debug_print("Publishing message %s to msgserv, IP: %s PORT: %d\n", message, msgserv_ip, msgserv_upt);
+    debug_print("Publishing message %s to msgserv ip: %s port: %d", message, msgserv_ip, msgserv_upt);
 
     fd = socket(AF_INET,SOCK_DGRAM,0);
     hostptr = gethostbyname(msgserv_ip);
@@ -137,9 +144,7 @@ void publish_msg(char* message, char* msgserv_ip, int msgserv_upt){
     address_length = sizeof(server_address);
     int n = sendto(fd, protocol_msg, strlen(protocol_msg) + 1, 0, (struct sockaddr*) &server_address, address_length);
     if(n == -1){
-        fprintf(stderr, "Could not publish message. Send failed. Exiting.\n");
-        exit(EXIT_FAILURE);
+        err_print("Could not publish message. Send failed. Check connection or try again.");
     }
-
     close(fd);
 }

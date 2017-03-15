@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['protocol_5fsize',['PROTOCOL_SIZE',['../defs_8h.html#ad649636bb53707ca7a4001164f6ef5dc',1,'defs.h']]]
+  ['nameip_5fsize',['NAMEIP_SIZE',['../defs_8h.html#a2fe64c55b4170b843b7f7afb65210ebc',1,'defs.h']]]
 ];

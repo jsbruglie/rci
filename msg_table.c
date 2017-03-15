@@ -6,12 +6,12 @@ MessageTable* create_msg_table(int size){
 
     MessageTable* message_table = (MessageTable*) malloc(sizeof(MessageTable));
     if(message_table == NULL){
-        fprintf(stderr, "Malloc failed. Memory full\n");
+        err_print("Malloc failed. Memory full");
         exit(EXIT_FAILURE);
     }
     message_table->table = (Message**) malloc(sizeof(Message*) * size);
     if(message_table->table == NULL){
-        fprintf(stderr, "Malloc failed. Memory full\n");
+        err_print("Malloc failed. Memory full");
         exit(EXIT_FAILURE);
     }
     message_table->size = size;
@@ -200,7 +200,7 @@ void print_msg_table(MessageTable* msg_table, int LogicClock){
 }
 
 void fill_msg_table(MessageTable* message_table, char* buffer, int* LogicClock){
-    int max_clock = -1;
+    int max_clock = *LogicClock;
     char* token;
     const char delimiter[2] = "\n";
     token = strtok(buffer, delimiter);
@@ -209,14 +209,16 @@ void fill_msg_table(MessageTable* message_table, char* buffer, int* LogicClock){
             
             char msg[MESSAGE_SIZE];
             int clock;
-            sscanf(token, SSCANF_MESSAGE_CLOCK_TABLE_INSERT ,&clock,msg);
-            if(clock > max_clock)
+            sscanf(token, SSCANF_MESSAGE_CLOCK_TABLE_INSERT , &clock, msg);
+            if(clock > max_clock){
                 max_clock = clock;
+            }
             //Insert this message in the table
             insert_in_msg_table(message_table, msg, clock);
         }
         token = strtok(NULL, delimiter);
     }
-    if (max_clock != -1)
-        *LogicClock = max_clock + 1; /*This is according to presentation, when we received a new table our LC is LC+1*/
+    if (max_clock >= *LogicClock){
+        *LogicClock = max_clock + 1;
+    }
 }

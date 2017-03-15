@@ -15,7 +15,7 @@
 
 /* Buffer Sizes */
 #define BUFFER_SIZE 2048                    /**< Length of buffer for requests */
-#define LARGE_BUFFER_SIZE BUFFER_SIZE*100   // FIX
+#define LARGE_BUFFER_SIZE 204800            /**< Lenght of a huge buffer for large server replies */
 #define PROTOCOL_SIZE 256                   /**< Length of protocol macros */
 #define MESSAGE_SIZE 140                    /**< Length of messages */
 #define COMMAND_SIZE 128                    /**< Length of commands from the terminal */
@@ -35,8 +35,10 @@
 
 #define MSG_FORMAT_CLK "%d;%s\n"
 #define MSG_FORMAT "%s\n"
-#define MSG_FORMAT_CLK_SIZE 2		 			
+#define MSG_FORMAT_CLK_SIZE 2                   
 #define MSG_FORMAT_SIZE 1
+
+#define RMB_TIMEOUT 1   /**< UDP Socket timeout value in seconds for terminal */
 
 #define DEFAULT_SIPT "tejo.tecnico.ulisboa.pt"  /**< Default Identity Server IP */
 #define DEFAULT_SIIP 59000                      /**< Default Identity Server UDP port */

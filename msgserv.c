@@ -34,7 +34,7 @@ int main(int argc, char* argv[]){
     char server_string[BUFFER_SIZE];
 
     parse_args(argc, argv, &name, &ip, &upt, &tpt, &siip, &sipt, &m, &r);
-    debug_print("ARGS: name %s ip %s upt %d tpt %d siip %s sipt %d m %d r %d\n", name, ip, upt, tpt, siip, sipt, m, r);
+    debug_print("ARGS: name %s ip %s upt %d tpt %d siip %s sipt %d m %d r %d", name, ip, upt, tpt, siip, sipt, m, r);
 
     signal(SIGALRM, handle_alarm);  /**< Alarm for refresh handle */
     signal(SIGPIPE, SIG_IGN);       /**< Handle SIGPIPE signal */
@@ -138,7 +138,7 @@ void handle_rmb_request(int fd_rmb_udp){
     // Blocking recvfrom call - Waits for a request
     int nbytes = recvfrom(fd_rmb_udp, buffer, sizeof(buffer), 0, (struct sockaddr*) &client_address, &address_length);
     if(nbytes == -1) exit(EXIT_FAILURE);
-    debug_print("UDP: Received '%s'\n", buffer); 
+    debug_print("UDP: Received '%s'", buffer); 
     
     if(sscanf(buffer, "%s %d", protocol, &n) == 2){
         if(!strcmp(protocol,"GET_MESSAGES")){
@@ -149,8 +149,26 @@ void handle_rmb_request(int fd_rmb_udp){
             LogicClock++;
             insert_in_msg_table(message_table, message, LogicClock);
             for(id = server_list; id != NULL; id = id->next){
-                debug_print("\tPROPAGATING TO %s %d\n", id->ip, id->tpt);
-                send_messages_tcp(id->fd, message_table, 1, 0);
+                debug_print("\tPROPAGATING TO %s %d", id->ip, id->tpt);
+                send_messages_tcp(id->fd, message_table, 1, !ALL_MSGS);
+            }            
+            // debug_lc()
+                
+        }
+    }
+}
+
+/* Debug Logic Clock - blocks the program execution and propagates to a chosen server.
+    Only tested locally, i.e. servers running on 127.0.0.1 */
+void debug_lc(){
+    int port;   // the chosen TCP port 
+    ServerID* id;
+    while(1){
+        scanf("%d", &port);
+        for(id = server_list; id != NULL; id = id->next){
+            if (id->tpt == port){
+                debug_print("LC %d, PROPAGATING TO %s %d", LogicClock, id->ip, id->tpt);
+                send_messages_tcp(id->fd, message_table, 1, !ALL_MSGS);
             }
         }
     }
@@ -167,7 +185,7 @@ void handle_msg_connect(int fd_msg_tcp){
 
     int new_fd = accept(fd_msg_tcp, (struct sockaddr*) &client_address, &client_length);
     if(new_fd == -1){
-        fprintf(stderr, "Accept crashed. Exiting...\n");
+        err_print("Accept crashed. Exiting...");
         exit(EXIT_FAILURE);
     }
     /* Read the connecting server identity */
@@ -177,8 +195,8 @@ void handle_msg_connect(int fd_msg_tcp){
     if (sscanf(buffer, SSCANF_ID, protocol, client_name, client_ip, &client_upt, &client_tpt)){
         /* Insert new server in identity list */    
         if (!strcmp(protocol, "ID")){
-            debug_print("MSG_CONNECT: %s %s %d %d registered.\n", client_name, client_ip, upt, tpt);
-            server_list = server_list_push(server_list, client_name, client_ip, client_upt, client_upt, new_fd);
+            debug_print("MSG_CONNECT: %s %s %d %d registered.", client_name, client_ip, client_upt, client_tpt);
+            server_list = server_list_push(server_list, client_name, client_ip, client_upt, client_tpt, new_fd);
         }
     }
 }
@@ -193,7 +211,7 @@ void handle_msg_activity(int fd_msg_tcp){
         flag_for_deletion(fd_msg_tcp, server_list);
         return;
     }
-    debug_print("TCP: Received '%s'\n", buffer);
+    debug_print("TCP: Received '%s'", buffer);
 
     if (sscanf(buffer, SSCANF_SGET_MESSAGES, protocol)){
         if(!strcmp("SGET_MESSAGES\n", buffer)){

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['message_5fsize',['MESSAGE_SIZE',['../defs_8h.html#aeca90e1c1c62b70670514ffc18c9dfd4',1,'defs.h']]]
+  ['large_5fbuffer_5fsize',['LARGE_BUFFER_SIZE',['../defs_8h.html#a01cc1d2d4a9d6b50fd68953f61d960c1',1,'defs.h']]]
 ];
