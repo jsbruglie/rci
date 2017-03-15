@@ -26,6 +26,7 @@ int main(int argc, char* argv[]){
                 if(!strcmp(command, "show_latest_messages")){
                     get_servers(siip, sipt, buffer, !PRINT);
                     if(pick_server(buffer, msgserv_name, msgserv_ip, &msgserv_upt, &msgserv_tpt) == 0){  // Pick a message server                               
+                        printf("msgserv name %s\n", msgserv_name); // DEBUG
                         show_latest_messages(n, msgserv_ip, msgserv_upt); 
                     }else{
                         printf("Could not connect to a message server.\n");
@@ -37,7 +38,8 @@ int main(int argc, char* argv[]){
                 if(!strcmp(command, "publish")){
                     get_servers(siip, sipt, buffer, !PRINT);
                     if(pick_server(buffer, msgserv_name, msgserv_ip, &msgserv_upt, &msgserv_tpt) == 0){  // Pick a message server                               
-                        publish_msg(message, msgserv_ip, msgserv_upt);                                  // Publish message
+                        printf("msgserv name %s\n", msgserv_name); // DEBUG
+                        publish_msg(message, msgserv_ip, msgserv_upt);                                   // Publish message
                     }else{
                         printf("Could not connect to a message server.\n");                   
                     }

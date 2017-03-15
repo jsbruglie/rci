@@ -149,8 +149,25 @@ void handle_rmb_request(int fd_rmb_udp){
             LogicClock++;
             insert_in_msg_table(message_table, message, LogicClock);
             for(id = server_list; id != NULL; id = id->next){
-                int i; scanf("%d", &i); // DEBUG
                 debug_print("\tPROPAGATING TO %s %d", id->ip, id->tpt);
+                send_messages_tcp(id->fd, message_table, 1, !ALL_MSGS);
+            }            
+            // debug_lc()
+                
+        }
+    }
+}
+
+/* Debug Logic Clock - blocks the program execution and propagates to a chosen server.
+    Only tested locally, i.e. servers running on 127.0.0.1 */
+void debug_lc(){
+    int port;   // the chosen TCP port 
+    ServerID* id;
+    while(1){
+        scanf("%d", &port);
+        for(id = server_list; id != NULL; id = id->next){
+            if (id->tpt == port){
+                debug_print("LC %d, PROPAGATING TO %s %d", LogicClock, id->ip, id->tpt);
                 send_messages_tcp(id->fd, message_table, 1, !ALL_MSGS);
             }
         }
@@ -178,8 +195,8 @@ void handle_msg_connect(int fd_msg_tcp){
     if (sscanf(buffer, SSCANF_ID, protocol, client_name, client_ip, &client_upt, &client_tpt)){
         /* Insert new server in identity list */    
         if (!strcmp(protocol, "ID")){
-            debug_print("MSG_CONNECT: %s %s %d %d registered.", client_name, client_ip, upt, tpt);
-            server_list = server_list_push(server_list, client_name, client_ip, client_upt, client_upt, new_fd);
+            debug_print("MSG_CONNECT: %s %s %d %d registered.", client_name, client_ip, client_upt, client_tpt);
+            server_list = server_list_push(server_list, client_name, client_ip, client_upt, client_tpt, new_fd);
         }
     }
 }
