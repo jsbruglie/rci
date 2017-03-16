@@ -55,15 +55,14 @@ valgrind --leak-check=yes ./msgserv -n aperture02 -j 127.0.0.1 -u 9002 -t 10002 
 3. aperture02 should get the entire table from aperture01, and now LC(aperture02)=3 and LC(aperture01)=2
 4. Do a show_messages on both sides
 
-### 6 -- msgserv <---> msgserv send a message between two msgserv
-
-1. From rmb client02, publish to aperture02 'e o programa do FESTin?'
-2. Confirm that the message is propagated to aperture01
-3. At the end of this, do a show_messages on aperture01 and aperture02, and now LC(aperture02)=4 and LC(aperture01)=5
-4. If the delay in this propagation is large then LC(aperture01)=2
-5. client01 should publish to aperture01 and now LC(aperture01)=3.
-6. This publish propagates to aperture02 and thus now LC(aperture02)=5
-7. Finally the first delayed message in 4 arrives at aperture01 and thus LC(aperture01)=5 and all messages should be synced
+### 6 -- LC Test as performed in the lab 15/03 using scanfs to control TCP propagation between servers
+1. Launch 3 msgserv (aperture01, aperture02, aperture03)
+2. From an rmb, publish a message A to aperture01
+3. Message A is propagated to aperture02
+4. Aperture02 receives message B from another rmb (may use nc to force a PUBLISH instead of creating a new rmb for this)
+5. Aperture02 propagates B to aperture03
+6. Aperture01 propagates A to aperture03
+7. LC_aperture01 must be 1, LC_aperture02 must be 3 and LC_aperture03 must be 5 and on aperture03 A must appear before B (on aperture02 aswell)
 
 ## Unit tests
 
@@ -102,13 +101,7 @@ valgrind --leak-check=yes ./msgserv -n aperture02 -j 127.0.0.1 -u 9002 -t 10002 
 8. From rmb, publish another message 'Another tweet'
 9. Check aperture01 and aperture02, do a show_messages on each and confirm if logic clocks are the same
 
-### Test 4 - Testing LogicClocks
-
-1. Launch sid64
-2. Launch rmb and do a show_servers
-3. Launch aperture01
-4. Launch aperture02, verify ID message exchange
-
 ## Stress Tests
 
 * Send more messages than the server has capacity for (>m)
+* Request negative messages
