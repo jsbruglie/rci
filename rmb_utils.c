@@ -58,7 +58,7 @@ void get_servers(char* siip, int sipt, char* server_list, int print){
     char msg[PROTOCOL_SIZE] = "GET_SERVERS";
     char buffer[LARGE_BUFFER_SIZE] = "";
 
-    request_udp(siip, sipt, msg, sizeof(msg), buffer, sizeof(buffer));
+    request_udp(siip, sipt, msg, strlen(msg), buffer, sizeof(buffer));
     strcpy(server_list, buffer);
 
     if(print){
