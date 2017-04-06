@@ -194,7 +194,7 @@ void handle_msg_connect(int fd_msg_tcp){
 
     if (sscanf(buffer, SSCANF_ID, protocol, client_name, client_ip, &client_upt, &client_tpt)){
         /* Insert new server in identity list */    
-        if (!strcmp(protocol, "ID")){
+        if (!strcmp(protocol, "SREG")){
             debug_print("MSG_CONNECT: %s %s %d %d registered.", client_name, client_ip, client_upt, client_tpt);
             server_list = server_list_push(server_list, client_name, client_ip, client_upt, client_tpt, new_fd);
         }

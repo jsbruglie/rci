@@ -69,7 +69,7 @@ ServerID* create_server_list(char* server_string, char* name, char* ip, int upt,
                 // printf("Token: %s\n", token);
                 new_fd = tcp_connect(si_ip,si_tpt);
                 if(new_fd != -1){
-                    sprintf(buffer, "%s\n%s;%s;%d;%d", "ID", name, ip, upt, tpt);
+                    sprintf(buffer, "%s\n%s;%s;%d;%d", "SREG", name, ip, upt, tpt);
                     int nbytes = write(new_fd, buffer, strlen(buffer) + 1);
                     if(nbytes == -1){
                         err_print("Write failed. Exiting...");
