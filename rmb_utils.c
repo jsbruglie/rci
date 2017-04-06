@@ -47,7 +47,7 @@ void show_latest_messages(int n, char* msgserv_ip, int msgserv_upt){
         return;
     }
 
-    request_udp(msgserv_ip, msgserv_upt, msg, sizeof(msg), buffer, sizeof(buffer));
+    request_udp(msgserv_ip, msgserv_upt, msg, strlen(msg), buffer, sizeof(buffer));
 
     printf("%s", buffer);
 }
