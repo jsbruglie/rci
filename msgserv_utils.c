@@ -104,7 +104,7 @@ int create_udp_server(u_short port){
 }
 
 int create_udp_client(){
-    int fd = socket(AF_INET,SOCK_DGRAM,0);
+    int fd = socket(AF_INET, SOCK_DGRAM, 0);
     if(fd == -1){
         err_print("Could not create a socket. Exiting...");
         exit(EXIT_FAILURE);
@@ -154,10 +154,11 @@ int accept_tcp_connection(int fd){
 }
 
 void refresh(int fd, char* name, char* ip, char* siip, int sipt, int upt, int tpt){
+    
     struct hostent *hostptr;
     struct sockaddr_in server_address;
     int address_length;
-    char registration[BUFFER_SIZE];
+    char registration[BUFFER_SIZE] = {0};
 
     memset((void*)&server_address, (int)'\0',sizeof(server_address));
     server_address.sin_family = AF_INET;
@@ -167,8 +168,8 @@ void refresh(int fd, char* name, char* ip, char* siip, int sipt, int upt, int tp
     
     sprintf(registration, "REG %s;%s;%d;%d",name,ip,upt,tpt);
     address_length = sizeof(server_address);
-    int n = sendto(fd, registration, strlen(registration) + 1, 0, (struct sockaddr*) &server_address, address_length);
-    if(n==-1){
+    int n = sendto(fd, registration, strlen(registration), 0, (struct sockaddr*) &server_address, address_length);
+    if(n == -1){
         err_print("sendto failed. Check if identity server is online. Exiting...");
         exit(EXIT_FAILURE);
     }
@@ -179,16 +180,17 @@ void send_messages_udp(int fd, struct sockaddr_in* client_addr_ptr, MessageTable
 
     int address_length = sizeof(*client_addr_ptr);
 
+    /* Sort message table by ascending logic clock */
     sort_msg_table(msg_table);
+
     int size = strlen("MESSAGES\n") + size_latest_messages(msg_table, n, 0, !INCLUDE_CLK);
-    char* buffer = malloc(sizeof(char) * size);
+    char* buffer = malloc(sizeof(char) * (size + 1));
     strcpy(buffer,"MESSAGES\n");
     get_latest_messages(msg_table, n, 0, !INCLUDE_CLK, buffer);
-    //debug_print("SEND_MSG: %d/%d bytes \n%s\n", size, strlen(buffer) + 1, buffer);
     int nbytes = sendto(fd, buffer, size, 0, (struct sockaddr*) client_addr_ptr, address_length);
-    if(nbytes==-1){
+    debug_print("SEND_MSG: %d/%d bytes \n%s\n", size, (int) strlen(buffer) , buffer);
+    if(nbytes == -1){
         err_print("sendto failed. Exiting...");
-        free(buffer);
         exit(EXIT_FAILURE);
     } 
     free(buffer);
@@ -197,14 +199,13 @@ void send_messages_udp(int fd, struct sockaddr_in* client_addr_ptr, MessageTable
 void send_messages_tcp(int fd, MessageTable* msg_table, int n, int all){
     
     int size = strlen("SMESSAGES\n") + size_latest_messages(msg_table, n, all, INCLUDE_CLK);
-    char* buffer = malloc(sizeof(char) * size);
+    char* buffer = malloc(sizeof(char) * (size + 1));
     strcpy(buffer,"SMESSAGES\n");
     get_latest_messages(msg_table, n, all, INCLUDE_CLK, buffer);
-    int nbytes = write(fd, buffer, strlen(buffer) + 1);
-    debug_print("SEND_MSG_TCP: %d/%d bytes \n\t%s", size, (int) strlen(buffer) + 1, buffer);
+    int nbytes = write(fd, buffer, strlen(buffer));
+    debug_print("SEND_MSG_TCP: %d/%d bytes \n%s", size, (int) strlen(buffer), buffer);
     if(nbytes == -1){
-        // It may be that a peer closes the socket; Would probably be a good idea to just remove the server from the list
-        //  instead of exiting...
+        /* Peer closed socket. Removal from list is handled in msgserv::handle_msg_activity */
         err_print("TCP write failed. Exiting...");
         free(buffer);
         exit(EXIT_FAILURE);
@@ -217,9 +218,11 @@ void get_servers(char* siip, int sipt, char* server_string){
     struct hostent *hostptr;
     struct sockaddr_in server_address;
     int address_length;
-    char buffer[BUFFER_SIZE];
+    int nbytes;
+    char buffer[BUFFER_SIZE] = {0};
 
-    int fd = socket(AF_INET,SOCK_DGRAM,0);
+    /* Create UDP socket and setup */
+    int fd = socket(AF_INET, SOCK_DGRAM, 0);
     if(fd==-1){
         err_print("Could not create a socket. Exiting...");
         exit(EXIT_FAILURE);
@@ -230,24 +233,33 @@ void get_servers(char* siip, int sipt, char* server_string){
     server_address.sin_port = htons((u_short)sipt);
     hostptr = gethostbyname(siip);
     server_address.sin_addr.s_addr = ((struct in_addr *)(hostptr->h_addr_list[0]))->s_addr;
-    
     address_length = sizeof(server_address);
-    int nbytes = sendto(fd, "GET_SERVERS", strlen("GET_SERVERS") + 1, 0, (struct sockaddr*) &server_address, address_length);
-    if(nbytes==-1){
+
+    /* Send a Get Servers request */
+    nbytes = sendto(fd, "GET_SERVERS", strlen("GET_SERVERS"), 0, (struct sockaddr*) &server_address, address_length);
+    if(nbytes == -1){
         err_print("sendto failed. Check if identity server is online.Exiting...");
         exit(EXIT_FAILURE);
     }
-    address_length = sizeof(server_address);
+
+    /* Receive the Identity Server response */
     nbytes = recvfrom(fd, buffer, sizeof(buffer), 0, (struct sockaddr*) &server_address, &address_length);
-    if(nbytes==-1){
+    if(nbytes == -1){
         err_print("recvfrom failed. Check if identity server is online. Exiting...");
         exit(EXIT_FAILURE);
     }
+
+    /* Force the insertion of a trailing null character in the response */
+    /* Ternary operator prevents buffer overflow */
+    buffer[(nbytes == sizeof(buffer))? nbytes - 1 : nbytes] = '\0';
+
     close(fd);
 
     strcpy(server_string, buffer);
     debug_print("%s", server_string);
 }
+
+/* FdStruct Functions */
 
 FdStruct* create_fd_struct(int upt, int tpt){
     

@@ -25,7 +25,7 @@
 #define STDIN 0 /**< `stdin` Macro for handling file descriptor in a clear way */
 
 /* The following macro's are generally identified by the protocol they are processing */
-#define SSCANF_MESSAGE_PUBLISH "%s %140[^\n]"
+#define SSCANF_MESSAGE_PUBLISH "%256s %140[^\n]"
 #define SSCANF_ID "%256[^\n]%256[^;];%256[^;];%d;%d"
 #define SSCANF_SGET_MESSAGES "%256s"
 #define SSCANF_SMESSAGES "%256s"

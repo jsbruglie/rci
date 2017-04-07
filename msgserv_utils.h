@@ -1,13 +1,10 @@
 /** @file msgserv_utils.h
- *  @brief Function prototypes for the functions used
- *  in msgserv as subroutines
+ *  @brief Function prototypes fot msgserv_utils.c
  *
  *  This contains the functions used in msgserv that are at a
  *  lower level of abstraction than the ones in msgserv, namely 
  *  functions to parse argument, create tcp and udp clients/servers
- *  message sending and fd management. It also contains a structure
- *  that contains fd's used between rmb, sid and msgserv. Fds between
- *  msgserv are stored in a list of servers in each msgserv (see sv_list.c)
+ *  message sending and fd management.
  *
  *  @author João Borrego
  *  @author Pedro Abreu
@@ -63,7 +60,6 @@ typedef struct _FdStruct{
  *  @param _sipt Pass by reference of identity server udp port
  *  @param _m Pass by reference of msgservmax number of messages
  *  @param _r Pass by reference of the timer(in seconds) for msgserv refresh
- *  @param read_set set that has the fds that have been set
  *  @return Void.
  */
 void parse_args(int argc, char** argv, char** _name, char** _ip, int* _upt, int* _tpt,
@@ -104,7 +100,6 @@ int accept_tcp_connection(int fd);
 /** @brief Function for the refresh of the msgserv with
  *  an identity server
  *         
- *
  *  @param fd file descriptor of the msgserv as udp client
  *  @param name Name of the msgserv we are registering
  *  @param ip IP of the msgserv we are registering
@@ -156,20 +151,18 @@ void get_servers(char* siip, int sipt, char* server_string);
  */
 FdStruct* create_fd_struct(int upt, int tpt);
 
-/** @brief Prints character ch at the current location
- *         of the cursor.
+/** @brief Deletes an `FdStruct` instance
  *
- *  @param fd_struct structure that contains the fds to check
- *  @param read_set set that has the fds that have been set
+ *  @param fd_struct Structure that contains monitored file descriptors
  *  @return Void.
  */
-void delete_fd_struct(FdStruct* fd);
+void delete_fd_struct(FdStruct* fd_struct);
 
-/** @brief Prints character ch at the current location
- *         of the cursor.
+/** @brief Initializes an `FdStruct` instance
  *
- *  @param fd_struct structure that contains the fds to check
- *  @param read_set set that has the fds that have been set
+ *  @param fd Structure that contains monitored file descriptors
+ *  @param set `fd_set` with monitored file descriptors
+ *  @param  sv `ServerId` list
  *  @return Void.
  */
 void init_fd_set(fd_set* set, FdStruct* fd, ServerID* sv);
@@ -178,7 +171,7 @@ void init_fd_set(fd_set* set, FdStruct* fd, ServerID* sv);
  *
  *  @param fd_struct structure that contains the fds to check
  *  @param sv_list server identities list
- *  @return the maximum file descritpor integer.
+ *  @return the maximum file descriptor integer.
  */
 int fd_max(FdStruct* fd_struct, ServerID* sv_list);
 

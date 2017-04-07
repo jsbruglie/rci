@@ -1,14 +1,3 @@
-/** @file msgserv.c
- *  @brief Message Server Application
- *
- *  This is the msgserv.c file to run an
- *  instance of the message server app
- *
- *  @author João Borrego
- *  @author Pedro Abreu
- *  @bug No know bugs.
- */
-
 #include "msgserv.h"
 
 /* Mandatory Parameters */
@@ -51,9 +40,9 @@ int main(int argc, char* argv[]){
     /* If there are already other message servers online */
     if(server_list != NULL){
         int fd = server_list->fd;
-        print_server_list(server_list); // DEBUG
+        print_server_list(server_list);
         /* Request message table to the first server in the list */   
-        write(fd, "SGET_MESSAGES\n", sizeof("SGET_MESSAGES\n"));
+        write(fd, "SGET_MESSAGES\n", strlen("SGET_MESSAGES\n"));
     }
 
     int select_ret = -1;    // Select return value
@@ -131,13 +120,23 @@ void handle_rmb_request(int fd_rmb_udp){
     struct sockaddr_in client_address;
     int address_length = sizeof(client_address);
 
-    char buffer[BUFFER_SIZE], protocol[PROTOCOL_SIZE], message[MESSAGE_SIZE];   // String buffers
-    int n;
-    ServerID* id;
+    /* String buffers*/
+    char buffer[BUFFER_SIZE] = {0};
+    char protocol[PROTOCOL_SIZE] = {0};
+    char message[MESSAGE_SIZE] = {0};
+    
+    int n;          // Number of messages requested 
+    ServerID* id;   // Server list iterator
 
-    // Blocking recvfrom call - Waits for a request
+    /* Blocking recvfrom call - Waits for a request */
     int nbytes = recvfrom(fd_rmb_udp, buffer, sizeof(buffer), 0, (struct sockaddr*) &client_address, &address_length);
-    if(nbytes == -1) exit(EXIT_FAILURE);
+    if(nbytes == -1){
+        exit(EXIT_FAILURE);
+    }
+    /* Force the insertion of a trailing null character in the response */
+    /* Ternary operator prevents buffer overflow */
+    buffer[(nbytes == sizeof(buffer))? nbytes - 1 : nbytes] = '\0';
+
     debug_print("UDP: Received '%s'", buffer); 
     
     if(sscanf(buffer, "%s %d", protocol, &n) == 2){
@@ -149,11 +148,10 @@ void handle_rmb_request(int fd_rmb_udp){
             LogicClock++;
             insert_in_msg_table(message_table, message, LogicClock);
             for(id = server_list; id != NULL; id = id->next){
-                debug_print("\tPROPAGATING TO %s %d", id->ip, id->tpt);
+                debug_print("PROPAGATING TO %s %d", id->ip, id->tpt);
                 send_messages_tcp(id->fd, message_table, 1, !ALL_MSGS);
             }            
             // debug_lc()
-                
         }
     }
 }
@@ -176,41 +174,58 @@ void debug_lc(){
 
 void handle_msg_connect(int fd_msg_tcp){
 
-    char buffer[BUFFER_SIZE], protocol[PROTOCOL_SIZE];
-    char client_name[NAMEIP_SIZE], client_ip[NAMEIP_SIZE];
+    char buffer[BUFFER_SIZE] = {0};
+    char protocol[PROTOCOL_SIZE] = {0};
+    char client_name[NAMEIP_SIZE] = {0};
+    char client_ip[NAMEIP_SIZE] ={0};
     int client_upt, client_tpt;
 
     struct sockaddr_in client_address; 
     int client_length = sizeof(client_address);
+
+    int nbytes;
 
     int new_fd = accept(fd_msg_tcp, (struct sockaddr*) &client_address, &client_length);
     if(new_fd == -1){
         err_print("Accept crashed. Exiting...");
         exit(EXIT_FAILURE);
     }
+    
     /* Read the connecting server identity */
-    read(new_fd, buffer, sizeof(buffer));
-    debug_print("TCP: RECEIVED %s\n", buffer);
+    nbytes = read(new_fd, buffer, sizeof(buffer));
+    /* Force the insertion of a trailing null character in the response */
+    /* Ternary operator prevents buffer overflow */
+    buffer[(nbytes == sizeof(buffer))? nbytes - 1 : nbytes] = '\0';
+    
+    debug_print("TCP: RECEIVED %s", buffer);
 
     if (sscanf(buffer, SSCANF_ID, protocol, client_name, client_ip, &client_upt, &client_tpt)){
         /* Insert new server in identity list */    
         if (!strcmp(protocol, "SREG")){
-            debug_print("MSG_CONNECT: %s %s %d %d registered.", client_name, client_ip, client_upt, client_tpt);
             server_list = server_list_push(server_list, client_name, client_ip, client_upt, client_tpt, new_fd);
+            debug_print("MSG_CONNECT: %s %s %d %d registered.", client_name, client_ip, client_upt, client_tpt);
         }
     }
 }
 
 void handle_msg_activity(int fd_msg_tcp){
 
-    char buffer[LARGE_BUFFER_SIZE], protocol[PROTOCOL_SIZE], messages[LARGE_BUFFER_SIZE];
-    
-    memset(buffer, (int) '\0', sizeof(buffer)); //To avoid errors
-    
-    if(read(fd_msg_tcp, buffer, sizeof(buffer)) <= 0){
+    char buffer[LARGE_BUFFER_SIZE] = {0};
+    char protocol[PROTOCOL_SIZE] = {0};
+    char messages[LARGE_BUFFER_SIZE] = {0};
+    int nbytes;
+
+    nbytes = read(fd_msg_tcp, buffer, sizeof(buffer));
+    if(nbytes <= 0){
+        /* Connection closed by peer. Schedule removal from server list */
         flag_for_deletion(fd_msg_tcp, server_list);
         return;
     }
+
+    /* Force the insertion of a trailing null character in the response */
+    /* Ternary operator prevents buffer overflow */
+    buffer[(nbytes == sizeof(buffer))? nbytes - 1 : nbytes] = '\0';
+
     debug_print("TCP: Received '%s'", buffer);
 
     if (sscanf(buffer, SSCANF_SGET_MESSAGES, protocol)){
@@ -226,6 +241,7 @@ void handle_msg_activity(int fd_msg_tcp){
 }
 
 /* Alarm interruption functions for regular refresh with ID server */
+
 void handle_alarm(int sig){
     timer = 1;
 }
@@ -240,6 +256,7 @@ void handle_si_refresh(FdStruct* fd_struct){
     }
 }
 
+/* Free memory objects */
 void cleanup(FdStruct* fd_struct){
     free_msg_table(message_table);
     free_server_list(server_list);

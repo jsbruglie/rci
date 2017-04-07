@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['r',['r',['../msgserv_8c.html#acab531abaa74a7e664e3986f2522b33a',1,'msgserv.c']]],
-  ['rmb_5fudp',['rmb_udp',['../struct__FdStruct.html#aeeac90caeefc63bd05e6eb9b879bb1d7',1,'_FdStruct']]]
+  ['table',['table',['../struct__MessageTable.html#aae08311b37ee29e58962c245522ff2ef',1,'_MessageTable']]],
+  ['text',['text',['../struct__Message.html#ac572f2a67d9788abef28610a3b9efa97',1,'_Message']]],
+  ['tpt',['tpt',['../struct__ServerID.html#a4fc9ec91a0ba6f9c3e65ffa450aa4a9b',1,'_ServerID']]]
 ];

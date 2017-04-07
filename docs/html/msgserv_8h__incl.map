@@ -1,5 +1,5 @@
 <map id="msgserv.h" name="msgserv.h">
-<area shape="rect" id="node2" href="$msgserv__utils_8h.html" title="Function prototypes for the functions used in msgserv as subroutines. " alt="" coords="657,80,771,107"/>
+<area shape="rect" id="node2" href="$msgserv__utils_8h.html" title="Function prototypes fot msgserv_utils.c. " alt="" coords="657,80,771,107"/>
 <area shape="rect" id="node16" href="$defs_8h.html" title="Useful definitions. " alt="" coords="1158,229,1217,256"/>
 <area shape="rect" id="node13" href="$msg__table_8h.html" title="Function prototypes for msg_table.c. " alt="" coords="878,155,971,181"/>
 <area shape="rect" id="node15" href="$debug_8h.html" title="Macros for debug and verbose options. " alt="" coords="980,229,1048,256"/>

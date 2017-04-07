@@ -1,8 +1,5 @@
 /** @file msgserv.h
- *  @brief Function prototypes the message server
- *
- *  This contains the functions used in msgserv, namely 
- *  the fuction to check the fds and its handles
+ *  @brief Function prototypes fot msgserv.c
  *
  *  @author João Borrego
  *  @author Pedro Abreu
@@ -31,16 +28,15 @@ void check_fd(FdStruct* fd_struct, fd_set* read_set);
  *  @param signal parameter
  *  @return Void.
  */
-
-void handle_alarm(int sig);
+void handle_alarm(int signal);
 
 /** @brief Handles to refresh the registration with the identity
  *  server.
  *
- *  Uses the timer set in `handle_alarm` in order to be repeated periodically;
+ *  Uses the timer set in `handle_alarm` in order to be repeated periodically
  *  ideally, with an interval of `r` seconds between registry attempts.
  *
- *  @param sig signal identifier
+ *  @param fd_struct Structure that contains monitored file descriptors 
  *  @return Void.
  */
 void handle_si_refresh(FdStruct* fd_struct);
@@ -53,7 +49,7 @@ void handle_si_refresh(FdStruct* fd_struct);
  *  -`show_messages`
  *  -`exit`
  *
- *  @param fd_struct structure that contains monitored file descriptors
+ *  @param fd_struct Structure that contains monitored file descriptors
  *  @return Void.
  */
 void handle_terminal(FdStruct* fd_struct);
@@ -85,6 +81,7 @@ void handle_msg_activity(int fd_msg_tcp);
 
 /** @brief Cleanup function to free allocated memory
  *
+ *  @param fd_struct structure that contains monitored file descriptors
  *  @return Void.
  */
 void cleanup(FdStruct* fd_struct);
