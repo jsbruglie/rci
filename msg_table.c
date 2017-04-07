@@ -1,7 +1,5 @@
 #include "msg_table.h"
 
-/* Create and delete message table struct */
-
 MessageTable* create_msg_table(int size){
 
     MessageTable* message_table = (MessageTable*) malloc(sizeof(MessageTable));
@@ -39,8 +37,10 @@ void free_msg_table(MessageTable* msg_table){
 
 int insert_in_msg_table(MessageTable* msg_table, char* text, int clock){
     if(msg_table != NULL){
-        if (msg_table_full(msg_table)) 
+        if (msg_table_full(msg_table)){
             remove_oldest(msg_table);
+            sort_msg_table(msg_table);
+        } 
         if(insert_msg(msg_table, text, clock) == 0){
             sort_msg_table(msg_table);
             return 0;
@@ -102,7 +102,7 @@ int size_latest_messages(MessageTable* msg_table, int n, int all, int include_cl
                 length += (strlen(msg_table->table[i]->text) + MSG_FORMAT_SIZE);
             }
         }    
-        return length + 1;
+        return length;
     }    
     return -1;
 }

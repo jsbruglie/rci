@@ -1,16 +1,6 @@
 var searchData=
 [
-  ['m',['m',['../msgserv_8c.html#a742204794ea328ba293fe59cec79b990',1,'msgserv.c']]],
-  ['main',['main',['../msgserv_8c.html#a0ddf1224851353fc92bfbff6f499fa97',1,'msgserv.c']]],
-  ['max',['max',['../struct__FdStruct.html#a2a72dac0bd3609f9a82e1dc734431029',1,'_FdStruct']]],
-  ['message',['Message',['../msg__table_8h.html#a0d4b40ad42cd010fadd906ee5720ac5e',1,'msg_table.h']]],
-  ['message_5fsize',['MESSAGE_SIZE',['../defs_8h.html#aeca90e1c1c62b70670514ffc18c9dfd4',1,'defs.h']]],
-  ['message_5ftable',['message_table',['../msgserv_8c.html#abc47ef52b1868f0933fa1cec5918dadc',1,'msgserv.c']]],
-  ['messagetable',['MessageTable',['../msg__table_8h.html#a146a38b27ce7a4d6795e876d29ffe758',1,'msg_table.h']]],
-  ['msg_5ftable_2eh',['msg_table.h',['../msg__table_8h.html',1,'']]],
-  ['msg_5ftable_5ffull',['msg_table_full',['../msg__table_8h.html#ab74ea262a091956c0150912343124686',1,'msg_table.c']]],
-  ['msg_5ftcp',['msg_tcp',['../struct__FdStruct.html#a6cdc444bd9d4863ecfb921bb69317675',1,'_FdStruct']]],
-  ['msgserv_2ec',['msgserv.c',['../msgserv_8c.html',1,'']]],
-  ['msgserv_2eh',['msgserv.h',['../msgserv_8h.html',1,'']]],
-  ['msgserv_5futils_2eh',['msgserv_utils.h',['../msgserv__utils_8h.html',1,'']]]
+  ['name',['name',['../struct__ServerID.html#ab8e20e663d4355e62c3cbe3025dca79e',1,'_ServerID']]],
+  ['nameip_5fsize',['NAMEIP_SIZE',['../defs_8h.html#a2fe64c55b4170b843b7f7afb65210ebc',1,'defs.h']]],
+  ['next',['next',['../struct__ServerID.html#a33a5d69109b0bee665147e88a829ca79',1,'_ServerID']]]
 ];

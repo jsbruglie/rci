@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['fd',['fd',['../struct__ServerID.html#a66d893313b8d9ef9f831d3905febf880',1,'_ServerID']]],
-  ['flag',['flag',['../struct__ServerID.html#ac940da194ee4d677761c6ea03c2c8fef',1,'_ServerID']]]
+  ['ip',['ip',['../struct__ServerID.html#a805499be050973cdc80156dda0bf1623',1,'_ServerID']]],
+  ['items',['items',['../struct__MessageTable.html#abc0e17213cd2ed11e044d43d6b70d20a',1,'_MessageTable']]]
 ];

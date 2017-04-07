@@ -22,7 +22,8 @@
 #include "debug.h"
 #include "defs.h"
 
-#define PRINT 1 /**< Flag for get servers */ 
+#define PRINT 1                 /**< Flag for get servers */ 
+#define CMD_PROMPT  "[rmb] $ "  /**< Command prompt string */
 
 /** @brief Parses the optional arguments for execution from 
  *         the command line arguments. 
@@ -84,7 +85,18 @@ int pick_server(char* buffer, char* msgserv_name, char* msgserv_ip, int* msgserv
  *
  *  @param message message to be published
  *  @param msgserv_ip message server ip
- *  @param msgserv_ip message server UDP port
+ *  @param msgserv_upt message server UDP port
  *  @return Void.
  */
 void publish_msg(char* message, char* msgserv_ip, int msgserv_upt);
+
+/** @brief Verifies if a message is valid
+ *
+ *  In this function one could specify certain
+ *  invalid patterns for sent messages.
+ *  For now, it merely checks if the message has lenght > 0
+ *
+ *  @param message message to be published
+ *  @return Whether the message is valid or not.
+ */
+int valid_msg(char* message);

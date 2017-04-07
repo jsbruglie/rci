@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['logicclock',['LogicClock',['../msgserv_8c.html#a0e35114affd01f5992e194834323656c',1,'msgserv.c']]]
+  ['name',['name',['../struct__ServerID.html#ab8e20e663d4355e62c3cbe3025dca79e',1,'_ServerID']]],
+  ['next',['next',['../struct__ServerID.html#a33a5d69109b0bee665147e88a829ca79',1,'_ServerID']]]
 ];

@@ -48,10 +48,10 @@ typedef struct _ServerID{
 /** @brief Inserts a server identity in a `ServerID` list
  *
  *  @param head Head of the list
- *  @param si_name Server name
- *  @param si_ip Server ip
- *  @param si_upt Server UDP port for monitoring incoming connections
- *  @param si_tpt Server TCP port for monitoring incoming connections
+ *  @param sv_name Server name
+ *  @param sv_ip Server ip
+ *  @param sv_upt Server UDP port for monitoring incoming connections
+ *  @param sv_tpt Server TCP port for monitoring incoming connections
  *  @param fd Server file descriptor
  *  @return The head of the new list.
  */
@@ -80,8 +80,8 @@ int tcp_connect(char* ip, int tpt);
  *  @param server_string The ID Server response to a request for listing active servers
  *  @param name The name of the current instance of `msgserv`
  *  @param ip The ip of the current instance of `msgserv`
- *  @param The UDP port of the current instance of `msgserv`
- *  @param The TCP port of the current instance of `msgserv`
+ *  @param upt UDP port of the current instance of `msgserv`
+ *  @param tpt TCP port of the current instance of `msgserv`
  *  @return The resulting list structure with the identity of the active servers.
  */
 ServerID* create_server_list(char* server_string, char* name, char* ip, int upt, int tpt);

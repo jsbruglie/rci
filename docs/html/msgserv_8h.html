@@ -89,7 +89,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
-<p>Function prototypes the message server.  
+<p>Function prototypes fot msgserv.c.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="msgserv__utils_8h_source.html">msgserv_utils.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="defs_8h_source.html">defs.h</a>&quot;</code><br />
@@ -97,11 +97,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 Include dependency graph for msgserv.h:</div>
 <div class="dyncontent">
 <div class="center"><iframe scrolling="no" frameborder="0" src="msgserv_8h__incl.svg" width="1223" height="262"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
-</div>
-</div><div class="textblock"><div class="dynheader">
-This graph shows which files directly or indirectly include this file:</div>
-<div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="msgserv_8h__dep__incl.svg" width="94" height="112"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div>
 <p><a href="msgserv_8h_source.html">Go to the source code of this file.</a></p>
@@ -111,9 +106,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ae3be186393ff51770bd095b2af8b48b5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="msgserv_8h.html#ae3be186393ff51770bd095b2af8b48b5">check_fd</a> (<a class="el" href="msgserv__utils_8h.html#a0dfdaecf6094bcf3f0c4d20f9b5648dd">FdStruct</a> *fd_struct, fd_set *read_set)</td></tr>
 <tr class="memdesc:ae3be186393ff51770bd095b2af8b48b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks and handles different inputs.  <a href="#ae3be186393ff51770bd095b2af8b48b5">More...</a><br /></td></tr>
 <tr class="separator:ae3be186393ff51770bd095b2af8b48b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a656dc771310b1d61e70c270818de40bc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="msgserv_8h.html#a656dc771310b1d61e70c270818de40bc">handle_alarm</a> (int sig)</td></tr>
-<tr class="memdesc:a656dc771310b1d61e70c270818de40bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle to set the alarm.  <a href="#a656dc771310b1d61e70c270818de40bc">More...</a><br /></td></tr>
-<tr class="separator:a656dc771310b1d61e70c270818de40bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd138cc57dc264323170a93cc805ebe4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="msgserv_8h.html#afd138cc57dc264323170a93cc805ebe4">handle_alarm</a> (int signal)</td></tr>
+<tr class="memdesc:afd138cc57dc264323170a93cc805ebe4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle to set the alarm.  <a href="#afd138cc57dc264323170a93cc805ebe4">More...</a><br /></td></tr>
+<tr class="separator:afd138cc57dc264323170a93cc805ebe4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a018f6348cf2184d5d07233cad183e117"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="msgserv_8h.html#a018f6348cf2184d5d07233cad183e117">handle_si_refresh</a> (<a class="el" href="msgserv__utils_8h.html#a0dfdaecf6094bcf3f0c4d20f9b5648dd">FdStruct</a> *fd_struct)</td></tr>
 <tr class="memdesc:a018f6348cf2184d5d07233cad183e117"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handles to refresh the registration with the identity server.  <a href="#a018f6348cf2184d5d07233cad183e117">More...</a><br /></td></tr>
 <tr class="separator:a018f6348cf2184d5d07233cad183e117"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -132,10 +127,12 @@ Functions</h2></td></tr>
 <tr class="memitem:af78bc074ce55f745e9ce3a9ecfc2370b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="msgserv_8h.html#af78bc074ce55f745e9ce3a9ecfc2370b">cleanup</a> (<a class="el" href="msgserv__utils_8h.html#a0dfdaecf6094bcf3f0c4d20f9b5648dd">FdStruct</a> *fd_struct)</td></tr>
 <tr class="memdesc:af78bc074ce55f745e9ce3a9ecfc2370b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cleanup function to free allocated memory.  <a href="#af78bc074ce55f745e9ce3a9ecfc2370b">More...</a><br /></td></tr>
 <tr class="separator:af78bc074ce55f745e9ce3a9ecfc2370b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abfd323e55bbb7235162fe1c6adc239a3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abfd323e55bbb7235162fe1c6adc239a3"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>debug_lc</b> ()</td></tr>
+<tr class="separator:abfd323e55bbb7235162fe1c6adc239a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Function prototypes the message server. </p>
-<p>This contains the functions used in msgserv, namely the fuction to check the fds and its handles</p>
+<div class="textblock"><p>Function prototypes fot msgserv.c. </p>
 <dl class="section author"><dt>Author</dt><dd>João Borrego </dd>
 <dd>
 Pedro Abreu </dd></dl>
@@ -192,11 +189,17 @@ Pedro Abreu </dd></dl>
 </div><div class="memdoc">
 
 <p>Cleanup function to free allocated memory. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">fd_struct</td><td>structure that contains monitored file descriptors </td></tr>
+  </table>
+  </dd>
+</dl>
 <dl class="section return"><dt>Returns</dt><dd>Void. </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a656dc771310b1d61e70c270818de40bc"></a>
+<a class="anchor" id="afd138cc57dc264323170a93cc805ebe4"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -204,7 +207,7 @@ Pedro Abreu </dd></dl>
           <td class="memname">void handle_alarm </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>sig</em></td><td>)</td>
+          <td class="paramname"><em>signal</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -312,10 +315,10 @@ Pedro Abreu </dd></dl>
 </div><div class="memdoc">
 
 <p>Handles to refresh the registration with the identity server. </p>
-<p>Uses the timer set in <code>handle_alarm</code> in order to be repeated periodically; ideally, with an interval of <code>r</code> seconds between registry attempts.</p>
+<p>Uses the timer set in <code>handle_alarm</code> in order to be repeated periodically ideally, with an interval of <code>r</code> seconds between registry attempts.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">sig</td><td>signal identifier </td></tr>
+    <tr><td class="paramname">fd_struct</td><td>Structure that contains monitored file descriptors </td></tr>
   </table>
   </dd>
 </dl>
@@ -341,7 +344,7 @@ Pedro Abreu </dd></dl>
 <p>Valid commands include -<code>join</code> -<code>show_servers</code> -<code>show_messages</code> -<code>exit</code></p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">fd_struct</td><td>structure that contains monitored file descriptors </td></tr>
+    <tr><td class="paramname">fd_struct</td><td>Structure that contains monitored file descriptors </td></tr>
   </table>
   </dd>
 </dl>

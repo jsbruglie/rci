@@ -48,22 +48,22 @@ typedef struct _MessageTable{
 /** @brief Creates a new message table from size
  *
  *  @param size Size of the table you desire
- *  @return The message table structure correctly alloced
+ *  @return The message table structure correctly allocated.
  */
 MessageTable* create_msg_table(int size);
 
 /** @brief Deletes and frees a message table structure
  *
- *  @param msg_table The message table you want to return
+ *  @param msg_table The message table to be deleted
  *  @return Void.
  */
 void free_msg_table(MessageTable* msg_table);
 
 /** @brief Get the clock of a certain message at a certain index
  *
- *  @param msg_table The table to search in
- *  @param i The index of the message you want the clock
- *  @return The head of the new list.
+ *  @param msg_table The message table to be searched
+ *  @param i The index of the message to be obtained
+ *  @return The logic clock field.
  */
 int get_msg_clock(Message** msg_table, int i);
 
@@ -78,39 +78,42 @@ void swap_msg(Message** msg_table, int a, int b);
 
 /* Insert message in table */
 
-/** @brief Inserts a new message into the message table at the 
- *  last available place with a check if the table is full, and if it
- *  is removes the oldest before inserting the new. Also does a sorting
- *  after insertion to keep the table ordered.
+/** @brief Inserts a new message into the message table
  *
- *  @param msg_table The table to insert in
+ *  If the message table is full, the oldest message
+ *  (with highest logic clock) is removed to ensure
+ *  there is enough space.
+ *  The table is guaranteed to be sorted afterwards
+ *
+ *  @param msg_table The table in which the message will be inserted
  *  @param text The text content of the message
- *  @param clock The message timestamp or "clock"
- *  @return 0 if successful, else -1
+ *  @param clock The message timestamp or logic clock field value
+ *  @return 0 if successful, else -1.
  */
 int insert_in_msg_table(MessageTable* msg_table, char* text, int clock);
 
-/** @brief Inserts a message in the table, called by insert_in_msg_table,
- *  simply allocs memory and creates the message
+/** @brief Inserts a message in the table (called by insert_in_msg_table)
+ *  
+ *  Simply allocates memory and creates the message structure
  *
  *  @param msg_table The table to insert in
  *  @param text The text content of the message
  *  @param clock The message timestamp or "clock"
- *  @return 0 if successful, else -1
+ *  @return 0 if successful, else -1.
  */
 int insert_msg(MessageTable* msg_table, char* text, int clock);
 
 /** @brief Checks if a table is full
  *
  *  @param msg_table The table to check
- *  @return 1 if table is full, else 0
+ *  @return 1 if table is full, else 0.
  */
 int msg_table_full(MessageTable* msg_table);
 
 /** @brief Removes the oldest element from a table
  *
- *  @param fmsg_table The table from which you want to remove the oldest element 
- *  @return 0 if successful, else -1
+ *  @param msg_table The table from which you want to remove the oldest element 
+ *  @return 0 if successful, else -1.
  */
 int remove_oldest(MessageTable* msg_table);
 
@@ -118,59 +121,63 @@ int remove_oldest(MessageTable* msg_table);
 
 /** @brief Returns the cumulative size of the latest n messages (or all messages)
  *
- *  @param msg_table Message to go through
- *  @param n number of messages to get
- *  @param all this is the flag to set all parameters
- *  @param include_clk set the flag to include clocks in the count
- *  @return The size, returns -1 if failed
+ *  Needed to allocate an external buffer, prior to fetching all the messages from the table
+ *
+ *  @param msg_table The message table
+ *  @param n number of messages to retireve
+ *  @param all Flag to state if we desire all the messages. Overrides n if set to ALL_MSGS
+ *  @param include_clk Flag to state if we desire logic clock information
+ *  @return The desired size if successful, else -1.
  */
 int size_latest_messages(MessageTable* msg_table, int n, int all, int include_clk);
 
-/** @brief Get the latest messages, using size_latest_messages, flags are passed to it
+/** @brief Get the latest messages (or all messages)
  *
- *  @param msg_table Message to go through
- *  @param n number of messages to get
- *  @param all this is the flag to set all parameters
- *  @param include_clk set the flag to include clocks in the count
- *  @param output string passed by reference, filled with the list
- *  @return 0 if succesfful, -1 if not.
+ *  @attention The messages are printed by inverse order, i.e., descending logic clock
+ *
+ *  @param msg_table The message table
+ *  @param n number of messages to retireve
+ *  @param all Flag to state if we desire all the messages. Overrides n if set to ALL_MSGS
+ *  @param include_clk Flag to state if we desire logic clock information
+ *  @param output Message list string output, set internally
+ *  @return 0 if succesfful, else -1.
  */
 int get_latest_messages(MessageTable* msg_table, int n, int all, int include_clk, char* output);
 
 /* Quick Sort */
 
-/** @brief Inserts a server identity in a `ServerID` list
+/** @brief Sorts the message table by ascending logic clock
  *
- *  @param head Head of the list
- *  @return The head of the new list.
+ *  @param msg_table The message table to be sorted 
+ *  @return Void.
  */
 void sort_msg_table(MessageTable* msg_table);
 
-/** @brief Inserts a server identity in a `ServerID` list
+/** @brief Recursive quicksort implementation
  *
- *  @param head Head of the list
- *  @param
- *  @param 
- *  @return The head of the new list.
+ *  @param msg_table The message table to be sorted
+ *  @param l The left iterator
+ *  @param r The right iterator
+ *  @return Void.
  */
 void quick_sort(Message** msg_table, int l, int r);
 
-/** @brief Inserts a server identity in a `ServerID` list
+/** @brief Partition routine for quicksort
  *
- *  @param head Head of the list
- *  @param si_name Server name
- *  @param si_ip Server ip
- *  @return The head of the new list.
+ *  @param msg_table The message table to be sorted
+ *  @param l The left iterator
+ *  @param r The right iterator
+ *  @param pivot The quicksort pivot element
+ *  @return The partition point. 
  */
 int partition(Message** msg_table, int l, int r, int pivot);
 
-/* DEBUG */
+/* Application specific */
 
 /** @brief Prints the list of messages on the msgserv and also the 
- *  the current Logic Clock of the msgserv, this function is mainly for
- *  debug.
+ *  the current Logic Clock of the msgserv
  *
- *  @param msg_table Table to print
+ *  @param msg_table The table to print
  *  @param LogicClock logic clock of the msgserv
  *  @return Void.
  */
@@ -181,9 +188,9 @@ void print_msg_table(MessageTable* msg_table, int LogicClock);
 /** @brief Fills the message table with a string that comes
  *  from the communication protocol between message servers
  *
- *  @param msg_table The table to fill
- *  @param buffer This is the list of messages you received and want to use to fill the table
- *  @param LogicClock logic clock of the msgserv, will have to be altered after filling
+ *  @param msg_table The table to be filled
+ *  @param buffer Buffer with message table information from a msgserv
+ *  @param LogicClock logic clock of the msgserv, altered internally
  *  @return Void.
  */
 void fill_msg_table(MessageTable* msg_table, char* buffer, int* LogicClock);

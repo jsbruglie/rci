@@ -1,6 +1,9 @@
 var searchData=
 [
-  ['get_5flatest_5fmessages',['get_latest_messages',['../msg__table_8h.html#a12a7c84eef4d4e98a93d16cf2406e550',1,'msg_table.c']]],
-  ['get_5fmsg_5fclock',['get_msg_clock',['../msg__table_8h.html#a1c8af63165ff56f907feed9e476d6ab8',1,'msg_table.c']]],
-  ['get_5fservers',['get_servers',['../msgserv__utils_8h.html#a6e350c9b404a80332777b4bd15cfb427',1,'get_servers(char *siip, int sipt, char *server_string):&#160;msgserv_utils.c'],['../rmb__utils_8h.html#ac09e41ecac8f06cc57c8244cf8d2f8d2',1,'get_servers(char *siip, int sipt, char *server_list, int print):&#160;rmb_utils.c']]]
+  ['handle_5falarm',['handle_alarm',['../msgserv_8h.html#afd138cc57dc264323170a93cc805ebe4',1,'msgserv.c']]],
+  ['handle_5fmsg_5factivity',['handle_msg_activity',['../msgserv_8h.html#a75a46121d921854160335fed92f14ef1',1,'msgserv.c']]],
+  ['handle_5fmsg_5fconnect',['handle_msg_connect',['../msgserv_8h.html#a07919c577708bb9eb1b3cedd6db52ff2',1,'msgserv.c']]],
+  ['handle_5frmb_5frequest',['handle_rmb_request',['../msgserv_8h.html#a3ca21125dd31c9f8fe8dee2752bedfba',1,'msgserv.c']]],
+  ['handle_5fsi_5frefresh',['handle_si_refresh',['../msgserv_8h.html#a018f6348cf2184d5d07233cad183e117',1,'msgserv.c']]],
+  ['handle_5fterminal',['handle_terminal',['../msgserv_8h.html#acc96a11785f1cac98f6568eaea1b46a0',1,'msgserv.c']]]
 ];

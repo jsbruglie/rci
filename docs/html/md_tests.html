@@ -118,15 +118,15 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>aperture02 should get the entire table from aperture01, and now LC(aperture02)=3 and LC(aperture01)=2</li>
 <li>Do a show_messages on both sides</li>
 </ol>
-<h3>6 &ndash; msgserv &lt;&mdash;&gt; msgserv send a message between two msgserv</h3>
+<h3>6 &ndash; LC Test as performed in the lab 15/03 using scanfs to control TCP propagation between servers</h3>
 <ol type="1">
-<li>From rmb client02, publish to aperture02 'e o programa do FESTin?'</li>
-<li>Confirm that the message is propagated to aperture01</li>
-<li>At the end of this, do a show_messages on aperture01 and aperture02, and now LC(aperture02)=4 and LC(aperture01)=5</li>
-<li>If the delay in this propagation is large then LC(aperture01)=2</li>
-<li>client01 should publish to aperture01 and now LC(aperture01)=3.</li>
-<li>This publish propagates to aperture02 and thus now LC(aperture02)=5</li>
-<li>Finally the first delayed message in 4 arrives at aperture01 and thus LC(aperture01)=5 and all messages should be synced</li>
+<li>Launch 3 msgserv (aperture01, aperture02, aperture03)</li>
+<li>From an rmb, publish a message A to aperture01</li>
+<li>Message A is propagated to aperture02</li>
+<li>Aperture02 receives message B from another rmb (may use nc to force a PUBLISH instead of creating a new rmb for this)</li>
+<li>Aperture02 propagates B to aperture03</li>
+<li>Aperture01 propagates A to aperture03</li>
+<li>LC_aperture01 must be 1, LC_aperture02 must be 3 and LC_aperture03 must be 5 and on aperture03 A must appear before B (on aperture02 aswell)</li>
 </ol>
 <h2>Unit tests</h2>
 <h3>Test 1 - ID is sent between msgserv, msgserv have correct connections</h3>
@@ -164,16 +164,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>From rmb, publish another message 'Another tweet'</li>
 <li>Check aperture01 and aperture02, do a show_messages on each and confirm if logic clocks are the same</li>
 </ol>
-<h3>Test 4 - Testing LogicClocks</h3>
-<ol type="1">
-<li>Launch sid64</li>
-<li>Launch rmb and do a show_servers</li>
-<li>Launch aperture01</li>
-<li>Launch aperture02, verify ID message exchange</li>
-</ol>
 <h2>Stress Tests</h2>
 <ul>
-<li>Send more messages than the server has capacity for (&gt;m) </li>
+<li>Send more messages than the server has capacity for (&gt;m)</li>
+<li>Request negative messages </li>
 </ul>
 </div></div><!-- contents -->
 <!-- start footer part -->
