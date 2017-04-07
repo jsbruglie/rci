@@ -100,8 +100,10 @@ void request_udp(char* ip, int upt, char* send, int send_size, char* recv, int r
     address_length = sizeof(server_address);
     n = recvfrom(fd, recv, recv_size, 0, (struct sockaddr*) &server_address, &address_length);
     if(n == -1){
-        err_print("recvfrom failed. It is possible that the message server shut down. Try again in a few moments. Exiting..."); 
-        exit(EXIT_FAILURE);
+        err_print("recvfrom failed. It is possible that the message server shut down. Try again in a few moments."); 
+        //exit(EXIT_FAILURE);
+        close(fd);
+        return;
     }
 
     /* Force the insertion of a trailing null character in the response */
@@ -164,7 +166,7 @@ void publish_msg(char* message, char* msgserv_ip, int msgserv_upt){
 /* Determines whether a message is valid or not*/
 int valid_msg(char* message){
     int lenght = strlen(message);
-    if (lenght == 0){
+    if (lenght == 0 || lenght > MESSAGE_SIZE-1){
         return 0;
     }
     
