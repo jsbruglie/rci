@@ -1,5 +1,5 @@
 RMB_OBJECT_FILES = rmb_utils.o rmb.o 
-MSG_OBJECT_FILES = msgserv_utils.o msgserv.o
+MSG_OBJECT_FILES = msg_table.o msgserv_utils.o msgserv.o sv_list.o
 
 CFLAGS = -ggdb -Wall
 LIBS =
@@ -21,4 +21,4 @@ cleanup:
 	rm -f *.o
 
 clean:
-	rm -f rmb msgserv msgserv_utils *.o *~ 
+	rm -f rmb msgserv msgserv_utils msg_table sv_list *.o *~ 

@@ -1,11 +1,20 @@
-# rci
-Computer Networks and Internet
+<img src="http://i.imgur.com/fkOT6bY.png" width="600">
 
-## Questions:
+This simple distributed message exchange program is our final project for our Computer Networks and the Internet master's course at IST, Lisbon.
 
-* Need to add some sort of checking that the user should never do a publish message in rmb before show servers? Or do a "show_servers" routine at the beggining of the publish message command? 
+Test cases
+--------------------
 
-## TODO:
-* Get rmb to publish a msg to msgserv successfully (test that msgserv receives a publish message), need to setup UDP server on msgserver
-* Get msgserver and rmb to communicate
-* Use a thread for the interfaces and another for the respective server services in msgserv (rmb can also have the same thing)
+You can find the test suite we designed to test the application [here](https://github.com/pedro-abreu/rci/blob/dev/tests.md). We recommend you check this to better understand how this works.
+
+
+Install from source
+--------------------
+
+Clone this repo and simple `make` on the same directory. No aditional libraries are required.
+
+
+License
+-------
+
+This project is licensed under the terms of the MIT license.
